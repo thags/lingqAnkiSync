@@ -1,5 +1,6 @@
 from aqt.qt import *
 from aqt import mw
+from aqt.operations import QueryOp
 from anki.utils import ids2str
 from anki.notes import Note
 from anki.cards import Card
@@ -11,6 +12,7 @@ from . import LingqApi
 # Anki note model name and fields
 MODEL_NAME = "Basic"
 NOTE_FIELDS = ["Front", "Back"]
+lingqs = []
 
 # Anki deck name
 DECK_NAME = "My LingQs"
@@ -86,12 +88,19 @@ class LingQImporter:
     def import_lingqs(self):
         api_key = self.api_key_field.text()
         user_id = self.user_id_field.text()
-        deck_name = self.deck_selector.currentText()
 
         # Get LingQ data
-        lingqs = LingqApi.getAllWords(api_key, "es")
+        op = QueryOp(
+            parent = mw,
+            op=lambda col: LingqApi.getAllWords(api_key, "es"),
+            success=self.CreateCards,
+        )
+        op.with_progress("Lingq import in progress, please wait.").run_in_background()
 
         # Import new LingQs into Anki
+        
+    def CreateCards(self, lingqs):
+        deck_name = self.deck_selector.currentText()
         for lingq in lingqs:
             word_key = lingq['term']
             #if word_key not in existing_word_keys:
@@ -100,7 +109,7 @@ class LingQImporter:
                 self.create_note(word_key, translation, deck_name)
             except Exception:
                 continue
-
+        mw.refreshProfilesList()
         showInfo("Import complete!")
 
 
