@@ -1,9 +1,7 @@
 from aqt.qt import *
 from aqt import mw
 from aqt.operations import QueryOp
-from anki.utils import ids2str
 from anki.notes import Note
-from anki.cards import Card
 from aqt.utils import showInfo
 
 from . import LingqApi
@@ -83,8 +81,6 @@ class LingQImporter:
         # Add note to collection
         mw.col.addNote(note)
 
-        return note
-
     def import_lingqs(self):
         api_key = self.api_key_field.text()
         user_id = self.user_id_field.text()
@@ -109,7 +105,7 @@ class LingQImporter:
                 self.create_note(word_key, translation, deck_name)
             except Exception:
                 continue
-        mw.refreshProfilesList()
+        mw.reset()
         showInfo("Import complete!")
 
 
