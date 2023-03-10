@@ -10,12 +10,11 @@ def getSinglePageResult(apiKey, url):
 def getAllWords(apiKey, languageCode):
     nextUrl = "https://www.lingq.com/api/v2/{}/cards".format(languageCode)
     lingqs = []
-    while (nextUrl != "null"):
+    while (nextUrl != None):
         words_response = getSinglePageResult(apiKey, nextUrl)
         words = words_response.json()['results']
         lingqs.extend(words)
         nextUrl = words_response.json()['next']
-        break
     return lingqs
 
 # def convertToLingqObjects(lingqsInJson):
@@ -40,7 +39,6 @@ def convertLingqsToAnkiCards(self):
         }
         cards.extend(card)
     return cards
-
 
 # create Anki cards for each word
 # for word in words:
