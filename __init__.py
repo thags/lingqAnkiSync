@@ -19,7 +19,6 @@ class LingQImporter:
     def __init__(self):
         action = QAction("Import LingQs from LingQ.com", mw)
         action.triggered.connect(lambda: LingQImporter().run())
-        #gui_hooks.main_window_did_init_menu_bar.append(lambda menuBar: menuBar.addAction(action))
         self.api_key_field = QLineEdit()
         self.user_id_field = QLineEdit()
         self.deck_selector = QComboBox()
@@ -67,19 +66,17 @@ class LingQImporter:
     #             existing_word_keys.add(note['Word Key'])
     #     return existing_word_keys
 
-    def create_note(self, word, translation, deck_id):
+    def create_note(self, word, translation, deckName):
         # Get note model
         model = mw.col.models.byName(MODEL_NAME)
         #deck = mw.col.decks.by_name(deckName)
         note = Note(mw.col, model)
         
-
         # Set note fields
         note["Front"] = word
         note["Back"] = translation
-        #note["Notes"] = notes
-        #note["photo"] = deckName
-        note.deckId = deck_id
+        deck_id = mw.col.decks.id(deckName)
+        note.model()['did'] = deck_id
 
         # Add note to collection
         mw.col.addNote(note)
@@ -90,7 +87,6 @@ class LingQImporter:
         api_key = self.api_key_field.text()
         user_id = self.user_id_field.text()
         deck_name = self.deck_selector.currentText()
-        #existing_word_keys = self.get_existing_word_keys(deck_name)
 
         # Get LingQ data
         lingqs = LingqApi.getAllWords(api_key, "es")
@@ -101,8 +97,7 @@ class LingQImporter:
             #if word_key not in existing_word_keys:
             try:
                 translation = lingq['hints'][0]['text']
-                deck_id = deck = mw.col.decks.by_name(deck_name)
-                self.create_note(word_key, translation, deck_id)
+                self.create_note(word_key, translation, deck_name)
             except Exception:
                 continue
 
