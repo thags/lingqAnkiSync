@@ -3,8 +3,7 @@ from aqt import mw
 from aqt.operations import QueryOp
 from anki.notes import Note
 from aqt.utils import showInfo
-
-from . import LingqApi
+from . import LingqApi, Config
 
 
 # Anki note model name and fields
@@ -15,12 +14,12 @@ lingqs = []
 # Anki deck name
 DECK_NAME = "My LingQs"
 
-class LingQImporter:
+class LingqAnkiSync:
     def __init__(self):
         action = QAction("Import LingQs from LingQ.com", mw)
         action.triggered.connect(lambda: LingQImporter().run())
         self.api_key_field = QLineEdit()
-        self.user_id_field = QLineEdit()
+        self.language_code_field = QLineEdit()
         self.deck_selector = QComboBox()
         self.button_box = QDialogButtonBox()
         self.button_box.addButton(QPushButton("Import"), QDialogButtonBox.AcceptRole)
@@ -31,18 +30,19 @@ class LingQImporter:
         self.dialog.setWindowTitle("Import LingQs from LingQ.com")
         self.dialog.setWindowModality(Qt.WindowModal)
 
-        # Create API key and user ID fields
-        self.api_key_field.setPlaceholderText("LingQ API Key")
-        self.user_id_field.setPlaceholderText("LingQ User ID")
+        self.language_code_field.setPlaceholderText("Language Code")
+        self.api_key_field.setPlaceholderText("API Key")
+        self.api_key_field.setText(Config.getApiKey())
+        self.language_code_field.setText(Config.getLanguageCode())
 
         # Create deck selector
         self.deck_selector.addItems(self.get_deck_names())
 
         # Create layout
         layout = QVBoxLayout()
-        layout.addWidget(QLabel("Enter LingQ API Key and User ID:"))
+        layout.addWidget(QLabel("Enter LingQ API Key:"))
         layout.addWidget(self.api_key_field)
-        layout.addWidget(self.user_id_field)
+        layout.addWidget(self.language_code_field)
         layout.addWidget(QLabel("Select deck to import LingQs into:"))
         layout.addWidget(self.deck_selector)
         layout.addWidget(self.button_box)
@@ -83,12 +83,14 @@ class LingQImporter:
 
     def import_lingqs(self):
         api_key = self.api_key_field.text()
-        user_id = self.user_id_field.text()
+        language_code = self.language_code_field.text()
+        Config.setApiKey(api_key)
+        Config.setLanguageCode(language_code)
 
         # Get LingQ data
         op = QueryOp(
             parent = mw,
-            op=lambda col: LingqApi.getAllWords(api_key, "es"),
+            op=lambda col: LingqApi.getAllWords(api_key, language_code),
             success=self.CreateCards,
         )
         op.with_progress("Lingq import in progress, please wait.").run_in_background()
@@ -111,5 +113,5 @@ class LingQImporter:
 
 # Add menu item
 action = QAction("Import LingQs from LingQ.com", mw)
-action.triggered.connect(lambda: LingQImporter().run())
+action.triggered.connect(lambda: LingqAnkiSync().run())
 mw.form.menuTools.addAction(action)
