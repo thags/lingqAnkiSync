@@ -4,7 +4,7 @@ from aqt import mw
 from anki.notes import Note
 
 
-def CreateNote(word, translation, lingqPk, deckName):
+def CreateNote(word, translation, lingqPk, dueDate, deckName):
     modelName = "LingqAnkiSync"
     noteFields = ["Front", "Back", "LingqPK"]
     CreateNoteTypeIfNotExist(modelName, noteFields, deckName)
@@ -17,10 +17,13 @@ def CreateNote(word, translation, lingqPk, deckName):
     note["Front"] = word
     note["Back"] = translation
     note["LingqPK"] = str(lingqPk)
+    #Set due date of note
+    
     deck_id = mw.col.decks.id(deckName)
     note.model()['did'] = deck_id
     # Add note to collection
     mw.col.addNote(note)
+    mw.col.sched.set_due_date([note.id], dueDate)
     
 def CreateNoteType(name: string, fields: array):
     model = mw.col.models.new(name)
@@ -41,3 +44,6 @@ def CreateNoteType(name: string, fields: array):
 def CreateNoteTypeIfNotExist(noteTypeName: string, noteFields: array, deckName: string):
     if not mw.col.models.byName(noteTypeName):
         CreateNoteType(noteTypeName, noteFields)
+        
+def GetAllCardsInDeck(deckName: string):
+    return mw.col.findNotes(f"deck:'{deckName}'")

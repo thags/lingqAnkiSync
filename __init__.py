@@ -2,8 +2,9 @@ from aqt.qt import *
 from aqt import mw
 from aqt.operations import QueryOp
 from anki.notes import Note
+from anki.cards import Card
 from aqt.utils import showInfo
-from . import LingqApi, Config, AnkiHandler
+from . import LingqApi, Config, AnkiHandler, Helpers
 
 # Anki note model name and fields
 MODEL_NAME = "Basic"
@@ -21,7 +22,7 @@ class LingqAnkiSync:
         self.language_code_field = QLineEdit()
         self.deck_selector = QComboBox()
         self.button_box = QDialogButtonBox()
-        self.button_box.addButton(QPushButton("Import"), QDialogButtonBox.AcceptRole)
+        self.button_box.addButton(QPushButton("Sync"), QDialogButtonBox.AcceptRole)
         self.button_box.addButton(QPushButton("Cancel"), QDialogButtonBox.RejectRole)
 
     def run(self):
@@ -57,13 +58,13 @@ class LingqAnkiSync:
     def get_deck_names(self):
         return mw.col.decks.all_names()
 
-    # def get_existing_word_keys(self, deck_name):
-    #     existing_word_keys = set()
-    #     for note_id in mw.col.findNotes(f"deck:'{deck_name}'"):
-    #         note = mw.col.getNote(note_id)
-    #         if 'LingQ URL:' in note['Notes']:
-    #             existing_word_keys.add(note['Word Key'])
-    #     return existing_word_keys
+    def get_existing_word_keys(deck_name):
+        existing_word_keys = {}
+        #Get all cards in deck
+        mw.col.find_cards(f"deck:'{deck_name}'")
+        Card().due
+        mw.col.get_card()
+        
 
     def create_note(self, word, translation, deckName):
         # Get note model
@@ -85,6 +86,10 @@ class LingqAnkiSync:
         language_code = self.language_code_field.text()
         Config.setApiKey(api_key)
         Config.setLanguageCode(language_code)
+        
+        # Set Linq status for each card
+        # existing_word_keys = self.get_existing_word_keys(deck_name)
+        
 
         # Get LingQ data
         op = QueryOp(
@@ -104,7 +109,8 @@ class LingqAnkiSync:
             if (len(lingq['hints']) > 0):
                 translation = lingq['hints'][0]['text']
             pk = lingq['pk']
-            AnkiHandler.CreateNote(word_key, translation, pk, deck_name)
+            dueDate = str(Helpers.convertLinqStatusToAnkiDueDate(lingq['status']))
+            AnkiHandler.CreateNote(word_key, translation, pk, dueDate, deck_name)
 
         mw.reset()
         showInfo("Import complete!")

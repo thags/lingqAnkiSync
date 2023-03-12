@@ -1,5 +1,5 @@
-import json
-import requests
+from datetime import datetime
+import requests, string
 
 def getSinglePageResult(apiKey, url):
     headers = {'Authorization': 'Token {}'.format(apiKey)}
@@ -15,40 +15,18 @@ def getAllWords(apiKey, languageCode):
         words = words_response.json()['results']
         lingqs.extend(words)
         nextUrl = words_response.json()['next']
+        break
     return lingqs
 
-# def convertToLingqObjects(lingqsInJson):
-#     convertedLinqs = []
-#     for lingq in lingqsInJson:
-#         converted = json.loads(lingq, object_hook=lambda lingq: SimpleNamespace(**lingq))
-#         convertedLinqs.extend(converted);
-#     return convertedLinqs
+#TODO
+# Make a converter to convert card interval to lingq status
+    # needs to handle if there is no interval
+    # needs to convert interval arbritarily to known status
+# Make api call to linq to update status
 
-def convertLingqsToAnkiCards(self):
-    cards = []
-    for lingq in self.lingqs:
-        # create a new Anki card with the word as the front and the definition as the back
-        print(lingq['words'][0])
-        card = {
-          'id': lingq['pk'],
-          'front': lingq['term'],
-          'back': lingq['hints'][0]['text'],
-          'status': lingq['status'],
-          'notes': lingq['notes'],
-          'sentence': lingq['fragment'],
-        }
-        cards.extend(card)
-    return cards
 
-# create Anki cards for each word
-# for word in words:
-#   # create a new Anki card with the word as the front and the definition as the back
-#   print(word['words'][0])
-#   card = {
-#     'id': word['pk'],
-#     'front': word['term'],
-#     'back': word['hints'][0]['text'],
-#     'status': word['status'],
-#     'notes': word['notes'],
-#     'sentence': word['fragment'],
-#   }
+def updateLingqStatus(lingqPrimaryKey, knownStatus, apiKey, languageCode):
+    headers = {'Authorization': 'Token {}'.format(apiKey)}
+    url = f"https://www.lingq.com/api/v2/{languageCode}/cards/{lingqPrimaryKey}"
+    response = requests.patch(url, headers=headers, data={'status': knownStatus})
+    response.raise_for_status()
