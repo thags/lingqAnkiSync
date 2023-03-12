@@ -5,12 +5,7 @@ from aqt.utils import showInfo
 from . import Config, LingqController, AnkiHandler
 
 # Anki note model name and fields
-MODEL_NAME = "Basic"
-NOTE_FIELDS = ["Front", "Back"]
 lingqs = []
-
-# Anki deck name
-DECK_NAME = "My LingQs"
 
 class LingqAnkiSync:
     def __init__(self):
@@ -19,9 +14,13 @@ class LingqAnkiSync:
         self.api_key_field = QLineEdit()
         self.language_code_field = QLineEdit()
         self.deck_selector = QComboBox()
-        self.button_box = QDialogButtonBox()
-        self.button_box.addButton(QPushButton("Sync"), QDialogButtonBox.AcceptRole)
-        self.button_box.addButton(QPushButton("Cancel"), QDialogButtonBox.RejectRole)
+        
+        self.import_button_box = QDialogButtonBox()
+        self.import_button_box.addButton(QPushButton("Import"), QDialogButtonBox.AcceptRole)
+        self.import_button_box.addButton(QPushButton("Cancel"), QDialogButtonBox.RejectRole)
+        
+        self.sync_button_box = QDialogButtonBox()
+        self.sync_button_box.addButton(QPushButton("Sync to Lingq"), QDialogButtonBox.AcceptRole)
 
     def run(self):
         self.dialog = QDialog(mw)
@@ -43,12 +42,14 @@ class LingqAnkiSync:
         layout.addWidget(self.language_code_field)
         layout.addWidget(QLabel("Select deck to import LingQs into:"))
         layout.addWidget(self.deck_selector)
-        layout.addWidget(self.button_box)
+        layout.addWidget(self.import_button_box)
+        layout.addWidget(self.sync_button_box)
         self.dialog.setLayout(layout)
 
         # Connect signals
-        self.button_box.accepted.connect(self.import_lingqs)
-        self.button_box.rejected.connect(self.dialog.reject)
+        self.import_button_box.accepted.connect(self.import_lingqs)
+        self.import_button_box.rejected.connect(self.dialog.reject)
+        self.sync_button_box.accepted.connect(self.SyncLingqs)
 
         # Show dialog
         self.dialog.exec_()
@@ -70,9 +71,28 @@ class LingqAnkiSync:
     def SuccesfulImport(self, importedLingqsCount):
         mw.reset()
         showInfo(f"Import complete on {importedLingqsCount} lingqs!")
-        #close the dialog
         self.dialog.close()
-
+        
+    def SyncLingqsBackground(self):
+        op = QueryOp(
+            parent = mw,
+            op=lambda col: self.SyncLingqs(),
+            success=self.SuccesfulSync,
+        )
+        op.with_progress("Sync to Lingq in progress, please wait.").run_in_background()
+        
+    def SyncLingqs(self):
+        cardsInDeck = AnkiHandler.GetAllCardsInDeck(self.deck_selector.currentText())
+        for cardId in cardsInDeck:
+            card = mw.col.get_card(cardId)
+            pk = AnkiHandler.GetPrimaryKeyFromCard(card)
+            interval = AnkiHandler.GetDueDateFromCard(card)
+            showInfo(f"Syncing {pk} with interval {interval}")
+            LingqController.SyncLingq(pk, self.api_key_field.text(), self.language_code_field.text(), interval)
+            
+    def SuccesfulSync(self, result):
+        showInfo("Sync complete!")
+        self.dialog.close()
 
 # Add menu item
 action = QAction("Import LingQs from LingQ.com", mw)

@@ -2,6 +2,8 @@ import array
 import string
 from aqt import mw
 from anki.notes import Note
+from anki.cards import Card
+
 
 
 def CreateNote(word, translation, lingqPk, dueDate, deckName):
@@ -46,7 +48,20 @@ def CreateNoteTypeIfNotExist(noteTypeName: string, noteFields: array, deckName: 
         CreateNoteType(noteTypeName, noteFields)
         
 def GetAllCardsInDeck(deckName: string):
-    return mw.col.findNotes(f"deck:'{deckName}'")
+    deck_id = mw.col.decks.id(deckName)
+    mw._selectedDeck = deck_id
+    return mw.col.findCards('deck:"{}"'.format(deckName))
 
 def GetAllDeckNames():
     return mw.col.decks.all_names()
+
+def GetPrimaryKeyFromCard(card):
+    return card.note()["LingqPK"]
+
+#Use the anki scheduler to get the due date of the given card
+def GetDueDateFromCard(card):
+    interval = mw.col.db.scalar("select ivl from cards where id = ?", card.id)
+    if (interval == None): return 0
+    return interval
+
+

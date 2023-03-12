@@ -1,17 +1,13 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
-statusToInterval = {0: 1, 1: 5, 2: 10, 3: 15, 4: 30}
+statusToInterval = {0: 0, 1: 5, 2: 10, 3: 20, 4: 40}
 
-def convertAnkiDueDateToLingqStatus(dueDateUnFormated: str) -> int:
-    dueDate = datetime.strptime(dueDateUnFormated, '%Y-%m-%d').date()
-    today = datetime.today().date()
-    interval = (dueDate - today).days
-    if interval < 0:
-        return 0
+def convertAnkiIntervalToLingqStatus(interval) -> int:
+    interval = int(interval)
     for key, value in statusToInterval.items():
         if interval <= value:
             return key
-    return 5
+    return 4
 
-def convertLinqStatusToAnkiDueDate(linqStatus: int) -> int:
-    return statusToInterval[linqStatus]
+def convertLinqStatusToAnkiDueDate(linqStatus: int) -> str:
+    return statusToInterval[int(linqStatus)]
