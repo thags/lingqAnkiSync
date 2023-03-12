@@ -32,10 +32,8 @@ class LingqAnkiSync:
         self.api_key_field.setText(Config.getApiKey())
         self.language_code_field.setText(Config.getLanguageCode())
 
-        # Create deck selector
         self.deck_selector.addItems(AnkiHandler.GetAllDeckNames())
 
-        # Create layout
         layout = QVBoxLayout()
         layout.addWidget(QLabel("Enter LingQ API Key:"))
         layout.addWidget(self.api_key_field)
@@ -46,12 +44,10 @@ class LingqAnkiSync:
         layout.addWidget(self.sync_button_box)
         self.dialog.setLayout(layout)
 
-        # Connect signals
         self.import_button_box.accepted.connect(self.import_lingqs)
         self.import_button_box.rejected.connect(self.dialog.reject)
         self.sync_button_box.accepted.connect(self.SyncLingqsBackground)
 
-        # Show dialog
         self.dialog.exec_()
 
     def import_lingqs(self):
@@ -60,7 +56,7 @@ class LingqAnkiSync:
         Config.setApiKey(api_key)
         Config.setLanguageCode(language_code)
         deckName = self.deck_selector.currentText()
-        # Get LingQ data
+
         op = QueryOp(
             parent = mw,
             op=lambda col: LingqController.ImportLingqs(api_key, language_code, deckName),
@@ -93,7 +89,6 @@ class LingqAnkiSync:
         showInfo("Sync complete!")
         self.dialog.close()
 
-# Add menu item
 action = QAction("Import LingQs from LingQ.com", mw)
 action.triggered.connect(lambda: LingqAnkiSync().run())
 mw.form.menuTools.addAction(action)

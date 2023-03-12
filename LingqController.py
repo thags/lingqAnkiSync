@@ -1,5 +1,4 @@
 from . import Helpers, AnkiHandler, LingqApi
-from aqt.utils import showInfo
 
 class Lingq:
     def __init__(self, primarykey, word, translation, status, extendedStatus):
