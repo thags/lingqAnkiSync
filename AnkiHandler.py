@@ -3,24 +3,22 @@ import string
 from aqt import mw
 from anki.notes import Note
 
-
-def CreateNote(word, translation, lingqPk, deckName):
+def CreateNote(word, translation, lingqPk, dueDate, deckName):
     modelName = "LingqAnkiSync"
     noteFields = ["Front", "Back", "LingqPK"]
     CreateNoteTypeIfNotExist(modelName, noteFields, deckName)
-    # Get note model
+    
     model = mw.col.models.byName(modelName)
-    #deck = mw.col.decks.by_name(deckName)
     note = Note(mw.col, model)
     
-    # Set note fields
     note["Front"] = word
     note["Back"] = translation
     note["LingqPK"] = str(lingqPk)
+    
     deck_id = mw.col.decks.id(deckName)
     note.model()['did'] = deck_id
-    # Add note to collection
     mw.col.addNote(note)
+    mw.col.sched.set_due_date([note.id], dueDate)
     
 def CreateNoteType(name: string, fields: array):
     model = mw.col.models.new(name)
@@ -36,8 +34,23 @@ def CreateNoteType(name: string, fields: array):
     mw.col.models.setCurrent(model)
     mw.col.models.save(model)
     return model
-    
-#check if note type already exists
+
 def CreateNoteTypeIfNotExist(noteTypeName: string, noteFields: array, deckName: string):
     if not mw.col.models.byName(noteTypeName):
         CreateNoteType(noteTypeName, noteFields)
+        
+def GetAllCardsInDeck(deckName: string):
+    deck_id = mw.col.decks.id(deckName)
+    mw._selectedDeck = deck_id
+    return mw.col.findCards('deck:"{}"'.format(deckName))
+
+def GetAllDeckNames():
+    return mw.col.decks.all_names()
+
+def GetPrimaryKeyFromCard(card):
+    return card.note()["LingqPK"]
+
+def GetDueDateFromCard(card):
+    interval = mw.col.db.scalar("select ivl from cards where id = ?", card.id)
+    if (interval == None): return 0
+    return interval
