@@ -1,4 +1,4 @@
-from . import Helpers, AnkiHandler, LingqApi
+import Helpers, AnkiHandler, LingqApi
 
 class Lingq:
     def __init__(self, primarykey, word, translation, status):
@@ -6,7 +6,6 @@ class Lingq:
         self.word = word
         self.translation = translation
         self.status = status
-        
 
 def CreateCardsFromLingqs(lingqs, deckName):
     for lingq in lingqs:
@@ -26,3 +25,7 @@ def ImportLingqs(apiKey, languageCode, deckName):
     lingqs = LingqApi.getAllWords(apiKey, languageCode)
     CreateCardsFromLingqs(lingqs, deckName)
     return len(lingqs)
+
+def SyncLingq(apiKey, languageCode, lingqPrimaryKey, dueDate):
+    knownStatus = Helpers.convertAnkiDueDateToLingqStatus(dueDate)
+    LingqApi.updateLingqStatus(lingqPrimaryKey, knownStatus, apiKey, languageCode)

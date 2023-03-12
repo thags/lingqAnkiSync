@@ -1,10 +1,8 @@
 from aqt.qt import *
 from aqt import mw
 from aqt.operations import QueryOp
-from anki.notes import Note
-from anki.cards import Card
 from aqt.utils import showInfo
-from . import Config, LingqController
+from . import Config, LingqController, AnkiHandler
 
 # Anki note model name and fields
 MODEL_NAME = "Basic"
@@ -36,7 +34,7 @@ class LingqAnkiSync:
         self.language_code_field.setText(Config.getLanguageCode())
 
         # Create deck selector
-        self.deck_selector.addItems(self.get_deck_names())
+        self.deck_selector.addItems(AnkiHandler.GetAllDeckNames())
 
         # Create layout
         layout = QVBoxLayout()
@@ -54,32 +52,6 @@ class LingqAnkiSync:
 
         # Show dialog
         self.dialog.exec_()
-
-    def get_deck_names(self):
-        return mw.col.decks.all_names()
-
-    def get_existing_word_keys(deck_name):
-        existing_word_keys = {}
-        #Get all cards in deck
-        mw.col.find_cards(f"deck:'{deck_name}'")
-        Card().due
-        mw.col.get_card()
-        
-
-    def create_note(self, word, translation, deckName):
-        # Get note model
-        model = mw.col.models.byName(MODEL_NAME)
-        #deck = mw.col.decks.by_name(deckName)
-        note = Note(mw.col, model)
-        
-        # Set note fields
-        note["Front"] = word
-        note["Back"] = translation
-        deck_id = mw.col.decks.id(deckName)
-        note.model()['did'] = deck_id
-
-        # Add note to collection
-        mw.col.addNote(note)
 
     def import_lingqs(self):
         api_key = self.api_key_field.text()

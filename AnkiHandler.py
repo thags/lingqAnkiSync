@@ -47,3 +47,6 @@ def CreateNoteTypeIfNotExist(noteTypeName: string, noteFields: array, deckName: 
         
 def GetAllCardsInDeck(deckName: string):
     return mw.col.findNotes(f"deck:'{deckName}'")
+
+def GetAllDeckNames():
+    return mw.col.decks.all_names()
