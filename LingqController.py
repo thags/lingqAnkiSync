@@ -15,6 +15,8 @@ def CreateCardsFromLingqs(lingqs, deckName):
         word = lingq['term']
         if (len(lingq['hints']) > 0):
             translation = lingq['hints'][0]['text']
+        else:
+            translation = " "
         status = lingq['status']
         extendedStatus = lingq['extended_status']
         lingq = Lingq(primaryKey, word, translation, status, extendedStatus)
@@ -23,7 +25,6 @@ def CreateCardsFromLingqs(lingqs, deckName):
 def CreateCardFromLingq(Lingq, deckName):
     if (Lingq.extendedStatus == 3 and Lingq.status == 3): Lingq.status = 4
     dueInterval = str(Helpers.convertLinqStatusToAnkiDueDate(Lingq.status))
-    if (Lingq.translation == None or Lingq.translation == ""): Lingq.translation = " "
     AnkiHandler.CreateNote(Lingq.word, Lingq.translation, Lingq.primaryKey, dueInterval, deckName)
     
 def ImportLingqs(apiKey, languageCode, deckName):
