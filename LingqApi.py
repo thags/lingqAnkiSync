@@ -15,7 +15,6 @@ def getAllWords(apiKey, languageCode):
         words = words_response.json()['results']
         lingqs.extend(words)
         nextUrl = words_response.json()['next']
-        break
     return lingqs
 
 def updateLingqStatus(lingqPrimaryKey, apiKey, languageCode, knownStatus):

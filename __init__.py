@@ -49,7 +49,7 @@ class LingqAnkiSync:
         # Connect signals
         self.import_button_box.accepted.connect(self.import_lingqs)
         self.import_button_box.rejected.connect(self.dialog.reject)
-        self.sync_button_box.accepted.connect(self.SyncLingqs)
+        self.sync_button_box.accepted.connect(self.SyncLingqsBackground)
 
         # Show dialog
         self.dialog.exec_()
@@ -87,7 +87,6 @@ class LingqAnkiSync:
             card = mw.col.get_card(cardId)
             pk = AnkiHandler.GetPrimaryKeyFromCard(card)
             interval = AnkiHandler.GetDueDateFromCard(card)
-            showInfo(f"Syncing {pk} with interval {interval}")
             LingqController.SyncLingq(pk, self.api_key_field.text(), self.language_code_field.text(), interval)
             
     def SuccesfulSync(self, result):

@@ -38,9 +38,7 @@ def SyncLingq(lingqPrimaryKey, apiKey, languageCode, interval):
     shouldUpdateLingq = ShouldUpdateLingqStatus(lingqPrimaryKey, knownStatus, apiKey, languageCode)
     if (shouldUpdateLingq == True):
         LingqApi.updateLingqStatus(lingqPrimaryKey, apiKey, languageCode, knownStatus)
-        showInfo(f"updated lingq status for {lingqPrimaryKey}")
     else:
-        showInfo(f"did not update lingq status for {lingqPrimaryKey}")
         return
 
 def ShouldUpdateLingqStatus(lingqPrimaryKey, knownStatus, apiKey, languageCode):
@@ -49,10 +47,8 @@ def ShouldUpdateLingqStatus(lingqPrimaryKey, knownStatus, apiKey, languageCode):
     if (lingqPrimaryKey == None or lingqPrimaryKey == ""): return False
     lingqCurrentStatus = LingqApi.getLingqStatus(lingqPrimaryKey, apiKey, languageCode)
     if (int(lingqCurrentStatus) < int(knownStatus)):
-        showInfo(f"lingq status is {lingqCurrentStatus} and known status is {knownStatus}")
         return True
     else:
-        showInfo(f"false: lingq status is {lingqCurrentStatus} and known status is {knownStatus}")
         return False
     
 
