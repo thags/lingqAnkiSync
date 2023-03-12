@@ -5,7 +5,7 @@ def getSinglePageResult(apiKey, url):
     headers = {'Authorization': 'Token {}'.format(apiKey)}
     words_response = requests.get(url, headers=headers)
     words_response.raise_for_status()  # raise an exception if the request was unsuccessful
-    return words_response;
+    return words_response
 
 def getAllWords(apiKey, languageCode):
     nextUrl = "https://www.lingq.com/api/v2/{}/cards".format(languageCode)
