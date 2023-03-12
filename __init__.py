@@ -5,7 +5,6 @@ from anki.notes import Note
 from aqt.utils import showInfo
 from . import LingqApi, Config, AnkiHandler
 
-
 # Anki note model name and fields
 MODEL_NAME = "Basic"
 NOTE_FIELDS = ["Front", "Back"]
