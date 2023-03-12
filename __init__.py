@@ -3,8 +3,7 @@ from aqt import mw
 from aqt.operations import QueryOp
 from anki.notes import Note
 from aqt.utils import showInfo
-from . import LingqApi, Config
-
+from . import LingqApi, Config, AnkiHandler
 
 # Anki note model name and fields
 MODEL_NAME = "Basic"
@@ -102,11 +101,11 @@ class LingqAnkiSync:
         for lingq in lingqs:
             word_key = lingq['term']
             #if word_key not in existing_word_keys:
-            try:
+            if (len(lingq['hints']) > 0):
                 translation = lingq['hints'][0]['text']
-                self.create_note(word_key, translation, deck_name)
-            except Exception:
-                continue
+            pk = lingq['pk']
+            AnkiHandler.CreateNote(word_key, translation, pk, deck_name)
+
         mw.reset()
         showInfo("Import complete!")
 
