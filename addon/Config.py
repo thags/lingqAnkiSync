@@ -1,17 +1,16 @@
 import string
 from aqt import mw
 
-def getConfig(fieldName: string):
+def getConfig(fieldName: string) -> str:
     config = mw.addonManager.getConfig(__name__)
     value = config[fieldName]
-    if (value == None or value == ""):
-        return str(fieldName)
+    if (value == None or value == ""): return ""
+    return str(value)
 
 def setConfig(fieldName: string, setTo: string):
-    if (setTo != getConfig(fieldName)):
-        config = mw.addonManager.getConfig(__name__)
-        config[fieldName] = setTo
-        mw.addonManager.writeConfig(__name__, config)
+    config = mw.addonManager.getConfig(__name__)
+    config[fieldName] = setTo
+    mw.addonManager.writeConfig(__name__, config)
 
 def getApiKey():
     return getConfig('apiKey')
