@@ -51,9 +51,6 @@ Lingq is a great tool for reading in your target language, but I prefer to use a
 4. The [lingq API documentation](https://www.lingq.com/apidocs/) is not very good. I want to document some of the undocumented API calls available. 
 
 
-## Current issues
-- Importing lingqs will create duplicate cards
-
 ## Future Goals:
 - Import to custom note type.
 - Allow user to define what interval relates to what lingq known status.
