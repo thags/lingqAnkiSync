@@ -63,11 +63,11 @@ class LingqAnkiSync:
             success=self.SuccesfulImport,
         )
         op.with_progress("Lingq import in progress, please wait.").run_in_background()
+        self.dialog.close()
         
     def SuccesfulImport(self, importedLingqsCount):
         mw.reset()
         showInfo(f"Import complete on {importedLingqsCount} lingqs!")
-        self.dialog.close()
         
     def SyncLingqsBackground(self):
         op = QueryOp(
@@ -76,6 +76,7 @@ class LingqAnkiSync:
             success=self.SuccesfulSync,
         )
         op.with_progress("Sync to Lingq in progress, please wait.").run_in_background()
+        self.dialog.close()
         
     def SyncLingqs(self):
         cardsInDeck = AnkiHandler.GetAllCardsInDeck(self.deck_selector.currentText())
@@ -87,7 +88,6 @@ class LingqAnkiSync:
             
     def SuccesfulSync(self, result):
         showInfo("Sync complete!")
-        self.dialog.close()
 
 action = QAction("Import LingQs from LingQ.com", mw)
 action.triggered.connect(lambda: LingqAnkiSync().run())
