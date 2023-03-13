@@ -1,0 +1,14 @@
+name: Create anki package
+
+on:
+  workflow_dispatch:
+  
+jobs:
+  zip-files:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Zip files
+      uses: vimtor/action-zip@v1.1
+      with:
+        files: addon/
+        dest: LingqAnkiSync.ankiaddon
