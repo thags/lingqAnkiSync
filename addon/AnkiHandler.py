@@ -21,10 +21,10 @@ def CreateNote(word, translation, lingqPk, dueDate, deckName):
     mw.col.addNote(note)
     mw.col.sched.set_due_date([note.id], dueDate)
     return True
-    
+
 def DoesDuplicateCardExistInDeck(lingqPk, deckName):
     return len(mw.col.findCards('deck:"{}" LingqPK:"{}"'.format(deckName, lingqPk))) > 0
-    
+
 def CreateNoteType(name: string, fields: array):
     model = mw.col.models.new(name)
     
@@ -43,7 +43,7 @@ def CreateNoteType(name: string, fields: array):
 def CreateNoteTypeIfNotExist(noteTypeName: string, noteFields: array, deckName: string):
     if not mw.col.models.byName(noteTypeName):
         CreateNoteType(noteTypeName, noteFields)
-        
+
 def GetAllCardsInDeck(deckName: string):
     deck_id = mw.col.decks.id(deckName)
     mw._selectedDeck = deck_id

@@ -24,7 +24,7 @@ def CreateCardsFromLingqs(lingqs, deckName) -> int:
             cardsCreated += 1
             
     return cardsCreated
-        
+
 def CreateCardFromLingq(Lingq, deckName):
     if (Lingq.extendedStatus == 3 and Lingq.status == 3): Lingq.status = 4
     dueInterval = str(Helpers.convertLinqStatusToAnkiDueDate(Lingq.status))
@@ -54,5 +54,4 @@ def ShouldUpdateLingqStatus(lingqPrimaryKey, knownStatus, apiKey, languageCode):
         return True
     else:
         return False
-    
 

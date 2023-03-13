@@ -4,9 +4,6 @@ from aqt.operations import QueryOp
 from aqt.utils import showInfo
 from . import Config, LingqController, AnkiHandler
 
-# Anki note model name and fields
-lingqs = []
-
 class LingqAnkiSync:
     def __init__(self):
         action = QAction("Import LingQs from LingQ.com", mw)
@@ -64,11 +61,11 @@ class LingqAnkiSync:
         )
         op.with_progress("Lingq import in progress, please wait.").run_in_background()
         self.dialog.close()
-        
+
     def SuccesfulImport(self, importedLingqsCount):
         mw.reset()
         showInfo(f"Import complete on {importedLingqsCount} lingqs!")
-        
+
     def SyncLingqsBackground(self):
         op = QueryOp(
             parent = mw,
@@ -77,7 +74,7 @@ class LingqAnkiSync:
         )
         op.with_progress("Sync to Lingq in progress, please wait.").run_in_background()
         self.dialog.close()
-        
+
     def SyncLingqs(self):
         cardsInDeck = AnkiHandler.GetAllCardsInDeck(self.deck_selector.currentText())
         for cardId in cardsInDeck:
@@ -85,7 +82,7 @@ class LingqAnkiSync:
             pk = AnkiHandler.GetPrimaryKeyFromCard(card)
             interval = AnkiHandler.GetDueDateFromCard(card)
             LingqController.SyncLingq(pk, self.api_key_field.text(), self.language_code_field.text(), interval)
-            
+
     def SuccesfulSync(self, result):
         showInfo("Sync complete!")
 

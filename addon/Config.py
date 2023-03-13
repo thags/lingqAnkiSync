@@ -17,7 +17,7 @@ def getApiKey():
 
 def setApiKey(setTo: string):
     setConfig('apiKey', setTo)
-    
+
 def getLanguageCode():
     return getConfig('languageCode')
 
