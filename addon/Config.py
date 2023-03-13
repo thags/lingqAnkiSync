@@ -3,7 +3,9 @@ from aqt import mw
 
 def getConfig(fieldName: string):
     config = mw.addonManager.getConfig(__name__)
-    return config[fieldName]
+    value = config[fieldName]
+    if (value == None or value == ""):
+        return str(fieldName)
 
 def setConfig(fieldName: string, setTo: string):
     if (setTo != getConfig(fieldName)):
