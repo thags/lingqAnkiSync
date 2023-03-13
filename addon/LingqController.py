@@ -8,7 +8,8 @@ class Lingq:
         self.status = status
         self.extendedStatus = extendedStatus
 
-def CreateCardsFromLingqs(lingqs, deckName):
+def CreateCardsFromLingqs(lingqs, deckName) -> int:
+    cardsCreated = 0
     for lingq in lingqs:
         primaryKey = lingq['pk']
         word = lingq['term']
@@ -19,17 +20,21 @@ def CreateCardsFromLingqs(lingqs, deckName):
         status = lingq['status']
         extendedStatus = lingq['extended_status']
         lingq = Lingq(primaryKey, word, translation, status, extendedStatus)
-        CreateCardFromLingq(lingq, deckName)
+        if (CreateCardFromLingq(lingq, deckName) == True):
+            cardsCreated += 1
+            
+    return cardsCreated
         
 def CreateCardFromLingq(Lingq, deckName):
     if (Lingq.extendedStatus == 3 and Lingq.status == 3): Lingq.status = 4
     dueInterval = str(Helpers.convertLinqStatusToAnkiDueDate(Lingq.status))
-    AnkiHandler.CreateNote(Lingq.word, Lingq.translation, Lingq.primaryKey, dueInterval, deckName)
+    didCreateCard = AnkiHandler.CreateNote(Lingq.word, Lingq.translation, Lingq.primaryKey, dueInterval, deckName)
+    return didCreateCard
     
 def ImportLingqs(apiKey, languageCode, deckName):
     lingqs = LingqApi.getAllWords(apiKey, languageCode)
-    CreateCardsFromLingqs(lingqs, deckName)
-    return len(lingqs)
+    cardsCreated = CreateCardsFromLingqs(lingqs, deckName)
+    return cardsCreated
 
 def SyncLingq(lingqPrimaryKey, apiKey, languageCode, interval):
     knownStatus = Helpers.convertAnkiIntervalToLingqStatus(interval)

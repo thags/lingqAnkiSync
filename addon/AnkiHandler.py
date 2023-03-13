@@ -4,6 +4,7 @@ from aqt import mw
 from anki.notes import Note
 
 def CreateNote(word, translation, lingqPk, dueDate, deckName):
+    if (DoesDuplicateCardExistInDeck(lingqPk, deckName)): return False
     modelName = "LingqAnkiSync"
     noteFields = ["Front", "Back", "LingqPK"]
     CreateNoteTypeIfNotExist(modelName, noteFields, deckName)
@@ -19,6 +20,10 @@ def CreateNote(word, translation, lingqPk, dueDate, deckName):
     note.model()['did'] = deck_id
     mw.col.addNote(note)
     mw.col.sched.set_due_date([note.id], dueDate)
+    return True
+    
+def DoesDuplicateCardExistInDeck(lingqPk, deckName):
+    return len(mw.col.findCards('deck:"{}" LingqPK:"{}"'.format(deckName, lingqPk))) > 0
     
 def CreateNoteType(name: string, fields: array):
     model = mw.col.models.new(name)
