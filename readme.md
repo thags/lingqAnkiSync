@@ -1,5 +1,3 @@
-[![Create anki package](https://github.com/thags/lingqAnkiSync/actions/workflows/main.yml/badge.svg)](https://github.com/thags/lingqAnkiSync/actions/workflows/main.yml)
-
 # Lingq Anki Sync
 
 ## Requirements
