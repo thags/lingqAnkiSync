@@ -2,7 +2,8 @@ from aqt.qt import *
 from aqt import mw
 from aqt.operations import QueryOp
 from aqt.utils import showInfo
-from . import Config, LingqController, AnkiHandler
+from . import LingqController, AnkiHandler
+from .Config import Config
 
 
 class LingqAnkiSync:
@@ -22,6 +23,7 @@ class LingqAnkiSync:
         self.sync_button_box = QDialogButtonBox()
         self.sync_button_box.addButton(QPushButton(
             "Sync to Lingq"), QDialogButtonBox.AcceptRole)
+        self.config = Config()
 
     def run(self):
         self.dialog = QDialog(mw)
@@ -30,8 +32,8 @@ class LingqAnkiSync:
 
         self.language_code_field.setPlaceholderText("Language Code")
         self.api_key_field.setPlaceholderText("API Key")
-        self.api_key_field.setText(Config.getApiKey())
-        self.language_code_field.setText(Config.getLanguageCode())
+        self.api_key_field.setText(self.config.getApiKey())
+        self.language_code_field.setText(self.config.getLanguageCode())
 
         self.deck_selector.addItems(AnkiHandler.GetAllDeckNames())
 
@@ -54,8 +56,8 @@ class LingqAnkiSync:
     def import_lingqs(self):
         api_key = self.api_key_field.text()
         language_code = self.language_code_field.text()
-        Config.setApiKey(api_key)
-        Config.setLanguageCode(language_code)
+        self.config.setApiKey(api_key)
+        self.config.setLanguageCode(language_code)
         deckName = self.deck_selector.currentText()
 
         op = QueryOp(
