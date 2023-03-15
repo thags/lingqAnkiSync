@@ -1,4 +1,3 @@
-import string
 from aqt import mw
 
 class Config:
@@ -7,25 +6,25 @@ class Config:
             mw.addonManager.getConfig(__name__) if (config is None) else config
         )
     
-    def getConfig(self, fieldName: string) -> str:
+    def GetConfig(self, fieldName: str) -> str:
         value = self.config[fieldName]
         return "" if value is None or value == "" else str(value)
 
-    def setConfig(self, fieldName: string, setTo: string):
+    def SetConfig(self, fieldName: str, setTo: str):
         self.config[fieldName] = setTo
         mw.addonManager.writeConfig(__name__, self.config)
 
-    def getApiKey(self):
-        return self.getConfig('apiKey')
+    def GetApiKey(self):
+        return self.GetConfig('apiKey')
 
-    def setApiKey(self, setTo: string):
-        self.setConfig('apiKey', setTo)
+    def SetApiKey(self, setTo: str):
+        self.SetConfig('apiKey', setTo)
 
-    def getLanguageCode(self):
-        return self.getConfig('languageCode')
+    def GetLanguageCode(self):
+        return self.GetConfig('languageCode')
 
-    def setLanguageCode(self, setTo: string):
-        self.setConfig('languageCode', setTo)
+    def SetLanguageCode(self, setTo: str):
+        self.SetConfig('languageCode', setTo)
         
-    def getStatusToInterval(self):
-        return self.getConfig('statusToInterval')
+    def GetStatusToInterval(self):
+        return self.GetConfig('statusToInterval')

@@ -2,11 +2,24 @@ import array
 import string
 from aqt import mw
 from anki.notes import Note
+from ..utils.Helpers import Helpers
 
+def CreateNotes(words, deckName):
+    notesCreated = 0
+    for word in words:
+        if (CreateNoteWithInterval(
+            word["word"],
+            word["translation"],
+            word["pk"],
+            word["interval"],
+            deckName) == True):
+            notesCreated += 1
+    return notesCreated
 
-def CreateNote(word, translation, lingqPk, dueDate, deckName):
+def CreateNoteWithInterval(word, translation, lingqPk, interval, deckName):
     if (DoesDuplicateCardExistInDeck(lingqPk, deckName)):
         return False
+    dueDate = Helpers().convertLinqStatusToAnkiDueDate(interval)
     modelName = "LingqAnkiSync"
     noteFields = ["Front", "Back", "LingqPK"]
     CreateNoteTypeIfNotExist(modelName, noteFields, deckName)
@@ -55,6 +68,8 @@ def GetAllCardsInDeck(deckName: string):
     mw._selectedDeck = deck_id
     return mw.col.findCards(f'deck:"{deckName}"')
 
+def GetAllLingqsInDeck(deckName: string):
+    return Helpers.ConvertAnkiCardsToLingqs(GetAllCardsInDeck(deckName))
 
 def GetAllDeckNames():
     return mw.col.decks.all_names()

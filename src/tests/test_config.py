@@ -24,3 +24,7 @@ def test_GetEmptyLanguageCode():
 def test_GetNoneLanguageCode():
     config = Config({"languageCode": None})
     assert config.getLanguageCode() == ""
+    
+def test_GetStatusToInterval():
+    config = Config({"statusToInterval": "{0: 0, 1: 5, 2: 10, 3: 20, 4: 40}"})
+    assert config.getStatusToInterval() == "{0: 0, 1: 5, 2: 10, 3: 20, 4: 40}"
