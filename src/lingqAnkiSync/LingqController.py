@@ -1,4 +1,5 @@
-from . import Helpers, AnkiHandler, LingqApi
+from . import AnkiHandler, LingqApi
+from .Helpers import Helpers
 
 
 class Lingq:
@@ -29,7 +30,7 @@ def CreateCardsFromLingqs(lingqs, deckName) -> int:
 def CreateCardFromLingq(Lingq, deckName):
     if (Lingq.extendedStatus == 3 and Lingq.status == 3):
         Lingq.status = 4
-    dueInterval = str(Helpers.convertLinqStatusToAnkiDueDate(Lingq.status))
+    dueInterval = str(Helpers().convertLinqStatusToAnkiDueDate(Lingq.status))
     return AnkiHandler.CreateNote(
         Lingq.word, Lingq.translation, Lingq.primaryKey, dueInterval, deckName
     )
@@ -41,7 +42,7 @@ def ImportLingqs(apiKey, languageCode, deckName):
 
 
 def SyncLingq(lingqPrimaryKey, apiKey, languageCode, interval):
-    knownStatus = Helpers.convertAnkiIntervalToLingqStatus(interval)
+    knownStatus = Helpers().convertAnkiIntervalToLingqStatus(interval)
     if (knownStatus < 0):
         return
     shouldUpdateLingq = ShouldUpdateLingqStatus(
