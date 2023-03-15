@@ -4,22 +4,21 @@ from aqt import mw
 from anki.notes import Note
 from ..utils.Helpers import Helpers
 
-def CreateNotes(words, deckName):
+def CreateNotesWithInterval(words, deckName):
     notesCreated = 0
     for word in words:
-        if (CreateNoteWithInterval(
-            word["word"],
-            word["translation"],
-            word["pk"],
-            word["interval"],
+        if (CreateNoteWithInvterval(
+            word["Word"],
+            word["Translation"],
+            word["PrimaryKey"],
+            word["Interval"],
             deckName) == True):
             notesCreated += 1
     return notesCreated
 
-def CreateNoteWithInterval(word, translation, lingqPk, interval, deckName):
+def CreateNoteWithInvterval(word, translation, lingqPk, dueDate, deckName):
     if (DoesDuplicateCardExistInDeck(lingqPk, deckName)):
         return False
-    dueDate = Helpers().convertLinqStatusToAnkiDueDate(interval)
     modelName = "LingqAnkiSync"
     noteFields = ["Front", "Back", "LingqPK"]
     CreateNoteTypeIfNotExist(modelName, noteFields, deckName)
@@ -34,7 +33,7 @@ def CreateNoteWithInterval(word, translation, lingqPk, interval, deckName):
     deck_id = mw.col.decks.id(deckName)
     note.model()['did'] = deck_id
     mw.col.addNote(note)
-    mw.col.sched.set_due_date([note.id], dueDate)
+    mw.col.sched.set_due_date([note.id], str(dueDate))
     return True
 
 
@@ -66,18 +65,22 @@ def CreateNoteTypeIfNotExist(noteTypeName: string, noteFields: array, deckName: 
 def GetAllCardsInDeck(deckName: string):
     deck_id = mw.col.decks.id(deckName)
     mw._selectedDeck = deck_id
-    return mw.col.findCards(f'deck:"{deckName}"')
+    cards = []
+    cardIds = mw.col.findCards(f'deck:"{deckName}"')
+    for cardId in cardIds:
+        card = mw.col.get_card(cardId)
+        cards.append(card)
+    return cards
+        
 
 def GetAllLingqsInDeck(deckName: string):
-    return Helpers.ConvertAnkiCardsToLingqs(GetAllCardsInDeck(deckName))
+    return Helpers().ConvertAnkiCardsToLingqs(GetAllCardsInDeck(deckName))
 
 def GetAllDeckNames():
     return mw.col.decks.all_names()
 
-
 def GetPrimaryKeyFromCard(card):
     return card.note()["LingqPK"]
-
 
 def GetDueDateFromCard(card):
     interval = mw.col.db.scalar("select ivl from cards where id = ?", card.id)

@@ -1,8 +1,9 @@
 #statusToInterval = {0: 0, 1: 5, 2: 10, 3: 20, 4: 40}
 from ..Lingq.src.LingqModel import Lingq
+from datetime import datetime
 
 class Helpers:
-    def __init__(self, statusToInverval=None):
+    def __init__(self, statusToInverval={0: 0, 1: 5, 2: 10, 3: 20, 4: 40}):
         if statusToInverval is None:
             from .Config import Config
             self.config = Config()
@@ -17,15 +18,27 @@ class Helpers:
             4,
         )
 
-    def convertLinqStatusToAnkiDueDate(self, linqStatus: int) -> str:
+    def convertLinqStatusToAnkiInterval(self, linqStatus: int) -> str:
         return self.statusToInverval[linqStatus]
     
     def ConvertAnkiCardToLingq(self, ankiCard) -> Lingq:
         return Lingq(
-            ankiCard['note']['fields']['LingqPrimaryKey'], 
-            ankiCard['note']['fields']['Word'], 
-            ankiCard['note']['fields']['Translation'], 
-            self.convertAnkiIntervalToLingqStatus(ankiCard['due']))
+            ankiCard.note()["LingqPK"],
+            ankiCard.note()["Front"],
+            ankiCard.note()["Back"],
+            self.convertAnkiIntervalToLingqStatus(ankiCard.ivl))
         
     def ConvertAnkiCardsToLingqs(self, ankiCards) -> list:
         return [self.ConvertAnkiCardToLingq(ankiCard) for ankiCard in ankiCards]
+    
+    def ConvertLingqsToAnkiCards(self, lingqs) -> list:
+        return [self.ConvertLingqToAnkiCard(lingq) for lingq in lingqs]
+    
+    def ConvertLingqToAnkiCard(self, lingq) -> dict:
+        return {
+            "PrimaryKey": lingq.primaryKey,
+            "Word": lingq.word,
+            "Translation": lingq.translation,
+            "Status": lingq.status,
+            "Interval": self.convertLinqStatusToAnkiInterval(lingq.status)
+        }

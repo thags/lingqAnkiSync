@@ -1,17 +1,20 @@
 from ..Lingq.LingqController import LingqController
 from ..utils.Config import Config
 from ..Anki import AnkiHandler
+from ..utils.Helpers import Helpers
 
 class ActionHandler:
     def __init__(self):
         self.config = Config()
+        self.helpers = Helpers()
 
     def ImportLingqsToAnki(self, deckName) -> int:
         apiKey = self.GetApiKey()
         languageCode = self.GetLanguageCode()
         lingqController = LingqController(apiKey, languageCode)
         lingqs = lingqController.GetFormattedLingqs()
-        return AnkiHandler.CreateNotes(lingqs, deckName)
+        cardItemsFromLingqs = self.helpers.ConvertLingqsToAnkiCards(lingqs)
+        return AnkiHandler.CreateNotesWithInterval(cardItemsFromLingqs, deckName)
     
     def SyncLingqStatusToLingq(self, deckName) -> int:
         apiKey = self.config.GetApiKey()
