@@ -2,8 +2,10 @@ from aqt.qt import *
 from aqt import mw
 from aqt.operations import QueryOp
 from aqt.utils import showInfo
-from . import LingqController, AnkiHandler
-from .Config import Config
+
+from .Lingq import LingqController
+from .Anki import AnkiHandler
+from .utils.Config import Config
 
 
 class LingqAnkiSync:

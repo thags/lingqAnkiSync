@@ -1,5 +1,6 @@
-from . import AnkiHandler, LingqApi
-from .Helpers import Helpers
+from . import LingqApi
+from ..Anki import AnkiHandler
+from ..utils.Helpers import Helpers
 
 
 class Lingq:
