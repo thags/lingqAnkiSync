@@ -54,9 +54,7 @@ class UI:
         self.dialog.exec_()
 
     def import_lingqs(self):
-        api_key = self.api_key_field.text()
-        language_code = self.language_code_field.text()
-        self.actionHandler.SetConfigs(api_key, language_code)
+        self.configSet()
         deckName = self.deck_selector.currentText()
         op = QueryOp(
             parent=mw,
@@ -70,11 +68,14 @@ class UI:
     def SuccesfulImport(self, importedLingqsCount):
         mw.reset()
         showInfo(f"Import complete on {importedLingqsCount} lingqs!")
-
-    def SyncLingqsBackground(self):
+        
+    def configSet(self):
         api_key = self.api_key_field.text()
         language_code = self.language_code_field.text()
         self.actionHandler.SetConfigs(api_key, language_code)
+
+    def SyncLingqsBackground(self):
+        self.configSet()
         deckName = self.deck_selector.currentText()
         op = QueryOp(
             parent=mw,
