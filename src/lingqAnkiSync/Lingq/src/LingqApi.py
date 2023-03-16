@@ -6,7 +6,7 @@ class LingqAPI:
         self.apiKey = apiKey
         self.languageCode = languageCode
         self.baseUrl = f"https://www.lingq.com/api/v2/{languageCode}/cards"
-        
+    
     def getSinglePageResult(self, url):
         headers = {'Authorization': f'Token {self.apiKey}'}
         words_response = requests.get(url, headers=headers)
@@ -33,7 +33,7 @@ class LingqAPI:
         response = requests.patch(url, headers=headers, data={
                                   "status": lingq.status, "extended_status": lingq.extendedStatus})
         response.raise_for_status()
-
+    
     def getLingqStatus(self, lingqPrimaryKey):
         url = f"{self.baseUrl}/{lingqPrimaryKey}/"
         response = self.getSinglePageResult(url)

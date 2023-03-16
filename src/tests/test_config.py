@@ -1,6 +1,5 @@
 from utils.Config import Config
 
-
 def test_getApiKey():
     config = Config({"apiKey": "testApiKey"})
     assert config.GetApiKey() == "testApiKey"

@@ -26,7 +26,7 @@ class ActionHandler:
     def SetConfigs(self, apiKey, languageCode):
         self.config.SetApiKey(apiKey)
         self.config.SetLanguageCode(languageCode)
-        
+    
     def GetDeckNames(self) -> list:
         return AnkiHandler.GetAllDeckNames()
     

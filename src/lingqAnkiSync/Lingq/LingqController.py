@@ -5,7 +5,7 @@ class LingqController:
     def __init__(self, apiKey, languageCode):
         self.apiKey = apiKey
         self.languageCode = languageCode
-        
+    
     def GetFormattedLingqs(self):
         lingqImporter = LingqImporter(self.apiKey, self.languageCode)
         UnformattedLingqs = lingqImporter.GetLingqs()
