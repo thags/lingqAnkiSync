@@ -1,4 +1,4 @@
-from aqt.qt import *
+from aqt.qt import QLineEdit, QComboBox, QPushButton, QAction, QDialogButtonBox, QDialog, QVBoxLayout, QLabel, Qt
 from aqt import mw
 from aqt.operations import QueryOp
 from aqt.utils import showInfo

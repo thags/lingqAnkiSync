@@ -25,40 +25,40 @@ After importing your API key and language code should be preserved for the next 
 
 ## What does it currently do?
 As the name implies the goal is to sync between lingq and anki. This addon is currently in early development, but it has the following features:
-- Import lingq's from a specified language to anki cards
-  - This will also set the due date of the anki card based on the "known status" in Lingq. 
-    - The current status to interval definition is: {0: 0, 1: 5, 2: 10, 3: 20, 4: 40}
-    - Lingq status : Interval (due date will be current day + interval)
-    - 1 : 0
-    - 2 : 5
-    - 3 : 10
-    - 4 : 20
-    - 'known' : 40
+  - Import lingq's from a specified language to anki cards
+    - This will also set the due date of the anki card based on the "known status" in Lingq. 
+      - The current status to interval definition is: {0: 0, 1: 5, 2: 10, 3: 20, 4: 40}
+      - Lingq status : Interval (due date will be current day + interval)
+      - 1 : 0
+      - 2 : 5
+      - 3 : 10
+      - 4 : 20
+      - 'known' : 40
   - Cards are rudimentary currently, just the word on the front and the translation on the back.
   - You can modify the look of the card, but the fields that are generated are required and can not be altered at this time.
-- Sync lingq status based on the interval of the anki card.
-  - This will update your known status on lingq. 
-  - This uses the reverse of the lingq status : interval shown above. 
-  - For example, if your card interval is 21, then it will set your lingq status as 4
-  - There is a built in check, it will never lower your lingq status.
-    - This is done as a precaution to not remove lingq progress
+  - Sync lingq status based on the interval of the anki card.
+    - This will update your known status on lingq. 
+    - This uses the reverse of the lingq status : interval shown above. 
+    - For example, if your card interval is 21, then it will set your lingq status as 4
+    - There is a built in check, it will never lower your lingq status.
+      - This is done as a precaution to not remove lingq progress
 
 ## Why does it exist?
 Lingq is a great tool for reading in your target language, but I prefer to use anki as my SRS. Lingq has an option to export lingqs to anki, however it has some flaws which this addon attempts to address:
-1. The cards it sends you have no history, they all start as a "new" status in anki even if your lingq status for the card was "known".
-2. There is no syncing between anki and lingq. If I import a card from lingq that has a known status of "1", then review it in anki until I know the word, lingq will not update. This means I wouldn't get an accurate % words known when looking at lingq lessons and it breaks the flow to mark an already known word as known in lingq manually. The reverse is also true, if I start reading on lingq and mark a word as known, that word could still be shown as new in anki.
-3. If you add a new lingq you have to create a full new anki export via the lingq website. Sometimes anki decks don't merge well, so you could lose progress in anki just to import a new word from lingq.
-4. The [lingq API documentation](https://www.lingq.com/apidocs/) is not very good. I want to document some of the undocumented API calls available. 
+  1. The cards it sends you have no history, they all start as a "new" status in anki even if your lingq status for the card was "known".
+  2. There is no syncing between anki and lingq. If I import a card from lingq that has a known status of "1", then review it in anki until I know the word, lingq will not update. This means I wouldn't get an accurate % words known when looking at lingq lessons and it breaks the flow to mark an already known word as known in lingq manually. The reverse is also true, if I start reading on lingq and mark a word as known, that word could still be shown as new in anki.
+  3. If you add a new lingq you have to create a full new anki export via the lingq website. Sometimes anki decks don't merge well, so you could lose progress in anki just to import a new word from lingq.
+  4. The [lingq API documentation](https://www.lingq.com/apidocs/) is not very good. I want to document some of the undocumented API calls available. 
 
 
 ## Future Goals:
-- Import to custom note type.
-- Allow user to define what interval relates to what lingq known status.
-- Sync lingq status to anki
-- Better error catching and handling
-- Save settings for each language synced with lingq (what deck, note type, etc)
-- Allow to "sign in" with username and password instead of needing to copy / paste API key
-- Allow to remember api key / credentials or need to enter them each time
+  - Import to custom note type.
+  - Allow user to define what interval relates to what lingq known status.
+  - Sync lingq status to previously imported lingqs
+  - Better error catching and handling
+  - Save settings for each language synced with lingq (what deck, note type, etc)
+  - Allow to "sign in" with username and password instead of needing to copy / paste API key
+
 
 
 ## Lingq API Documentation
