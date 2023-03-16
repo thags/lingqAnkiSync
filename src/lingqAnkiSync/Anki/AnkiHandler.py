@@ -36,10 +36,8 @@ def CreateNoteWithInvterval(word, translation, lingqPk, dueDate, deckName):
     mw.col.sched.set_due_date([note.id], str(dueDate))
     return True
 
-
 def DoesDuplicateCardExistInDeck(lingqPk, deckName):
     return len(mw.col.findCards(f'deck:"{deckName}" LingqPK:"{lingqPk}"')) > 0
-
 
 def CreateNoteType(name: string, fields: array):
     model = mw.col.models.new(name)
@@ -56,11 +54,9 @@ def CreateNoteType(name: string, fields: array):
     mw.col.models.save(model)
     return model
 
-
 def CreateNoteTypeIfNotExist(noteTypeName: string, noteFields: array, deckName: string):
     if not mw.col.models.byName(noteTypeName):
         CreateNoteType(noteTypeName, noteFields)
-
 
 def GetAllCardsInDeck(deckName: string):
     deck_id = mw.col.decks.id(deckName)
@@ -71,8 +67,7 @@ def GetAllCardsInDeck(deckName: string):
         card = mw.col.get_card(cardId)
         cards.append(card)
     return cards
-        
-
+    
 def GetAllLingqsInDeck(deckName: string):
     return Helpers().ConvertAnkiCardsToLingqs(GetAllCardsInDeck(deckName))
 
