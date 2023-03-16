@@ -1,5 +1,4 @@
 import requests
-from .LingqModel import Lingq
 
 class LingqAPI:
     def __init__(self, apiKey, languageCode):
@@ -23,17 +22,17 @@ class LingqAPI:
             nextUrl = words_response.json()['next']
         return lingqs
 
-    def updateLingqStatus(self, lingq: Lingq):
-        if (lingq.extendedStatus is None): lingq.extendedStatus = 0
-        if (lingq.status == 4):
-            lingq.extendedStatus = 3
-            lingq.status = 3
+    def updateLingqStatus(self, lingq):
+        if (lingq["extendedStatus"] is None): lingq["extendedStatus"] = 0
+        if (lingq["status"] == 4):
+            lingq["extendedStatus"] = 3
+            lingq["status"] = 3
         headers = {"Authorization": f"Token {self.apiKey}"}
         url = f"{self.baseUrl}/{lingq.primaryKey}/"
         response = requests.patch(url, headers=headers, data={
-                                  "status": lingq.status, "extended_status": lingq.extendedStatus})
+                                  "status": lingq["status"], "extended_status": lingq["extendedStatus"]})
         response.raise_for_status()
-    
+
     def getLingqStatus(self, lingqPrimaryKey):
         url = f"{self.baseUrl}/{lingqPrimaryKey}/"
         response = self.getSinglePageResult(url)
