@@ -17,3 +17,4 @@ class Helpers:
     
     def convertLinqStatusToAnkiInterval(self, linqStatus: int) -> str:
         return self.statusToInverval[linqStatus]
+    

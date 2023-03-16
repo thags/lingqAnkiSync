@@ -2,7 +2,6 @@ import array
 import string
 from aqt import mw
 from anki.notes import Note
-from ..utils.Helpers import Helpers
 
 def CreateNotesWithInterval(words, deckName):
     notesCreated = 0
@@ -16,7 +15,7 @@ def CreateNotesWithInterval(words, deckName):
             notesCreated += 1
     return notesCreated
 
-def CreateNoteWithInvterval(word, translation, lingqPk, dueDate, deckName):
+def CreateNoteWithInvterval(word, translation, lingqPk, interval, deckName):
     if (DoesDuplicateCardExistInDeck(lingqPk, deckName)):
         return False
     modelName = "LingqAnkiSync"
@@ -33,7 +32,7 @@ def CreateNoteWithInvterval(word, translation, lingqPk, dueDate, deckName):
     deck_id = mw.col.decks.id(deckName)
     note.model()['did'] = deck_id
     mw.col.addNote(note)
-    mw.col.sched.set_due_date([note.id], str(dueDate))
+    mw.col.sched.set_due_date([note.id], str(interval))
     return True
 
 def DoesDuplicateCardExistInDeck(lingqPk, deckName):
@@ -68,8 +67,8 @@ def GetAllCardsInDeck(deckName: string):
         cards.append(card)
     return cards
     
-def GetAllLingqsInDeck(deckName: string):
-    return Helpers().ConvertAnkiCardsToLingqs(GetAllCardsInDeck(deckName))
+def GetAllObjectsInDeck(deckName: string):
+    return ConvertAnkiCardsToObjects(GetAllCardsInDeck(deckName))
 
 def GetAllDeckNames():
     return mw.col.decks.all_names()
@@ -80,3 +79,14 @@ def GetPrimaryKeyFromCard(card):
 def GetDueDateFromCard(card):
     interval = mw.col.db.scalar("select ivl from cards where id = ?", card.id)
     return 0 if interval is None else interval
+
+def ConvertAnkiCardsToObjects(cards):
+    return [
+        {
+            "PrimaryKey": GetPrimaryKeyFromCard(card),
+            "Word": card.note()["Front"],
+            "Translation": card.note()["Back"],
+            "Interval": GetDueDateFromCard(card),
+        }
+        for card in cards
+    ]

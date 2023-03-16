@@ -1,10 +1,6 @@
-from .LingqApi import LingqAPI
-
 class LingqSyncer:
-    def __init__(self, apiKey, languageCode):
-        self.apiKey = apiKey
-        self.languageCode = languageCode
-        self.lingqApi = LingqAPI(apiKey, languageCode)
+    def __init__(self, LingqApi):
+        self.lingqApi = LingqApi
     
     def ShouldUpdateLingqStatus(self, primarykey, newStatus) -> bool:
         lingqCurrentStatus = self.lingqApi.getLingqStatus(primarykey)
@@ -13,7 +9,7 @@ class LingqSyncer:
     def SyncLingqs(self, lingqs) -> int:
         numberOfLingqsUpdated = 0
         for lingq in lingqs:
-            if (self.ShouldUpdateLingqStatus(lingq.primaryKey, lingq.status) == True):
+            if (self.ShouldUpdateLingqStatus(lingq["PrimaryKey"], lingq["Interval"]) == True):
                 self.lingqApi.updateLingqStatus(lingq)
                 numberOfLingqsUpdated += 1
         return numberOfLingqsUpdated

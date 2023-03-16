@@ -1,8 +1,8 @@
 from .LingqApi import LingqAPI
 
 class LingqImporter:
-    def __init__(self, apiKey, languageCode):
-        self.LingqApi = LingqAPI(apiKey, languageCode)
+    def __init__(self, LingqApi):
+        self.LingqApi = LingqApi
 
     def FormatLingqs(self, lingqs):
         return [

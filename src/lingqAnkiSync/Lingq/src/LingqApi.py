@@ -28,7 +28,8 @@ class LingqAPI:
             lingq["extendedStatus"] = 3
             lingq["status"] = 3
         headers = {"Authorization": f"Token {self.apiKey}"}
-        url = f"{self.baseUrl}/{lingq.primaryKey}/"
+        pk = lingq["PrimaryKey"]
+        url = f"{self.baseUrl}/{pk}/"
         response = requests.patch(url, headers=headers, data={
                                   "status": lingq["status"], "extended_status": lingq["extendedStatus"]})
         response.raise_for_status()

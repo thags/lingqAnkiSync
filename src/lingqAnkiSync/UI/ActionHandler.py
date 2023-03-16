@@ -19,7 +19,7 @@ class ActionHandler:
         apiKey = self.config.GetApiKey()
         languageCode = self.config.GetLanguageCode()
         lingqController = LingqController(apiKey, languageCode)
-        lingqsInDeck = AnkiHandler.GetAllLingqsInDeck(deckName)
+        lingqsInDeck = AnkiHandler.GetAllObjectsInDeck(deckName)
         return lingqController.SyncLingqs(lingqsInDeck)
 
     def SetConfigs(self, apiKey, languageCode):
