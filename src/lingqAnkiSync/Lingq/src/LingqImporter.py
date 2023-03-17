@@ -1,5 +1,3 @@
-from .LingqApi import LingqAPI
-
 class LingqImporter:
     def __init__(self, LingqApi):
         self.LingqApi = LingqApi

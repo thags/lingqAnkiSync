@@ -1,10 +1,7 @@
-from aqt import mw
-
 class Config:
-    def __init__(self, config=None):
-        self.config = (
-            mw.addonManager.getConfig(__name__) if (config is None) else config
-        )
+    def __init__(self, addonManager):
+        self.addonManager = addonManager
+        self.config = self.addonManager.getConfig(__name__)
     
     def GetConfig(self, fieldName: str) -> str:
         value = self.config[fieldName]
@@ -12,7 +9,7 @@ class Config:
     
     def SetConfig(self, fieldName: str, setTo: str):
         self.config[fieldName] = setTo
-        mw.addonManager.writeConfig(__name__, self.config)
+        self.addonManager.writeConfig(__name__, self.config)
 
     def GetApiKey(self):
         return self.GetConfig('apiKey')

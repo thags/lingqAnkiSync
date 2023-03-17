@@ -23,7 +23,7 @@ class UI:
         self.sync_button_box = QDialogButtonBox()
         self.sync_button_box.addButton(QPushButton(
             "Sync to Lingq"), QDialogButtonBox.AcceptRole)
-        self.actionHandler = ActionHandler()
+        self.actionHandler = ActionHandler(mw.addonManager)
 
     def run(self):
         self.dialog = QDialog(mw)

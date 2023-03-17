@@ -1,12 +1,10 @@
 from ..Lingq.LingqController import LingqController
 from ..utils.Config import Config
 from ..Anki import AnkiHandler
-from ..utils.Helpers import Helpers
 
 class ActionHandler:
-    def __init__(self):
-        self.config = Config()
-        self.helpers = Helpers()
+    def __init__(self, addonManager):
+        self.config = Config(addonManager)
 
     def ImportLingqsToAnki(self, deckName) -> int:
         apiKey = self.GetApiKey()
