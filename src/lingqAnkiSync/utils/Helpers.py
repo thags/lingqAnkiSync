@@ -1,4 +1,5 @@
 defaultStatusToInterval = {0: 0, 1: 5, 2: 10, 3: 20, 4: 40}
+
 class Helpers:
     def __init__(self, statusToInverval=defaultStatusToInterval):
         if statusToInverval is None:
@@ -17,4 +18,3 @@ class Helpers:
     
     def convertLinqStatusToAnkiInterval(self, linqStatus: int) -> str:
         return self.statusToInverval[linqStatus]
-    

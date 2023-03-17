@@ -1,20 +1,24 @@
+from ...Models.Lingq import Lingq
+import json
+
 class LingqImporter:
     def __init__(self, LingqApi):
         self.LingqApi = LingqApi
 
-    def FormatLingqs(self, lingqs):
-        return [
-            {
-                "PrimaryKey": lingq['pk'],
-                "Word": lingq['term'],
-                "Translation": lingq['hints'][0]['text']
+    def FormatLingqs(self, jsonLingqs: json) -> list[Lingq]:
+        formattedLingqs = []
+        for lingq in jsonLingqs:
+            formattedLingq = Lingq(
+                lingq['pk'],
+                lingq['term'],
+                lingq['hints'][0]['text']
                     if (len(lingq['hints']) > 0)
                     else " ",
-                "Interval": lingq['status'],
-                "ExtendedStatus": lingq['extended_status'],
-            }
-            for lingq in lingqs
-        ]
+                lingq['status'],
+                lingq['extended_status']
+            )
+            formattedLingqs.append(formattedLingq)
+        return formattedLingqs
     
-    def GetLingqs(self):
-        return self.LingqApi.getAllWords()
+    def GetFormattedLingqs(self) -> list[Lingq]:
+        return self.FormatLingqs(self.LingqApi.getAllWords())

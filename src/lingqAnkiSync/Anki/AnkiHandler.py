@@ -2,20 +2,22 @@ import array
 import string
 from aqt import mw
 from anki.notes import Note
+from ..Models.Lingq import Lingq
+from ..utils.Helpers import Helpers
 
-def CreateNotesWithInterval(words, deckName):
+def CreateNotesFromLingqs(lingqs: list[Lingq], deckName: string) -> int:
     notesCreated = 0
-    for word in words:
-        if (CreateNoteWithInvterval(
-            word["Word"],
-            word["Translation"],
-            word["PrimaryKey"],
-            word["Interval"],
+    for lingq in lingqs:
+        if (CreateNoteFromLingq(
+            lingq.word,
+            lingq.translation,
+            lingq.primaryKey,
+            Helpers().convertLinqStatusToAnkiInterval(lingq.status),
             deckName) == True):
             notesCreated += 1
     return notesCreated
 
-def CreateNoteWithInvterval(word, translation, lingqPk, interval, deckName):
+def CreateNoteFromLingq(word, translation, lingqPk, interval, deckName):
     if (DoesDuplicateCardExistInDeck(lingqPk, deckName)):
         return False
     modelName = "LingqAnkiSync"
@@ -67,26 +69,23 @@ def GetAllCardsInDeck(deckName: string):
         cards.append(card)
     return cards
     
-def GetAllObjectsInDeck(deckName: string):
-    return ConvertAnkiCardsToObjects(GetAllCardsInDeck(deckName))
+def GetAllLingqsInDeck(deckName: string):
+    return ConvertAnkiCardsToLingqs(GetAllCardsInDeck(deckName))
 
 def GetAllDeckNames():
     return mw.col.decks.all_names()
 
-def GetPrimaryKeyFromCard(card):
-    return card.note()["LingqPK"]
-
-def GetDueDateFromCard(card):
+def GetIntervalFromCard(card):
     interval = mw.col.db.scalar("select ivl from cards where id = ?", card.id)
     return 0 if interval is None else interval
-
-def ConvertAnkiCardsToObjects(cards):
-    return [
-        {
-            "PrimaryKey": GetPrimaryKeyFromCard(card),
-            "Word": card.note()["Front"],
-            "Translation": card.note()["Back"],
-            "Interval": GetDueDateFromCard(card),
-        }
-        for card in cards
-    ]
+    
+def ConvertAnkiCardsToLingqs(ankiCards) -> list[Lingq]:
+    lingqs = []
+    for card in ankiCards:
+        lingqs.append(Lingq(
+            card.note()["LingqPK"],
+            card.note()["Front"],
+            card.note()["Back"],
+            Helpers().convertAnkiIntervalToLingqStatus(GetIntervalFromCard(card)),
+        ))
+    return lingqs

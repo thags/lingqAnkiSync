@@ -1,6 +1,7 @@
 from .src.LingqImporter import LingqImporter
 from .src.LingqSyncer import LingqSyncer
 from .src.LingqApi import LingqAPI
+from ..Models.Lingq import Lingq
 
 class LingqController:
     def __init__(self, apiKey, languageCode):
@@ -8,11 +9,10 @@ class LingqController:
         self.languageCode = languageCode
         self.lingqAPi = LingqAPI(apiKey, languageCode)
     
-    def GetFormattedLingqs(self):
+    def GetLingqs(self) -> list[Lingq]:
         lingqImporter = LingqImporter(self.lingqAPi)
-        UnformattedLingqs = lingqImporter.GetLingqs()
-        return lingqImporter.FormatLingqs(UnformattedLingqs)
+        return lingqImporter.GetFormattedLingqs()
     
-    def SyncLingqs(self, lingqs):
+    def SyncLingqs(self, lingqs: list[Lingq]) -> int:
         lingqSyncer = LingqSyncer(self.lingqAPi)
         return lingqSyncer.SyncLingqs(lingqs)

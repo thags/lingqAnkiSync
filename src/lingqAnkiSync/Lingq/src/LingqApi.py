@@ -1,5 +1,4 @@
 import requests
-
 class LingqAPI:
     def __init__(self, apiKey, languageCode):
         self.apiKey = apiKey

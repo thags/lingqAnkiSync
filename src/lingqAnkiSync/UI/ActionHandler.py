@@ -10,14 +10,14 @@ class ActionHandler:
         apiKey = self.GetApiKey()
         languageCode = self.GetLanguageCode()
         lingqController = LingqController(apiKey, languageCode)
-        lingqs = lingqController.GetFormattedLingqs()
-        return AnkiHandler.CreateNotesWithInterval(lingqs, deckName)
+        lingqs = lingqController.GetLingqs()
+        return AnkiHandler.CreateNotesFromLingqs(lingqs, deckName)
     
     def SyncLingqStatusToLingq(self, deckName) -> int:
         apiKey = self.config.GetApiKey()
         languageCode = self.config.GetLanguageCode()
         lingqController = LingqController(apiKey, languageCode)
-        lingqsInDeck = AnkiHandler.GetAllObjectsInDeck(deckName)
+        lingqsInDeck = AnkiHandler.GetAllLingqsInDeck(deckName)
         return lingqController.SyncLingqs(lingqsInDeck)
 
     def SetConfigs(self, apiKey, languageCode):
