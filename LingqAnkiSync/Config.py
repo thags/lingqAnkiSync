@@ -3,25 +3,25 @@ class Config:
         self.addonManager = addonManager
         self.config = self.addonManager.getConfig(__name__)
     
-    def GetConfig(self, fieldName: str) -> str:
+    def _GetConfig(self, fieldName: str) -> str:
         value = self.config[fieldName]
         return "" if value is None or value == "" else str(value)
     
-    def SetConfig(self, fieldName: str, setTo: str):
+    def _SetConfig(self, fieldName: str, setTo: str):
         self.config[fieldName] = setTo
         self.addonManager.writeConfig(__name__, self.config)
 
     def GetApiKey(self):
-        return self.GetConfig('apiKey')
+        return self._GetConfig('apiKey')
 
     def SetApiKey(self, setTo: str):
-        self.SetConfig('apiKey', setTo)
+        self._SetConfig('apiKey', setTo)
 
     def GetLanguageCode(self):
-        return self.GetConfig('languageCode')
+        return self._GetConfig('languageCode')
     
     def SetLanguageCode(self, setTo: str):
-        self.SetConfig('languageCode', setTo)
+        self._SetConfig('languageCode', setTo)
     
     def GetStatusToInterval(self):
-            return {0: 0, 1: 5, 2: 10, 3: 20, 4: 40}
+        return {0: 1, 1: 5, 2: 10, 3: 20, 4: 40}
