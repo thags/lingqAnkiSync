@@ -1,4 +1,4 @@
-from ...Models.Lingq import Lingq
+from .....LingqAnkiSync.Models.Lingq import Lingq
 class LingqSyncer:
     def __init__(self, LingqApi):
         self.lingqApi = LingqApi

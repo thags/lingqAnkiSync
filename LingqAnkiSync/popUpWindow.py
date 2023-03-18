@@ -3,7 +3,7 @@ from aqt import mw
 from aqt.operations import QueryOp
 from aqt.utils import showInfo
 
-from .ActionHandler import ActionHandler
+from .UIActionHandler import ActionHandler
 
 
 class UI:
@@ -56,13 +56,14 @@ class UI:
     def import_lingqs(self):
         self.configSet()
         deckName = self.deck_selector.currentText()
-        op = QueryOp(
-            parent=mw,
-            op=lambda col: self.actionHandler.ImportLingqsToAnki(deckName),
-            success=self.SuccesfulImport,
-        )
-        op.with_progress(
-            "Lingq import in progress, please wait.").run_in_background()
+        self.actionHandler.ImportLingqsToAnki(deckName)
+        # op = QueryOp(
+        #     parent=mw,
+        #     op=lambda col: self.actionHandler.ImportLingqsToAnki(deckName),
+        #     success=self.SuccesfulImport,
+        # )
+        # op.with_progress(
+        #     "Lingq import in progress, please wait.").run_in_background()
         self.dialog.close()
 
     def SuccesfulImport(self, importedLingqsCount):

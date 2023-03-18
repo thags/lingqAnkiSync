@@ -1,7 +1,7 @@
 from .src.LingqImporter import LingqImporter
 from .src.LingqSyncer import LingqSyncer
-from .src.LingqApi import LingqAPI
-from ..Models.Lingq import Lingq
+from ....LingqAnkiSync.LingqApi import LingqAPI
+from ....LingqAnkiSync.Models.Lingq import Lingq
 
 class LingqController:
     def __init__(self, apiKey, languageCode):

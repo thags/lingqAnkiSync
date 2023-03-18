@@ -3,7 +3,7 @@ defaultStatusToInterval = {0: 0, 1: 5, 2: 10, 3: 20, 4: 40}
 class Helpers:
     def __init__(self, statusToInverval=defaultStatusToInterval):
         if statusToInverval is None:
-            from .Config import Config
+            from ....LingqAnkiSync.Config import Config
             self.config = Config()
             self.statusToInverval = self.config.getStatusToInterval()
         else:

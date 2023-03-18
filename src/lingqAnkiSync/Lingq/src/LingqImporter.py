@@ -1,4 +1,4 @@
-from ...Models.Lingq import Lingq
+from .....LingqAnkiSync.Models.Lingq import Lingq
 import json
 
 class LingqImporter:

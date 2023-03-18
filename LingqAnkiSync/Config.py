@@ -24,4 +24,8 @@ class Config:
         self.SetConfig('languageCode', setTo)
     
     def GetStatusToInterval(self):
-        return self.GetConfig('statusToInterval')
+        statusToInterval = self.GetConfig('statusToInterval')
+        if (statusToInterval == "" or statusToInterval is None):
+            return {0: 0, 1: 5, 2: 10, 3: 20, 4: 40}
+        else:
+            return statusToInterval
