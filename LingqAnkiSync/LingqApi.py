@@ -38,13 +38,13 @@ class LingqApi:
                     lingq['extended_status']
             ))
     
-    def UpdateLingqStatuses(self, lingqs: list[Lingq]) -> int:
+    def SyncStatusesToLingq(self, lingqs: list[Lingq]) -> int:
         lingqsUpdated = 0
         for lingq in lingqs:
             lingq = self._GetLingqStatusReadyForSync(lingq)
             if (self._ShouldUpdateStatus(lingq.primaryKey, lingq.status) == False): continue
             headers = {"Authorization": f"Token {self.apiKey}"}
-            url = f"{self.baseUrl}/{lingq.primaryKey}/"
+            url = f"{self._baseUrl}/{lingq.primaryKey}/"
             response = requests.patch(url, headers=headers, data={
                 "status": lingq.status, "extended_status": lingq.extended_status})
             response.raise_for_status()
@@ -52,8 +52,8 @@ class LingqApi:
         return lingqsUpdated
 
     def _GetLingqStatus(self, lingqPrimaryKey):
-        url = f"{self.baseUrl}/{lingqPrimaryKey}/"
-        response = self.getSinglePageResult(url)
+        url = f"{self._baseUrl}/{lingqPrimaryKey}/"
+        response = self._GetSinglePage(url)
         status = response.json()['status']
         extendedStatus = response.json()['extended_status']
         if (extendedStatus == 3 and status == 3):

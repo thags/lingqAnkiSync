@@ -23,7 +23,7 @@ class ActionHandler:
         
         cards = GetAllCardsInDeck(deckName)
         lingqs = ConvertAnkiCardsToLingqs(cards, statusToInterval)
-        return LingqApi(apiKey, languageCode).SyncLingqs(lingqs)
+        return LingqApi(apiKey, languageCode).SyncStatusesToLingq(lingqs)
 
     def SetConfigs(self, apiKey, languageCode):
         self.config.SetApiKey(apiKey)

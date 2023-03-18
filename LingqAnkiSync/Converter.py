@@ -7,9 +7,10 @@ def ConvertAnkiCardsToLingqs(ankiCards: list[AnkiCard], statusToInterval: dict[i
         lingqs.append(
             Lingq(
                 card.primaryKey,
-                card.front,
-                card.back,
-                _ConvertAnkiIntervalToLingqStatus(card.interval, statusToInterval)
+                card.word,
+                card.translation,
+                _ConvertAnkiIntervalToLingqStatus(card.interval, statusToInterval),
+                None
         ))
     return lingqs
 

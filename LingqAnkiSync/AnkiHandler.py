@@ -1,13 +1,10 @@
 from aqt import mw
 from anki.notes import Note
+from anki.cards import Card
 from .Models.AnkiCard import AnkiCard
 
 def CreateNotesFromCards(cards: list[AnkiCard], deckName: str) -> int:
-    notesCreated = 0
-    for card in cards:
-        if (CreateNote(card, deckName) == True):
-            notesCreated += 1
-    return notesCreated
+    return sum(CreateNote(card, deckName) == True for card in cards)
 
 def CreateNote(card: AnkiCard, deckName: str) -> bool:
     if (DoesDuplicateCardExistInDeck(card.primaryKey , deckName)):
@@ -51,7 +48,7 @@ def CreateNoteTypeIfNotExist(noteTypeName: str, noteFields: list, deckName: str)
     if not mw.col.models.byName(noteTypeName):
         CreateNoteType(noteTypeName, noteFields)
 
-def GetAllCardsInDeck(deckName: str):
+def GetAllCardsInDeck(deckName: str) -> list[AnkiCard]:
     deck_id = mw.col.decks.id(deckName)
     mw._selectedDeck = deck_id
     cards = []
@@ -62,14 +59,14 @@ def GetAllCardsInDeck(deckName: str):
         cards.append(card)
     return cards
 
-def GetAllDeckNames():
+def GetAllDeckNames() -> list[str]:
     return mw.col.decks.all_names()
 
-def GetIntervalFromCard(cardId):
+def GetIntervalFromCard(cardId) -> int:
     interval = mw.col.db.scalar("select ivl from cards where id = ?", cardId)
     return 0 if interval is None else interval
 
-def _CreateAnkiCardObject(card, cardId):
+def _CreateAnkiCardObject(card, cardId) -> AnkiCard:
     return AnkiCard(
         card.note()["LingqPK"],
         card.note()["Front"],
