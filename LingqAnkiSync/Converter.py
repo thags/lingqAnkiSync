@@ -25,12 +25,15 @@ def ConvertLingqsToAnkiCards(lingqs: list[Lingq], statusToInterval: dict[int:int
         ))
     return ankiCards
 
-def _ConvertLingqStatusToAnkiInterval(linqStatus: int, statusToInterval: dict[int, int]) -> str:
-    return str(statusToInterval[linqStatus])
+def _ConvertLingqStatusToAnkiInterval(status: int, statusToInterval: dict[int, int]) -> str:
+    for lingqStatus, ankiInterval in statusToInterval.items():
+        if status <= lingqStatus:
+            return ankiInterval
+    return max(statusToInterval.values())
+
 
 def _ConvertAnkiIntervalToLingqStatus(interval: int, statusToInterval: dict[int, int]) -> int:
-    interval = int(interval)
-    return next(
-        (key for key, value in statusToInterval.items() if interval <= value),
-        4,
-    )
+    for lingqStatus, ankiInterval in statusToInterval.items():
+        if interval <= ankiInterval:
+            return lingqStatus
+    return max(statusToInterval.keys())

@@ -56,14 +56,13 @@ class UI:
     def import_lingqs(self):
         self.configSet()
         deckName = self.deck_selector.currentText()
-        self.actionHandler.ImportLingqsToAnki(deckName)
-        # op = QueryOp(
-        #     parent=mw,
-        #     op=lambda col: self.actionHandler.ImportLingqsToAnki(deckName),
-        #     success=self.SuccesfulImport,
-        # )
-        # op.with_progress(
-        #     "Lingq import in progress, please wait.").run_in_background()
+        op = QueryOp(
+            parent=mw,
+            op=lambda col: self.actionHandler.ImportLingqsToAnki(deckName),
+            success=self.SuccesfulImport,
+        )
+        op.with_progress(
+            "Lingq import in progress, please wait.").run_in_background()
         self.dialog.close()
 
     def SuccesfulImport(self, importedLingqsCount):

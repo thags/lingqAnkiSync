@@ -1,7 +1,6 @@
 from aqt import mw
 from anki.notes import Note
 from .Models.AnkiCard import AnkiCard
-from aqt.utils import showInfo
 
 def CreateNotesFromCards(cards: list[AnkiCard], deckName: str) -> int:
     notesCreated = 0
@@ -22,14 +21,12 @@ def CreateNote(card: AnkiCard, deckName: str) -> bool:
 
     note["Front"] = card.word
     note["Back"] = card.translation
-    note["LingqPK"] = card.primaryKey
+    note["LingqPK"] = str(card.primaryKey)
 
     deck_id = mw.col.decks.id(deckName)
     note.model()['did'] = deck_id
-    showInfo(f"Adding note: {note} to deck: {deckName}")
     mw.col.addNote(note)
-    showInfo(f"Note added note: {note} to deck: {deckName}")
-    mw.col.sched.set_due_date([note.id], f"{card.interval}")
+    mw.col.sched.set_due_date([note.id], str(card.interval))
     return True
 
 def DoesDuplicateCardExistInDeck(LingqPK, deckName):
