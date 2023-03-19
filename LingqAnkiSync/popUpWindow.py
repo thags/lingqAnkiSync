@@ -61,8 +61,7 @@ class UI:
             op=lambda col: self.actionHandler.ImportLingqsToAnki(deckName),
             success=self.SuccesfulImport,
         )
-        op.with_progress(
-            "Lingq import in progress, please wait.").run_in_background()
+        op.with_progress("Lingq import in progress, please wait.").run_in_background()
         self.dialog.close()
 
     def SuccesfulImport(self, importedLingqsCount):
@@ -82,12 +81,12 @@ class UI:
             op=lambda col: self.actionHandler.SyncLingqStatusToLingq(deckName),
             success=self.SuccesfulSync,
         )
-        op.with_progress(
-            "Sync to Lingq in progress, please wait.").run_in_background()
+        op.with_progress("Sync to Lingq in progress, please wait.").run_in_background()
         self.dialog.close()
 
     def SuccesfulSync(self, result):
-        showInfo("Sync complete!")
+        mw.reset()
+        showInfo(f"Sync complete! {result} lingqs updated!")
 
 
 action = QAction("Import LingQs from LingQ.com", mw)
