@@ -1,10 +1,8 @@
 import sys, os
-sys.path.append(os.path.realpath(f"{os.path.dirname(__file__)}/.."))
+sys.path.append(os.path.realpath(f"./{os.path.dirname(__file__)}"))
 
-from Models import Lingq, AnkiCard
-
-Lingq = Lingq.Lingq
-AnkiCard = AnkiCard.AnkiCard
+from Models.Lingq import Lingq
+from Models.AnkiCard import AnkiCard
 
 def ConvertAnkiCardsToLingqs(ankiCards: list[AnkiCard], statusToInterval: dict[int:int]) -> list[Lingq]:
     lingqs = []

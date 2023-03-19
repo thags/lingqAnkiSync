@@ -4,7 +4,7 @@ from zipfile import ZipFile
 
 def project_files(path):
     result = []
-    for root, files in os.walk(f"{path}/lingqAnkiSync"):
+    for root, dir, files in os.walk(f"{path}/LingqAnkiSync"):
         if ("test" not in root):
             result += [os.path.join(root, f) for f in files if ".pyc" not in f]
     return result
@@ -16,7 +16,7 @@ if __name__ == "__main__":
         myzip.write("README.md")
         myzip.write("LICENSE")
 
-        for f in project_files("src"):
+        for f in project_files("."):
             zip_path = os.path.join(*f.split(os.path.sep)[1:])
 
             myzip.write(f, zip_path)
