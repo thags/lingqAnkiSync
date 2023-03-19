@@ -27,7 +27,7 @@ def CreateNote(card: AnkiCard, deckName: str) -> bool:
     return True
 
 def DoesDuplicateCardExistInDeck(LingqPK, deckName):
-    return len(mw.col.findCards(f'deck:"{deckName}" LingqPK:"{LingqPK}"')) > 0
+    return len(mw.col.find_cards(f'deck:"{deckName}" LingqPK:"{LingqPK}"')) > 0
 
 def CreateNoteType(name: str, fields: list):
     model = mw.col.models.new(name)
@@ -49,10 +49,8 @@ def CreateNoteTypeIfNotExist(noteTypeName: str, noteFields: list, deckName: str)
         CreateNoteType(noteTypeName, noteFields)
 
 def GetAllCardsInDeck(deckName: str) -> list[AnkiCard]:
-    deck_id = mw.col.decks.id(deckName)
-    mw._selectedDeck = deck_id
     cards = []
-    cardIds = mw.col.findCards(f'deck:"{deckName}"')
+    cardIds = mw.col.find_cards(f'deck:"{deckName}"')
     for cardId in cardIds:
         card = mw.col.get_card(cardId)
         card = _CreateAnkiCardObject(card, cardId)
