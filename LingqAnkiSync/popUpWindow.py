@@ -1,14 +1,15 @@
-from aqt.qt import *
+from aqt.qt import QLineEdit, QComboBox, QPushButton, QAction, QDialogButtonBox, QDialog, QVBoxLayout, QLabel, Qt
 from aqt import mw
 from aqt.operations import QueryOp
 from aqt.utils import showInfo
-from . import Config, LingqController, AnkiHandler
+
+from .UIActionHandler import ActionHandler
 
 
-class LingqAnkiSync:
+class UI:
     def __init__(self):
         action = QAction("Import LingQs from LingQ.com", mw)
-        action.triggered.connect(lambda: LingqAnkiSync().run())
+        action.triggered.connect(lambda: UI().run())
         self.api_key_field = QLineEdit()
         self.language_code_field = QLineEdit()
         self.deck_selector = QComboBox()
@@ -22,6 +23,7 @@ class LingqAnkiSync:
         self.sync_button_box = QDialogButtonBox()
         self.sync_button_box.addButton(QPushButton(
             "Sync to Lingq"), QDialogButtonBox.AcceptRole)
+        self.actionHandler = ActionHandler(mw.addonManager)
 
     def run(self):
         self.dialog = QDialog(mw)
@@ -30,10 +32,10 @@ class LingqAnkiSync:
 
         self.language_code_field.setPlaceholderText("Language Code")
         self.api_key_field.setPlaceholderText("API Key")
-        self.api_key_field.setText(Config.getApiKey())
-        self.language_code_field.setText(Config.getLanguageCode())
+        self.api_key_field.setText(self.actionHandler.GetApiKey())
+        self.language_code_field.setText(self.actionHandler.GetLanguageCode())
 
-        self.deck_selector.addItems(AnkiHandler.GetAllDeckNames())
+        self.deck_selector.addItems(self.actionHandler.GetDeckNames())
 
         layout = QVBoxLayout()
         layout.addWidget(QLabel("Enter LingQ API Key:"))
@@ -52,16 +54,11 @@ class LingqAnkiSync:
         self.dialog.exec_()
 
     def import_lingqs(self):
-        api_key = self.api_key_field.text()
-        language_code = self.language_code_field.text()
-        Config.setApiKey(api_key)
-        Config.setLanguageCode(language_code)
+        self.configSet()
         deckName = self.deck_selector.currentText()
-
         op = QueryOp(
             parent=mw,
-            op=lambda col: LingqController.ImportLingqs(
-                api_key, language_code, deckName),
+            op=lambda col: self.actionHandler.ImportLingqsToAnki(deckName),
             success=self.SuccesfulImport,
         )
         op.with_progress(
@@ -71,31 +68,28 @@ class LingqAnkiSync:
     def SuccesfulImport(self, importedLingqsCount):
         mw.reset()
         showInfo(f"Import complete on {importedLingqsCount} lingqs!")
+        
+    def configSet(self):
+        api_key = self.api_key_field.text()
+        language_code = self.language_code_field.text()
+        self.actionHandler.SetConfigs(api_key, language_code)
 
     def SyncLingqsBackground(self):
+        self.configSet()
+        deckName = self.deck_selector.currentText()
         op = QueryOp(
             parent=mw,
-            op=lambda col: self.SyncLingqs(),
+            op=lambda col: self.actionHandler.SyncLingqStatusToLingq(deckName),
             success=self.SuccesfulSync,
         )
         op.with_progress(
             "Sync to Lingq in progress, please wait.").run_in_background()
         self.dialog.close()
 
-    def SyncLingqs(self):
-        cardsInDeck = AnkiHandler.GetAllCardsInDeck(
-            self.deck_selector.currentText())
-        for cardId in cardsInDeck:
-            card = mw.col.get_card(cardId)
-            pk = AnkiHandler.GetPrimaryKeyFromCard(card)
-            interval = AnkiHandler.GetDueDateFromCard(card)
-            LingqController.SyncLingq(pk, self.api_key_field.text(
-            ), self.language_code_field.text(), interval)
-
     def SuccesfulSync(self, result):
         showInfo("Sync complete!")
 
 
 action = QAction("Import LingQs from LingQ.com", mw)
-action.triggered.connect(lambda: LingqAnkiSync().run())
+action.triggered.connect(lambda: UI().run())
 mw.form.menuTools.addAction(action)
