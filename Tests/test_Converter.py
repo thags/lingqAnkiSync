@@ -20,7 +20,7 @@ class TestIntervalToStatus:
         testInterval = 600
         resultStatus = _ConvertAnkiIntervalToLingqStatus(testInterval, statusToInterval)
         assert resultStatus == 4
-    
+
     def test_should_return_min_status_if_interval_is_less_than_min_interval(self, statusToInterval):
         testInterval = 50
         resultStatus = _ConvertAnkiIntervalToLingqStatus(testInterval, statusToInterval)
@@ -41,8 +41,8 @@ class TestStatusToInterval:
         testStatus = -1
         resultStatus = _ConvertLingqStatusToAnkiInterval(testStatus, statusToInterval)
         assert resultStatus == 100
-        
-        
+
+
 @pytest.fixture
 def Modelankicard():
     return AnkiCard.AnkiCard(1, "word", "translation", 100)

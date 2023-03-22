@@ -7,7 +7,7 @@ class LingqApi:
         self._baseUrl = f"https://www.lingq.com/api/v2/{languageCode}/cards"
         self.unformatedLingqs = []
         self.lingqs = []
-        
+
     def GetAllLingqs(self) -> list[Lingq]:
         nextUrl = self._baseUrl
         while (nextUrl != None):
@@ -17,14 +17,13 @@ class LingqApi:
             nextUrl = words_response.json()['next']
         self._ConvertApiToLingqs()
         return self.lingqs
-        
-    
+
     def _GetSinglePage(self, url):
         headers = {'Authorization': f'Token {self.apiKey}'}
         words_response = requests.get(url, headers=headers)
         words_response.raise_for_status()
         return words_response
-    
+
     def _ConvertApiToLingqs(self) -> list[Lingq]:
         for lingq in self.unformatedLingqs:
             self.lingqs.append(
@@ -37,7 +36,7 @@ class LingqApi:
                     lingq['status'],
                     lingq['extended_status']
             ))
-    
+
     def SyncStatusesToLingq(self, lingqs: list[Lingq]) -> int:
         lingqsUpdated = 0
         for lingq in lingqs:
@@ -59,16 +58,15 @@ class LingqApi:
         if (extendedStatus == 3 and status == 3):
             status = 4
         return status
-    
+
     def _GetLingqStatusReadyForSync(self, lingq: Lingq):
         if (lingq.status == 4):
             lingq.extended_status = 3
             lingq.status = 3
         else:
             lingq.extended_status = 0
-
         return lingq
-    
+
     def _ShouldUpdateStatus(self, lingqPrimaryKey, newStatus) -> bool:
         lingqCurrentStatus = self._GetLingqStatus(lingqPrimaryKey)
         return int(lingqCurrentStatus) < int(newStatus)

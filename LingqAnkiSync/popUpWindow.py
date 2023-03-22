@@ -67,7 +67,7 @@ class UI:
     def SuccesfulImport(self, importedLingqsCount):
         mw.reset()
         showInfo(f"Import complete on {importedLingqsCount} lingqs!")
-        
+
     def configSet(self):
         api_key = self.api_key_field.text()
         language_code = self.language_code_field.text()
