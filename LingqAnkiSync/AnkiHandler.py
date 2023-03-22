@@ -1,6 +1,5 @@
 from aqt import mw
 from anki.notes import Note
-from anki.cards import Card
 from .Models.AnkiCard import AnkiCard
 
 def CreateNotesFromCards(cards: list[AnkiCard], deckName: str) -> int:

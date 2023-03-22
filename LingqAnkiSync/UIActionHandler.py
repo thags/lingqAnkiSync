@@ -11,11 +11,11 @@ class ActionHandler:
         apiKey = self.GetApiKey()
         languageCode = self.GetLanguageCode()
         statusToInterval = self.config.GetStatusToInterval()
-        
+
         lingqs = LingqApi(apiKey, languageCode).GetAllLingqs()
         cards = ConvertLingqsToAnkiCards(lingqs, statusToInterval)
         return CreateNotesFromCards(cards, deckName)
-    
+
     def SyncLingqStatusToLingq(self, deckName) -> int:
         apiKey = self.config.GetApiKey()
         languageCode = self.config.GetLanguageCode()
@@ -28,12 +28,12 @@ class ActionHandler:
     def SetConfigs(self, apiKey, languageCode):
         self.config.SetApiKey(apiKey)
         self.config.SetLanguageCode(languageCode)
-    
+
     def GetDeckNames(self) -> list:
         return GetAllDeckNames()
-    
+
     def GetApiKey(self) -> str:
         return self.config.GetApiKey()
-    
+
     def GetLanguageCode(self) -> str:
         return self.config.GetLanguageCode()

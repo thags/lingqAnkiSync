@@ -2,7 +2,7 @@ class Config:
     def __init__(self, addonManager):
         self.addonManager = addonManager
         self.config = self.addonManager.getConfig(__name__)
-    
+
     def _GetConfig(self, fieldName: str) -> str:
         value = self.config[fieldName]
         return "" if value is None or value == "" else str(value)
