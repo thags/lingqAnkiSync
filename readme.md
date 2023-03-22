@@ -1,5 +1,6 @@
 # Lingq Anki Sync
 
+
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/612055df0d874e09ac67d7d3d49ec944)](https://app.codacy.com/gh/thags/lingqAnkiSync?utm_source=github.com&utm_medium=referral&utm_content=thags/lingqAnkiSync&utm_campaign=Badge_Grade)
 
 See it on [AnkiWeb](https://ankiweb.net/shared/info/594879777)
