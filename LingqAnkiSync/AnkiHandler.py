@@ -1,8 +1,9 @@
 from aqt import mw
 from anki.notes import Note
+from typing import List
 from .Models.AnkiCard import AnkiCard
 
-def CreateNotesFromCards(cards: list[AnkiCard], deckName: str) -> int:
+def CreateNotesFromCards(cards: List[AnkiCard], deckName: str) -> int:
     return sum(CreateNote(card, deckName) == True for card in cards)
 
 def CreateNote(card: AnkiCard, deckName: str) -> bool:
@@ -22,13 +23,14 @@ def CreateNote(card: AnkiCard, deckName: str) -> bool:
     deck_id = mw.col.decks.id(deckName)
     note.model()['did'] = deck_id
     mw.col.addNote(note)
-    mw.col.sched.set_due_date([note.id], str(card.interval))
+    if card.interval > 0:
+        mw.col.sched.set_due_date([note.id], str(card.interval))
     return True
 
 def DoesDuplicateCardExistInDeck(LingqPK, deckName):
     return len(mw.col.find_cards(f'deck:"{deckName}" LingqPK:"{LingqPK}"')) > 0
 
-def CreateNoteType(name: str, fields: list):
+def CreateNoteType(name: str, fields: List):
     model = mw.col.models.new(name)
 
     for field in fields:
@@ -43,11 +45,11 @@ def CreateNoteType(name: str, fields: list):
     mw.col.models.save(model)
     return model
 
-def CreateNoteTypeIfNotExist(noteTypeName: str, noteFields: list, deckName: str):
+def CreateNoteTypeIfNotExist(noteTypeName: str, noteFields: List, deckName: str):
     if not mw.col.models.byName(noteTypeName):
         CreateNoteType(noteTypeName, noteFields)
 
-def GetAllCardsInDeck(deckName: str) -> list[AnkiCard]:
+def GetAllCardsInDeck(deckName: str) -> List[AnkiCard]:
     cards = []
     cardIds = mw.col.find_cards(f'deck:"{deckName}"')
     for cardId in cardIds:
@@ -56,7 +58,7 @@ def GetAllCardsInDeck(deckName: str) -> list[AnkiCard]:
         cards.append(card)
     return cards
 
-def GetAllDeckNames() -> list[str]:
+def GetAllDeckNames() -> List[str]:
     return mw.col.decks.all_names()
 
 def GetIntervalFromCard(cardId) -> int:

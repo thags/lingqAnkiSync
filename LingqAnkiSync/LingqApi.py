@@ -1,4 +1,5 @@
 import requests
+from typing import List
 from .Models.Lingq import Lingq
 class LingqApi:
     def __init__(self, apiKey, languageCode):
@@ -8,7 +9,7 @@ class LingqApi:
         self.unformatedLingqs = []
         self.lingqs = []
 
-    def GetAllLingqs(self) -> list[Lingq]:
+    def GetAllLingqs(self) -> List[Lingq]:
         nextUrl = self._baseUrl
         while (nextUrl != None):
             words_response = self._GetSinglePage(nextUrl)
@@ -24,7 +25,7 @@ class LingqApi:
         words_response.raise_for_status()
         return words_response
 
-    def _ConvertApiToLingqs(self) -> list[Lingq]:
+    def _ConvertApiToLingqs(self) -> List[Lingq]:
         for lingq in self.unformatedLingqs:
             self.lingqs.append(
                 Lingq(
@@ -37,7 +38,7 @@ class LingqApi:
                     lingq['extended_status']
             ))
 
-    def SyncStatusesToLingq(self, lingqs: list[Lingq]) -> int:
+    def SyncStatusesToLingq(self, lingqs: List[Lingq]) -> int:
         lingqsUpdated = 0
         for lingq in lingqs:
             lingq = self._GetLingqStatusReadyForSync(lingq)

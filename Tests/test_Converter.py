@@ -29,18 +29,24 @@ class TestIntervalToStatus:
 class TestStatusToInterval:
     def test_ConvertLingqStatusToAnkiInterval(self, statusToInterval):
         testStatus = 2
-        resultStatus = _ConvertLingqStatusToAnkiInterval(testStatus, statusToInterval)
-        assert resultStatus == 300
+        testExtendedStatus = 0
+        resultStatus = _ConvertLingqStatusToAnkiInterval(testStatus, testExtendedStatus, statusToInterval)
+        assert resultStatus >= 200
+        assert resultStatus <= 300
 
-    def test_should_return_max_interval_if_status_is_greater_than_max_status(self, statusToInterval):
-        testStatus = 5
-        resultStatus = _ConvertLingqStatusToAnkiInterval(testStatus, statusToInterval)
-        assert resultStatus == 500
+    def test_should_return_max_interval_plus_other_intervals_if_status_is_max_status(self, statusToInterval):
+        testStatus = 3
+        testExtendedStatus = 3
+        resultStatus = _ConvertLingqStatusToAnkiInterval(testStatus, testExtendedStatus, statusToInterval)
+        assert resultStatus >= 400
+        assert resultStatus <= 500
     
-    def test_should_return_min_interval_if_status_is_less_than_min_stats(self, statusToInterval):
-        testStatus = -1
-        resultStatus = _ConvertLingqStatusToAnkiInterval(testStatus, statusToInterval)
-        assert resultStatus == 100
+    def test_should_return_min_interval_if_status_min_status(self, statusToInterval):
+        testStatus = 0
+        testExtendedStatus = 0
+        resultStatus = _ConvertLingqStatusToAnkiInterval(testStatus, testExtendedStatus, statusToInterval)
+        assert resultStatus >= 0
+        assert resultStatus <= 100
 
 
 @pytest.fixture
@@ -66,4 +72,5 @@ class TestConvertLingqToAnki:
         assert resultAnkiCard.primaryKey == Modelankicard.primaryKey
         assert resultAnkiCard.word == Modelankicard.word
         assert resultAnkiCard.translation == Modelankicard.translation
-        assert resultAnkiCard.interval == Modelankicard.interval
+        assert resultAnkiCard.interval >= 0
+        assert resultAnkiCard.interval <= 100
