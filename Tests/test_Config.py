@@ -32,7 +32,7 @@ class TestGets:
     
     def test_should_get_deafult_status_to_interval(self, addonManager):
         result = Config(addonManager).GetStatusToInterval()
-        assert result == {0: 0, 1: 10, 2: 15, 3: 25, 4: 50}
+        assert result == {0: 0, 1: 10, 2: 25, 3: 40, 4: 90}
 
 class TestSets:
     def test_should_set_api_key(self, addonManager):

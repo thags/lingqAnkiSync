@@ -36,16 +36,26 @@ def _ConvertLingqStatusToAnkiInterval(status: int, extended_status: int, statusT
     endRange = 0
     if (extended_status == 3 and status == 3):
         startRange = statusToInterval[status]
-        endRange = sum(statusToInterval.values())
-    elif (status >= 0 and status <= 3):
-        startRange = statusToInterval[status]
         endRange = statusToInterval[status + 1]
+    elif (status > 0 and status <= 3):
+        startRange = statusToInterval[status -1]
+        endRange = statusToInterval[status]
+    elif (status == 0):
+        startRange = 0
+        endRange = statusToInterval[status]
+    else:
+        return 0
         
     return random.randint(startRange, endRange)
 
 
 def _ConvertAnkiIntervalToLingqStatus(interval: int, statusToInterval: Dict[int,int]) -> int:
+    if (interval is None or interval <= 0): 
+        return 0
+
+    
     for lingqStatus, ankiInterval in statusToInterval.items():
         if interval <= ankiInterval:
             return lingqStatus
+        
     return max(statusToInterval.keys())

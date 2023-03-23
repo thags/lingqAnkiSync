@@ -31,22 +31,22 @@ class TestStatusToInterval:
         testStatus = 2
         testExtendedStatus = 0
         resultStatus = _ConvertLingqStatusToAnkiInterval(testStatus, testExtendedStatus, statusToInterval)
-        assert resultStatus >= 300
-        assert resultStatus <= 400
+        assert resultStatus >= 200
+        assert resultStatus <= 300
 
     def test_should_return_max_interval_plus_other_intervals_if_status_is_max_status(self, statusToInterval):
         testStatus = 3
         testExtendedStatus = 3
         resultStatus = _ConvertLingqStatusToAnkiInterval(testStatus, testExtendedStatus, statusToInterval)
-        assert resultStatus >= 500
-        assert resultStatus <= 1500
+        assert resultStatus >= 400
+        assert resultStatus <= 500
     
     def test_should_return_min_interval_if_status_min_status(self, statusToInterval):
         testStatus = 0
         testExtendedStatus = 0
         resultStatus = _ConvertLingqStatusToAnkiInterval(testStatus, testExtendedStatus, statusToInterval)
-        assert resultStatus >= 100
-        assert resultStatus <= 200
+        assert resultStatus >= 0
+        assert resultStatus <= 100
 
 
 @pytest.fixture
@@ -72,5 +72,5 @@ class TestConvertLingqToAnki:
         assert resultAnkiCard.primaryKey == Modelankicard.primaryKey
         assert resultAnkiCard.word == Modelankicard.word
         assert resultAnkiCard.translation == Modelankicard.translation
-        assert resultAnkiCard.interval >= 100
-        assert resultAnkiCard.interval <= 200
+        assert resultAnkiCard.interval >= 0
+        assert resultAnkiCard.interval <= 100
