@@ -1,6 +1,7 @@
 import sys, os
 sys.path.append(os.path.realpath(f"./{os.path.dirname(__file__)}"))
 
+import random
 from Models.Lingq import Lingq
 from Models.AnkiCard import AnkiCard
 
@@ -25,15 +26,21 @@ def ConvertLingqsToAnkiCards(lingqs: list[Lingq], statusToInterval: dict[int:int
                 lingq.primaryKey,
                 lingq.word,
                 lingq.translation,
-                _ConvertLingqStatusToAnkiInterval(lingq.status, statusToInterval)
+                _ConvertLingqStatusToAnkiInterval(lingq.status, lingq.extended_status, statusToInterval)
         ))
     return ankiCards
 
-def _ConvertLingqStatusToAnkiInterval(status: int, statusToInterval: dict[int, int]) -> str:
-    for lingqStatus, ankiInterval in statusToInterval.items():
-        if status <= lingqStatus:
-            return ankiInterval
-    return max(statusToInterval.values())
+def _ConvertLingqStatusToAnkiInterval(status: int, extended_status: int, statusToInterval: dict[int, int]) -> int:
+    startRange = 0
+    endRange = 0
+    if (extended_status == 3 and status == 3):
+        startRange = statusToInterval[status]
+        endRange = sum(statusToInterval.values())
+    elif (status >= 0 and status <= 3):
+        startRange = statusToInterval[status]
+        endRange = statusToInterval[status + 1]
+        
+    return random.randint(startRange, endRange)
 
 
 def _ConvertAnkiIntervalToLingqStatus(interval: int, statusToInterval: dict[int, int]) -> int:
