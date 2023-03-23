@@ -2,6 +2,7 @@ from .Converter import ConvertAnkiCardsToLingqs, ConvertLingqsToAnkiCards
 from .AnkiHandler import CreateNotesFromCards, GetAllCardsInDeck, GetAllDeckNames
 from .LingqApi import LingqApi
 from .Config import Config
+from typing import List
 
 class ActionHandler:
     def __init__(self, addonManager):
@@ -29,7 +30,7 @@ class ActionHandler:
         self.config.SetApiKey(apiKey)
         self.config.SetLanguageCode(languageCode)
 
-    def GetDeckNames(self) -> list:
+    def GetDeckNames(self) -> List:
         return GetAllDeckNames()
 
     def GetApiKey(self) -> str:

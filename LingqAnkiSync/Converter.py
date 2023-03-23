@@ -2,10 +2,11 @@ import sys, os
 sys.path.append(os.path.realpath(f"./{os.path.dirname(__file__)}"))
 
 import random
+from typing import List, Dict
 from Models.Lingq import Lingq
 from Models.AnkiCard import AnkiCard
 
-def ConvertAnkiCardsToLingqs(ankiCards: list[AnkiCard], statusToInterval: dict[int:int]) -> list[Lingq]:
+def ConvertAnkiCardsToLingqs(ankiCards: List[AnkiCard], statusToInterval: Dict[int,int]) -> List[Lingq]:
     lingqs = []
     for card in ankiCards:
         lingqs.append(
@@ -18,7 +19,7 @@ def ConvertAnkiCardsToLingqs(ankiCards: list[AnkiCard], statusToInterval: dict[i
         ))
     return lingqs
 
-def ConvertLingqsToAnkiCards(lingqs: list[Lingq], statusToInterval: dict[int:int]) -> list[AnkiCard]:
+def ConvertLingqsToAnkiCards(lingqs: List[Lingq], statusToInterval: Dict[int,int]) -> List[AnkiCard]:
     ankiCards = []
     for lingq in lingqs:
         ankiCards.append(
@@ -30,7 +31,7 @@ def ConvertLingqsToAnkiCards(lingqs: list[Lingq], statusToInterval: dict[int:int
         ))
     return ankiCards
 
-def _ConvertLingqStatusToAnkiInterval(status: int, extended_status: int, statusToInterval: dict[int, int]) -> int:
+def _ConvertLingqStatusToAnkiInterval(status: int, extended_status: int, statusToInterval: Dict[int,int]) -> int:
     startRange = 0
     endRange = 0
     if (extended_status == 3 and status == 3):
@@ -43,7 +44,7 @@ def _ConvertLingqStatusToAnkiInterval(status: int, extended_status: int, statusT
     return random.randint(startRange, endRange)
 
 
-def _ConvertAnkiIntervalToLingqStatus(interval: int, statusToInterval: dict[int, int]) -> int:
+def _ConvertAnkiIntervalToLingqStatus(interval: int, statusToInterval: Dict[int,int]) -> int:
     for lingqStatus, ankiInterval in statusToInterval.items():
         if interval <= ankiInterval:
             return lingqStatus
