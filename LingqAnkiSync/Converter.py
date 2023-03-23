@@ -49,11 +49,9 @@ def _ConvertLingqStatusToAnkiInterval(status: int, extended_status: int, statusT
 
 
 def _ConvertAnkiIntervalToLingqStatus(interval: int, statusToInterval: Dict[int,int]) -> int:
-    if (interval is None or interval <= 0): 
+    if (interval is None or interval <= 0):
         return 0
-    
     for lingqStatus, ankiInterval in statusToInterval.items():
         if interval <= ankiInterval:
             return lingqStatus
-    
     return max(statusToInterval.keys())
