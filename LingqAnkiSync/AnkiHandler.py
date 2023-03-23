@@ -22,7 +22,8 @@ def CreateNote(card: AnkiCard, deckName: str) -> bool:
     deck_id = mw.col.decks.id(deckName)
     note.model()['did'] = deck_id
     mw.col.addNote(note)
-    mw.col.sched.set_due_date([note.id], str(card.interval))
+    if card.interval > 0:
+        mw.col.sched.set_due_date([note.id], str(card.interval))
     return True
 
 def DoesDuplicateCardExistInDeck(LingqPK, deckName):
