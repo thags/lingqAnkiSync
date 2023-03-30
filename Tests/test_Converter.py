@@ -51,26 +51,35 @@ class TestStatusToInterval:
 
 @pytest.fixture
 def Modelankicard():
-    return AnkiCard.AnkiCard(1, "word", "translation", 100)
+    return AnkiCard.AnkiCard(1, "word", ["translation", "translation2"], 100, 0, None, ["tag1", "tag2"], "sentence", 0)
 
 @pytest.fixture
 def Modellingq():
-    return Lingq.Lingq(1, "word", "translation", 0, None)
+    return Lingq.Lingq(1, "word", ["translation", "translation2"], 0, None, ["tag1", "tag2"], "sentence", 0 )
 
 class TestConvertAnkiToLingq:
     def test_should_convert_ankiCard_to_Lingq(self, statusToInterval, Modelankicard, Modellingq):
         resultLingq = ConvertAnkiCardsToLingqs([Modelankicard], statusToInterval)[0]
-        assert resultLingq.primaryKey == Modellingq.primaryKey
-        assert resultLingq.word == Modellingq.word
-        assert resultLingq.translation == Modellingq.translation
-        assert resultLingq.status == Modellingq.status
-        assert resultLingq.extended_status is None
+        assert resultLingq.primaryKey == Modelankicard.primaryKey
+        assert resultLingq.word == Modelankicard.word
+        assert resultLingq.translations == Modelankicard.translations
+        assert resultLingq.status == Modelankicard.status
+        assert resultLingq.extended_status is Modelankicard.extended_status
+        assert resultLingq.tags == Modelankicard.tags
+        assert resultLingq.fragment == Modelankicard.sentence
+        assert resultLingq.importance == Modelankicard.importance
+        assert resultLingq.previousStatus == Modelankicard.status
         
 class TestConvertLingqToAnki:
     def test_should_convert_Lingq_to_AnkiCard(self, statusToInterval, Modelankicard, Modellingq):
         resultAnkiCard = ConvertLingqsToAnkiCards([Modellingq], statusToInterval)[0]
-        assert resultAnkiCard.primaryKey == Modelankicard.primaryKey
-        assert resultAnkiCard.word == Modelankicard.word
-        assert resultAnkiCard.translation == Modelankicard.translation
+        assert resultAnkiCard.primaryKey == Modellingq.primaryKey
+        assert resultAnkiCard.word == Modellingq.word
+        assert resultAnkiCard.translations == Modellingq.translations
         assert resultAnkiCard.interval >= 0
         assert resultAnkiCard.interval <= 100
+        assert resultAnkiCard.status == Modellingq.status
+        assert resultAnkiCard.extended_status == Modellingq.extended_status
+        assert resultAnkiCard.tags == Modellingq.tags
+        assert resultAnkiCard.sentence == Modellingq.fragment
+        assert resultAnkiCard.importance == Modellingq.importance

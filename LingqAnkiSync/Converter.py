@@ -13,9 +13,13 @@ def ConvertAnkiCardsToLingqs(ankiCards: List[AnkiCard], statusToInterval: Dict[i
             Lingq(
                 card.primaryKey,
                 card.word,
-                card.translation,
+                card.translations,
                 _ConvertAnkiIntervalToLingqStatus(card.interval, statusToInterval),
-                None
+                card.extended_status,
+                card.tags,
+                card.sentence,
+                card.importance,
+                card.status
         ))
     return lingqs
 
@@ -26,8 +30,13 @@ def ConvertLingqsToAnkiCards(lingqs: List[Lingq], statusToInterval: Dict[int,int
             AnkiCard(
                 lingq.primaryKey,
                 lingq.word,
-                lingq.translation,
-                _ConvertLingqStatusToAnkiInterval(lingq.status, lingq.extended_status, statusToInterval)
+                lingq.translations,
+                _ConvertLingqStatusToAnkiInterval(lingq.status, lingq.extended_status, statusToInterval),
+                lingq.status,
+                lingq.extended_status,
+                lingq.tags,
+                lingq.fragment,
+                lingq.importance
         ))
     return ankiCards
 
