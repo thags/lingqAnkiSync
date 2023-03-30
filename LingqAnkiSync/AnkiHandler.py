@@ -9,16 +9,21 @@ def CreateNotesFromCards(cards: List[AnkiCard], deckName: str) -> int:
 def CreateNote(card: AnkiCard, deckName: str) -> bool:
     if (DoesDuplicateCardExistInDeck(card.primaryKey , deckName)):
         return False
-    modelName = "LingqAnkiSync"
-    noteFields = ["Front", "Back", "LingqPK"]
+    modelName = "LingqAnkiSyncModel"
+    noteFields = ["Front", "Back", "LingqPK", "LingqStatus", "LingqExtendedStatus", "Sentence", "LingqImportance"]
     CreateNoteTypeIfNotExist(modelName, noteFields, deckName)
 
     model = mw.col.models.byName(modelName)
     note = Note(mw.col, model)
 
     note["Front"] = card.word
-    note["Back"] = card.translation
+    note["Back"] = ", ".join(card.translations)
     note["LingqPK"] = str(card.primaryKey)
+    note["LingqStatus"] = str(card.status)
+    note["LingqExtendedStatus"] = str(card.extended_status)
+    note.tags = card.tags
+    note["Sentence"] = card.sentence
+    note["LingqImportance"] = str(card.importance)
 
     deck_id = mw.col.decks.id(deckName)
     note.model()['did'] = deck_id
@@ -36,8 +41,8 @@ def CreateNoteType(name: str, fields: List):
     for field in fields:
         mw.col.models.addField(model, mw.col.models.newField(field))
 
-    template = mw.col.models.newTemplate("lingqAnkiSyncTemplate")
-    template['qfmt'] = "{{Front}}"
+    template = mw.col.models.newTemplate("lingqAnkiSync")
+    template['qfmt'] = "{{Front}}<br>{{Sentence}}"
     template['afmt'] = "{{FrontSide}}<hr id=answer>{{Back}}"
     mw.col.models.addTemplate(model, template)
     mw.col.models.add(model)
@@ -70,5 +75,10 @@ def _CreateAnkiCardObject(card, cardId) -> AnkiCard:
         card.note()["LingqPK"],
         card.note()["Front"],
         card.note()["Back"],
-        GetIntervalFromCard(cardId)
+        GetIntervalFromCard(cardId),
+        card.note()["LingqStatus"],
+        card.note()["LingqExtendedStatus"],
+        card.note().tags,
+        card.note()["Sentence"],
+        card.note()["LingqImportance"]
     )

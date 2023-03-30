@@ -27,15 +27,17 @@ class LingqApi:
 
     def _ConvertApiToLingqs(self) -> List[Lingq]:
         for lingq in self.unformatedLingqs:
+            translations = [hint['text'] for hint in lingq['hints']]
             self.lingqs.append(
                 Lingq(
                     lingq['pk'],
                     lingq['term'],
-                    lingq['hints'][0]['text']
-                        if (len(lingq['hints']) > 0)
-                        else " ",
+                    translations,
                     lingq['status'],
-                    lingq['extended_status']
+                    lingq['extended_status'],
+                    lingq['tags'],
+                    lingq['fragment'],
+                    lingq['importance']
             ))
 
     def SyncStatusesToLingq(self, lingqs: List[Lingq]) -> int:
