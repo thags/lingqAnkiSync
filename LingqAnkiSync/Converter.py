@@ -1,10 +1,15 @@
-import sys, os
-sys.path.append(os.path.realpath(f"./{os.path.dirname(__file__)}"))
-
 import random
 from typing import List, Dict
-from Models.Lingq import Lingq
-from Models.AnkiCard import AnkiCard
+import sys
+
+if sys.platform == "win32":
+    import os
+    sys.path.append(os.path.realpath(f"./{os.path.dirname(__file__)}"))
+    from Models.Lingq import Lingq
+    from Models.AnkiCard import AnkiCard
+else:
+    from .Models.Lingq import Lingq
+    from .Models.AnkiCard import AnkiCard
 
 def ConvertAnkiCardsToLingqs(ankiCards: List[AnkiCard], statusToInterval: Dict[int,int]) -> List[Lingq]:
     lingqs = []
