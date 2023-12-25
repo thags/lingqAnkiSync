@@ -17,7 +17,7 @@ class LingqApi:
             words = words_response.json()['results']
             self.unformatedLingqs.extend(words)
             nextUrl = words_response.json()['next']
-            time.sleep(10)
+            time.sleep(2)
         self._ConvertApiToLingqs()
         return self.lingqs
 
