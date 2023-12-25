@@ -1,21 +1,23 @@
 import requests
+import time
 from typing import List
 from .Models.Lingq import Lingq
 class LingqApi:
     def __init__(self, apiKey, languageCode):
         self.apiKey = apiKey
         self.languageCode = languageCode
-        self._baseUrl = f"https://www.lingq.com/api/v2/{languageCode}/cards"
+        self._baseUrl = f"https://www.lingq.com/api/v3/{languageCode}/cards/"
         self.unformatedLingqs = []
         self.lingqs = []
 
     def GetAllLingqs(self) -> List[Lingq]:
-        nextUrl = self._baseUrl
+        nextUrl = self._baseUrl + "?page=1&page_size=200"
         while (nextUrl != None):
             words_response = self._GetSinglePage(nextUrl)
             words = words_response.json()['results']
             self.unformatedLingqs.extend(words)
             nextUrl = words_response.json()['next']
+            time.sleep(10)
         self._ConvertApiToLingqs()
         return self.lingqs
 
