@@ -16,19 +16,19 @@ class UI:
 
         self.import_button_box = QDialogButtonBox()
         self.import_button_box.addButton(
-            QPushButton("Import"), QDialogButtonBox.AcceptRole)
+            QPushButton("Import"), QDialogButtonBox.ButtonRole.AcceptRole)
         self.import_button_box.addButton(
-            QPushButton("Cancel"), QDialogButtonBox.RejectRole)
+            QPushButton("Cancel"), QDialogButtonBox.ButtonRole.RejectRole)
 
         self.sync_button_box = QDialogButtonBox()
         self.sync_button_box.addButton(QPushButton(
-            "Sync to Lingq"), QDialogButtonBox.AcceptRole)
+            "Sync to Lingq"), QDialogButtonBox.ButtonRole.AcceptRole)
         self.actionHandler = ActionHandler(mw.addonManager)
 
     def run(self):
         self.dialog = QDialog(mw)
         self.dialog.setWindowTitle("Import LingQs from LingQ.com")
-        self.dialog.setWindowModality(Qt.WindowModal)
+        self.dialog.setWindowModality(Qt.WindowModality.WindowModal)
 
         self.language_code_field.setPlaceholderText("Language Code")
         self.api_key_field.setPlaceholderText("API Key")
@@ -51,7 +51,7 @@ class UI:
         self.import_button_box.rejected.connect(self.dialog.reject)
         self.sync_button_box.accepted.connect(self.SyncLingqsBackground)
 
-        self.dialog.exec_()
+        self.dialog.exec()
 
     def import_lingqs(self):
         self.configSet()
