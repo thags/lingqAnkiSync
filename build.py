@@ -12,9 +12,6 @@ def project_files(path):
 
 if __name__ == "__main__":
     with ZipFile("LingqAnkiSync.ankiaddon", "w") as myzip:
-        myzip.write("manifest.json")
-        myzip.write("README.md")
-        myzip.write("LICENSE")
 
         for f in project_files("."):
             zip_path = os.path.join(*f.split(os.path.sep)[2:])
