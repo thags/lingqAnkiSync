@@ -17,6 +17,6 @@ if __name__ == "__main__":
         myzip.write("LICENSE")
 
         for f in project_files("."):
-            zip_path = os.path.join(*f.split(os.path.sep)[1:])
+            zip_path = os.path.join(*f.split(os.path.sep)[2:])
 
             myzip.write(f, zip_path)
