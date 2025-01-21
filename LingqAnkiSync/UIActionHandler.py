@@ -1,7 +1,8 @@
-from .Converter import ConvertAnkiCardsToLingqs, ConvertLingqsToAnkiCards
+from .Converter import AnkiCardsToLingqs, LingqsToAnkiCards
 from .AnkiHandler import CreateNotesFromCards, GetAllCardsInDeck, GetAllDeckNames
 from .LingqApi import LingqApi
 from .Config import Config
+from .Models.Lingq import Lingq
 from typing import List
 
 class ActionHandler:
@@ -14,7 +15,7 @@ class ActionHandler:
         statusToInterval = self.config.GetStatusToInterval()
 
         lingqs = LingqApi(apiKey, languageCode).GetAllLingqs()
-        cards = ConvertLingqsToAnkiCards(lingqs, statusToInterval)
+        cards = LingqsToAnkiCards(lingqs, statusToInterval)
         return CreateNotesFromCards(cards, deckName)
 
     def SyncLingqStatusToLingq(self, deckName) -> int:
@@ -23,8 +24,20 @@ class ActionHandler:
         statusToInterval = self.config.GetStatusToInterval()
         
         cards = GetAllCardsInDeck(deckName)
-        lingqs = ConvertAnkiCardsToLingqs(cards, statusToInterval)
+        # pre-checking if cards should update, to limit API calls later on
+        cards_to_update = self._FindCardsToUpdate(cards, statusToInterval)
+        lingqs = AnkiCardsToLingqs(cards_to_update, statusToInterval)
+
         return LingqApi(apiKey, languageCode).SyncStatusesToLingq(lingqs)
+
+    def _FindCardsToUpdate(self, ankiCards, statusToInterval):
+        cards_to_update = []
+
+        for card in ankiCards:
+            next_level_interval = statusToInterval[Lingq.LEVELS.index(card.status)+1]
+            if card.interval > next_level_interval: cards_to_update.append(card)
+
+        return cards_to_update
 
     def SetConfigs(self, apiKey, languageCode):
         self.config.SetApiKey(apiKey)

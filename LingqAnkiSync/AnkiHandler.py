@@ -10,17 +10,16 @@ def CreateNote(card: AnkiCard, deckName: str) -> bool:
     if (DoesDuplicateCardExistInDeck(card.primaryKey , deckName)):
         return False
     modelName = "LingqAnkiSyncModel"
-    noteFields = ["Front", "Back", "LingqPK", "LingqStatus", "LingqExtendedStatus", "Sentence", "LingqImportance"]
+    noteFields = ["Front", "Back", "LingqPK", "LingqStatus", "Sentence", "LingqImportance"]
     CreateNoteTypeIfNotExist(modelName, noteFields, deckName)
 
     model = mw.col.models.byName(modelName)
     note = Note(mw.col, model)
 
     note["Front"] = card.word
-    note["Back"] = ", ".join(card.translations)
+    note["Back"] = "<br>".join(f"{i+1}. {item}" for i, item in enumerate(card.translations))
     note["LingqPK"] = str(card.primaryKey)
     note["LingqStatus"] = str(card.status)
-    note["LingqExtendedStatus"] = str(card.extended_status)
     note.tags = card.tags
     note["Sentence"] = card.sentence
     note["LingqImportance"] = str(card.importance)
@@ -77,7 +76,6 @@ def _CreateAnkiCardObject(card, cardId) -> AnkiCard:
         card.note()["Back"],
         GetIntervalFromCard(cardId),
         card.note()["LingqStatus"],
-        card.note()["LingqExtendedStatus"],
         card.note().tags,
         card.note()["Sentence"],
         card.note()["LingqImportance"]

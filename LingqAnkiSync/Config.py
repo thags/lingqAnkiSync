@@ -1,3 +1,5 @@
+from Models.Lingq import Lingq
+
 class Config:
     def __init__(self, addonManager):
         self.addonManager = addonManager
@@ -24,4 +26,21 @@ class Config:
         self._SetConfig('languageCode', setTo)
     
     def GetStatusToInterval(self):
-        return {0: 0, 1: 10, 2: 25, 3: 40, 4: 90}
+        # Using a default anki ease factor of 2.5, this should make it so
+        # that you need to complete two reviews of a card before it updates in
+        # lingq with a higher known status
+        #
+        # e.g. card pulled from linq with status of 2 (5 day review interval).
+        # we see it and review it once correctly. card will still sync to lingq
+        # as a status of 2 until we see that card again in 32.5 days and review
+        # correctly a second time.
+        #
+        # but also if we hit "easy" just once in anki then that will be sufficient
+        # to increase the status to the next level
+        return {
+            Lingq.LEVEL_1: 0,
+            Lingq.LEVEL_2: 5,
+            Lingq.LEVEL_3: 13,
+            Lingq.LEVEL_4: 34,
+            Lingq.LEVEL_KNOWN: 85
+        }

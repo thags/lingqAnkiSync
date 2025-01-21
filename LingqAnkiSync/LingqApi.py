@@ -2,6 +2,7 @@ import requests
 import time
 from typing import List
 from Models.Lingq import Lingq
+import Converter
 
 class LingqApi:
     def __init__(self, apiKey, languageCode):
@@ -48,36 +49,27 @@ class LingqApi:
 
     def SyncStatusesToLingq(self, lingqs: List[Lingq]) -> int:
         lingqsUpdated = 0
+
         for lingq in lingqs:
-            if (self._ShouldUpdateStatus(lingq.primaryKey, lingq.status) == False): continue
-            lingq = self._GetLingqStatusReadyForSync(lingq)
-            headers = {"Authorization": f"Token {self.apiKey}"}
-            url = f"{self._baseUrl}/{lingq.primaryKey}/"
-            response = requests.patch(url, headers=headers, data={
-                "status": lingq.status, "extended_status": lingq.extended_status})
-            response.raise_for_status()
-            lingqsUpdated += 1
+            if self._ShouldUpdateStatus(lingq.primaryKey, lingq.status):
+                internal_status, extended_status = Converter._LingqStatusToInternalStatus(lingq.status)
+                headers = {"Authorization": f"Token {self.apiKey}"}
+                url = f"{self._baseUrl}/{lingq.primaryKey}/"
+                response = requests.patch(url, headers=headers, data={
+                    "status": internal_status, "extended_status": extended_status})
+                response.raise_for_status()
+                lingqsUpdated += 1
+
         return lingqsUpdated
 
-    def _GetLingqStatus(self, lingqPrimaryKey):
-        url = f"{self._baseUrl}/{lingqPrimaryKey}/"
+    def _GetLingqStatus(self, lingq_primary_key):
+        url = f"{self._baseUrl}/{lingq_primary_key}/"
         response = self._GetSinglePage(url)
-        status = response.json()['status']
-        extendedStatus = response.json()['extended_status']
-        if (extendedStatus == 3 and status == 3):
-            status = 4
-        if (extendedStatus == 0 and status == 3):
-            status = 2
-        return status
+        internal_status = response.json()['status']
+        extended_status = response.json()['extended_status']
 
-    def _GetLingqStatusReadyForSync(self, lingq: Lingq):
-        if (lingq.status == 4):
-            lingq.extended_status = 3
-            lingq.status = 3
-        else:
-            lingq.extended_status = 0
-        return lingq
+        return Converter._LingqInternalStatusToStatus(internal_status, extended_status)
 
     def _ShouldUpdateStatus(self, lingqPrimaryKey, newStatus) -> bool:
         lingqCurrentStatus = self._GetLingqStatus(lingqPrimaryKey)
-        return int(lingqCurrentStatus) < int(newStatus)
+        return Lingq.LEVELS.index(lingqCurrentStatus) < Lingq.LEVELS.index(newStatus)
