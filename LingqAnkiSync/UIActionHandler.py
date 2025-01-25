@@ -22,7 +22,7 @@ class ActionHandler:
         apiKey = self.config.GetApiKey()
         languageCode = self.config.GetLanguageCode()
         statusToInterval = self.config.GetStatusToInterval()
-        
+
         cards = GetAllCardsInDeck(deckName)
         # pre-checking if cards should update, to limit API calls later on
         cards_to_update = self._FindCardsToUpdate(cards, statusToInterval)
@@ -34,8 +34,12 @@ class ActionHandler:
         cards_to_update = []
 
         for card in ankiCards:
-            next_level_interval = statusToInterval[Lingq.LEVELS.index(card.status)+1]
-            if card.interval > next_level_interval: cards_to_update.append(card)
+            if(card.status != Lingq.LEVEL_KNOWN):
+                next_level = Lingq.LEVELS[Lingq.LEVELS.index(card.status)+1]
+                next_level_interval = statusToInterval[next_level]
+
+                if card.interval > next_level_interval:
+                    cards_to_update.append(card)
 
         return cards_to_update
 

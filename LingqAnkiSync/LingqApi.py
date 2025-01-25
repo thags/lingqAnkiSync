@@ -51,12 +51,11 @@ class LingqApi:
         lingqsUpdated = 0
 
         for lingq in lingqs:
-            if self._ShouldUpdateStatus(lingq.primaryKey, lingq.status):
-                internal_status, extended_status = Converter._LingqStatusToInternalStatus(lingq.status)
+            if self._ShouldUpdate(lingq):
                 headers = {"Authorization": f"Token {self.apiKey}"}
                 url = f"{self._baseUrl}/{lingq.primaryKey}/"
                 response = requests.patch(url, headers=headers, data={
-                    "status": internal_status, "extended_status": extended_status})
+                    "status": lingq.status, "extended_status": lingq.extended_status})
                 response.raise_for_status()
                 lingqsUpdated += 1
 
@@ -70,6 +69,7 @@ class LingqApi:
 
         return Converter._LingqInternalStatusToStatus(internal_status, extended_status)
 
-    def _ShouldUpdateStatus(self, lingqPrimaryKey, newStatus) -> bool:
-        lingqCurrentStatus = self._GetLingqStatus(lingqPrimaryKey)
+    def _ShouldUpdate(self, lingq) -> bool:
+        newStatus = Converter._LingqInternalStatusToStatus(lingq.status, lingq.extended_status)
+        lingqCurrentStatus = self._GetLingqStatus(lingq.primaryKey)
         return Lingq.LEVELS.index(lingqCurrentStatus) < Lingq.LEVELS.index(newStatus)

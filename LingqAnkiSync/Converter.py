@@ -47,15 +47,15 @@ def _LingqStatusToAnkiInterval(status: int, extended_status: int, status_to_inte
     known_status = _LingqInternalStatusToStatus(status, extended_status)
     interval_range = (0, 0)
 
-    if known_status == 'new':
+    if known_status == Lingq.LEVEL_1:
         interval_range = (0, status_to_interval[known_status])
-    elif known_status == 'recognized':
-        interval_range = (status_to_interval[known_status], status_to_interval['familiar'])
-    elif known_status == 'familiar':
-        interval_range = (status_to_interval[known_status], status_to_interval['learned'])
-    elif known_status == 'learned':
-        interval_range = (status_to_interval[known_status], status_to_interval['known'])
-    elif known_status == 'known':
+    elif known_status == Lingq.LEVEL_2:
+        interval_range = (status_to_interval[known_status], status_to_interval[Lingq.LEVEL_3])
+    elif known_status == Lingq.LEVEL_3:
+        interval_range = (status_to_interval[known_status], status_to_interval[Lingq.LEVEL_4])
+    elif known_status == Lingq.LEVEL_4:
+        interval_range = (status_to_interval[known_status], status_to_interval[Lingq.LEVEL_KNOWN])
+    elif known_status == Lingq.LEVEL_KNOWN:
         # If a card is known, how long should the range be? Double?
         interval_range = (status_to_interval[known_status], status_to_interval[known_status] * 2)
 
@@ -63,12 +63,13 @@ def _LingqStatusToAnkiInterval(status: int, extended_status: int, status_to_inte
     return r
 
 def _AnkiIntervalToLingqStatus(interval: int, status_to_interval: Dict[str,int]) -> str:
-    if interval > status_to_interval['known']:
-        known_status = 'known'
+    if interval > status_to_interval[Lingq.LEVEL_KNOWN]:
+        known_status = Lingq.LEVEL_KNOWN
     else:
-        known_status = max([
-            k for k,v in status_to_interval.items() if interval > v
-        ], default='new')
+        known_status = Lingq.LEVEL_1
+        for level in Lingq.LEVELS:
+            if interval > status_to_interval[level]:
+                known_status = level
 
     return known_status
 
