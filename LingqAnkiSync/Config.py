@@ -30,9 +30,9 @@ class Config:
         # that you need to complete two reviews of a card before it updates in
         # lingq with a higher known status
         #
-        # e.g. card pulled from linq with status of 2 (5 day review interval).
+        # e.g. card pulled from linq with status of 'recognized' (5 day review interval).
         # we see it and review it once correctly. card will still sync to lingq
-        # as a status of 2 until we see that card again in 32.5 days and review
+        # as a status of 'recognized' until we see that card again in 32.5 days and review
         # correctly a second time.
         #
         # but also if we hit "easy" just once in anki then that will be sufficient
