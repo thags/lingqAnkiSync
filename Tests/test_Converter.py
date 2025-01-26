@@ -89,15 +89,17 @@ class TestLingqInternalStatusConversion:
         assert result_internal_status == 0
         assert result_external_status in (0, None)
 
-        result_internal_status2, result_external_status2 = Converter.lingq_status_to_internal_status(
-            status=Lingq.Lingq.LEVEL_3
-        )
+        (
+            result_internal_status2,
+            result_external_status2,
+        ) = Converter.lingq_status_to_internal_status(status=Lingq.Lingq.LEVEL_3)
         assert result_internal_status2 == 2
         assert result_external_status2 == 0
 
-        result_internal_status3, result_external_status3 = Converter.lingq_status_to_internal_status(
-            status=Lingq.Lingq.LEVEL_KNOWN
-        )
+        (
+            result_internal_status3,
+            result_external_status3,
+        ) = Converter.lingq_status_to_internal_status(status=Lingq.Lingq.LEVEL_KNOWN)
         assert result_internal_status3 == 3
         assert result_external_status3 == 3
 

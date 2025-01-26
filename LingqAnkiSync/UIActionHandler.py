@@ -1,7 +1,7 @@
 from .Converter import anki_cards_to_lingqs, lingqs_to_anki_cards
 from .AnkiHandler import create_notes_from_cards, get_all_cards_in_deck, get_all_deck_names
 from .LingqApi import LingqApi
-from .Config import Config
+from .Config import Config, lingq_langcodes
 from .Models.Lingq import Lingq
 from .Models.AnkiCard import AnkiCard
 from typing import List, Dict
@@ -16,6 +16,8 @@ class ActionHandler:
         language_code = self.get_language_code()
         status_to_interval = self.config.get_status_to_interval()
 
+        self._check_language_code(language_code)
+
         lingqs = LingqApi(api_key, language_code, import_knowns).get_lingqs()
         cards = lingqs_to_anki_cards(lingqs, status_to_interval)
         return create_notes_from_cards(cards, deck_name)
@@ -25,6 +27,8 @@ class ActionHandler:
         language_code = self.config.get_language_code()
         status_to_interval = self.config.get_status_to_interval()
 
+        self._check_language_code(language_code)
+
         cards = get_all_cards_in_deck(deck_name)
         # pre-checking if cards should update, to limit API calls later on
         cards_to_update = self._find_cards_to_update(cards, status_to_interval)
@@ -32,7 +36,13 @@ class ActionHandler:
 
         return LingqApi(api_key, language_code).sync_statuses_to_lingq(lingqs)
 
-    def _find_cards_to_update(self, anki_cards: List[AnkiCard], status_to_interval: Dict[str,int]):
+    def _check_language_code(self, language_code):
+        if language_code and language_code not in lingq_langcodes:
+            raise ValueError(
+                f'Language code "{language_code}" is not valid. Examples include "es", "de", "ja", etc.'
+            )
+
+    def _find_cards_to_update(self, anki_cards: List[AnkiCard], status_to_interval: Dict[str, int]):
         cards_to_update = []
 
         for card in anki_cards:

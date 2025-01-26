@@ -10,7 +10,7 @@ colorama==0.4.6
 decorator==5.1.1
 Flask==3.1.0
 Flask-Cors==5.0.0
-idna==3.4
+idna==3.7
 iniconfig==2.0.0
 itsdangerous==2.2.0
 Jinja2==3.1.2

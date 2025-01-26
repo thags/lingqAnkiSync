@@ -1,6 +1,14 @@
 from Models.Lingq import Lingq
 from typing import Dict
 
+# fmt: off
+lingq_langcodes = [
+    'ar','hk','ca','zh','cs','da','nl','fi','el','he','id','it','ja','ko','la','no','fa','pl','pt',
+    'ro','ru','sv','tr','uk','af','hy','be','bg','eo','ka','gu','hi','hu','is','km','mk','ms','pa',
+    'sk','sl','sw','tl','vi', 'en', 'fr', 'de', 'es'
+]
+# fmt: on
+
 
 class Config:
     def __init__(self, addon_manager):
@@ -27,7 +35,7 @@ class Config:
     def set_language_code(self, set_to: str):
         self._set_config("languageCode", set_to)
 
-    def get_status_to_interval(self) -> Dict[str,int]:
+    def get_status_to_interval(self) -> Dict[str, int]:
         # Using a default anki ease factor of 2.5, this should make it so
         # that you need to complete two reviews of a card before it updates in
         # lingq with a higher known status
