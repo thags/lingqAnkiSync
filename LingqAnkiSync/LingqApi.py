@@ -5,21 +5,27 @@ from Models.Lingq import Lingq
 import Converter
 
 class LingqApi:
-    def __init__(self, apiKey, languageCode):
+    def __init__(self, apiKey: str, languageCode: str, import_knowns: bool):
         self.apiKey = apiKey
         self.languageCode = languageCode
+        self.import_knowns = import_knowns
         self._baseUrl = f"https://www.lingq.com/api/v3/{languageCode}/cards"
         self.unformatedLingqs = []
         self.lingqs = []
 
-    def GetAllLingqs(self) -> List[Lingq]:
+    def GetLingqs(self) -> List[Lingq]:
         nextUrl = self._baseUrl + "?page=1&page_size=200"
+
         while (nextUrl != None):
+            if not self.import_knowns:
+                nextUrl += '&status=0&status=1&status=2&status=3'
+
             words_response = self._GetSinglePage(nextUrl)
             words = words_response.json()['results']
             self.unformatedLingqs.extend(words)
             nextUrl = words_response.json()['next']
             time.sleep(2)
+
         self._ConvertApiToLingqs()
         return self.lingqs
 

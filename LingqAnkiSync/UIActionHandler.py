@@ -9,12 +9,12 @@ class ActionHandler:
     def __init__(self, addonManager):
         self.config = Config(addonManager)
 
-    def ImportLingqsToAnki(self, deckName) -> int:
+    def ImportLingqsToAnki(self, deckName:str, import_knowns: bool) -> int:
         apiKey = self.GetApiKey()
         languageCode = self.GetLanguageCode()
         statusToInterval = self.config.GetStatusToInterval()
 
-        lingqs = LingqApi(apiKey, languageCode).GetAllLingqs()
+        lingqs = LingqApi(apiKey, languageCode, import_knowns).GetLingqs()
         cards = LingqsToAnkiCards(lingqs, statusToInterval)
         return CreateNotesFromCards(cards, deckName)
 
