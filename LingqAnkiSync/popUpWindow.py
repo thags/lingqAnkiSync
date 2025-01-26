@@ -1,4 +1,4 @@
-from aqt.qt import QLineEdit, QComboBox, QPushButton, QAction, QDialogButtonBox, QDialog, QVBoxLayout, QLabel, Qt
+from aqt.qt import QLineEdit, QComboBox, QPushButton, QAction, QDialogButtonBox, QDialog, QVBoxLayout, QLabel, Qt, QCheckBox
 from aqt import mw
 from aqt.operations import QueryOp
 from aqt.utils import showInfo
@@ -12,6 +12,7 @@ class UI:
         action.triggered.connect(lambda: UI().run())
         self.api_key_field = QLineEdit()
         self.language_code_field = QLineEdit()
+        self.import_knowns_box = QCheckBox('Import known LingQs?')
         self.deck_selector = QComboBox()
 
         self.import_button_box = QDialogButtonBox()
@@ -41,6 +42,7 @@ class UI:
         layout.addWidget(QLabel("Enter LingQ API Key:"))
         layout.addWidget(self.api_key_field)
         layout.addWidget(self.language_code_field)
+        layout.addWidget(self.import_knowns_box)
         layout.addWidget(QLabel("Select deck to import LingQs into:"))
         layout.addWidget(self.deck_selector)
         layout.addWidget(self.import_button_box)
@@ -56,9 +58,10 @@ class UI:
     def import_lingqs(self):
         self.configSet()
         deckName = self.deck_selector.currentText()
+        import_knowns = self.import_knowns_box.isChecked()
         op = QueryOp(
             parent=mw,
-            op=lambda col: self.actionHandler.ImportLingqsToAnki(deckName),
+            op=lambda col: self.actionHandler.ImportLingqsToAnki(deckName, import_knowns),
             success=self.SuccesfulImport,
         )
         op.with_progress("Lingq import in progress, please wait.").run_in_background()
