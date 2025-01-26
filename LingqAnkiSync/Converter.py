@@ -3,48 +3,63 @@ from typing import List, Dict, Tuple
 import sys
 
 import os
+
 sys.path.append(os.path.realpath(f"./{os.path.dirname(__file__)}"))
 from Models.Lingq import Lingq
 from Models.AnkiCard import AnkiCard
 
-def AnkiCardsToLingqs(anki_cards: List[AnkiCard], status_to_interval: Dict[str,int]) -> List[Lingq]:
+
+def anki_cards_to_lingqs(
+    anki_cards: List[AnkiCard], status_to_interval: Dict[str, int]
+) -> List[Lingq]:
     lingqs = []
     for card in anki_cards:
         lingqs.append(
             Lingq(
-                card.primaryKey,
+                card.primary_key,
                 card.word,
                 card.translations,
-                *_LingqStatusToInternalStatus(_AnkiIntervalToLingqStatus(card.interval, status_to_interval)),
+                *lingq_status_to_internal_status(
+                    _anki_interval_to_lingq_status(card.interval, status_to_interval)
+                ),
                 card.tags,
                 card.sentence,
                 card.importance,
-                card.status
-        ))
+                card.status,
+            )
+        )
     return lingqs
 
-def LingqsToAnkiCards(lingqs: List[Lingq], statusToInterval: Dict[str,int]) -> List[AnkiCard]:
-    ankiCards = []
+
+def lingqs_to_anki_cards(lingqs: List[Lingq], status_to_interval: Dict[str, int]) -> List[AnkiCard]:
+    anki_cards = []
     for lingq in lingqs:
-        ankiCards.append(
+        anki_cards.append(
             AnkiCard(
-                primarykey=lingq.primaryKey,
+                primary_key=lingq.primary_key,
                 word=lingq.word,
                 translations=lingq.translations,
-                interval=_LingqStatusToAnkiInterval(lingq.status, lingq.extended_status, statusToInterval),
-                status=_LingqInternalStatusToStatus(lingq.status, lingq.extended_status),
+                interval=_lingq_status_to_anki_interval(
+                    lingq.status, lingq.extended_status, status_to_interval
+                ),
+                status=lingq_internal_status_to_status(lingq.status, lingq.extended_status),
                 tags=lingq.tags,
                 sentence=lingq.fragment,
                 importance=lingq.importance,
-                popularity=lingq.popularity
-        ))
-    return ankiCards
+                popularity=lingq.popularity,
+            )
+        )
+    return anki_cards
 
-def CardCanIncreaseStatus(anki_card: AnkiCard, statusToInterval: Dict[str,int]):
-    return anki_card.interval > statusToInterval[anki_card.status]
 
-def _LingqStatusToAnkiInterval(status: int, extended_status: int, status_to_interval: Dict[str,int]) -> int:
-    known_status = _LingqInternalStatusToStatus(status, extended_status)
+def card_can_increase_status(anki_card: AnkiCard, status_to_interval: Dict[str, int]):
+    return anki_card.interval > status_to_interval[anki_card.status]
+
+
+def _lingq_status_to_anki_interval(
+    status: int, extended_status: int, status_to_interval: Dict[str, int]
+) -> int:
+    known_status = lingq_internal_status_to_status(status, extended_status)
     interval_range = (0, 0)
 
     if known_status == Lingq.LEVEL_1:
@@ -62,7 +77,8 @@ def _LingqStatusToAnkiInterval(status: int, extended_status: int, status_to_inte
     r = random.randint(interval_range[0], interval_range[1])
     return r
 
-def _AnkiIntervalToLingqStatus(interval: int, status_to_interval: Dict[str,int]) -> str:
+
+def _anki_interval_to_lingq_status(interval: int, status_to_interval: Dict[str, int]) -> str:
     if interval > status_to_interval[Lingq.LEVEL_KNOWN]:
         known_status = Lingq.LEVEL_KNOWN
     else:
@@ -73,13 +89,15 @@ def _AnkiIntervalToLingqStatus(interval: int, status_to_interval: Dict[str,int])
 
     return known_status
 
-def _LingqInternalStatusToStatus(internal_status: int, extended_status: int) -> str:
+
+def lingq_internal_status_to_status(internal_status: int, extended_status: int) -> str:
     if internal_status not in (0, 1, 2, 3) or extended_status not in (None, 0, 3):
         raise ValueError(
-            f'''Lingq api status outside of accepted range
+            f"""Lingq api status outside of accepted range
             Status: {internal_status}
             Extended Status: {extended_status}
-        ''')
+        """
+        )
 
     if extended_status == 3:
         known_status = Lingq.LEVELS[4]
@@ -88,12 +106,13 @@ def _LingqInternalStatusToStatus(internal_status: int, extended_status: int) -> 
 
     return known_status
 
-def _LingqStatusToInternalStatus(status: str) -> Tuple[int, int]:
+
+def lingq_status_to_internal_status(status: str) -> Tuple[int, int]:
     if status not in Lingq.LEVELS:
         raise ValueError(f'No such status "{status}". Should be one of {Lingq.LEVELS}')
 
     extended_status = 0
-    if status == 'known':
+    if status == "known":
         internal_status = 3
         extended_status = 3
     else:

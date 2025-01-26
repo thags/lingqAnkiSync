@@ -1,31 +1,33 @@
 from Models.Lingq import Lingq
+from typing import Dict
+
 
 class Config:
-    def __init__(self, addonManager):
-        self.addonManager = addonManager
-        self.config = self.addonManager.getConfig(__name__)
+    def __init__(self, addon_manager):
+        self.addon_manager = addon_manager
+        self.config = self.addon_manager.getConfig(__name__)
 
-    def _GetConfig(self, fieldName: str) -> str:
-        value = self.config[fieldName]
+    def _get_config(self, field_name: str) -> str:
+        value = self.config[field_name]
         return "" if value is None or value == "" else str(value)
-    
-    def _SetConfig(self, fieldName: str, setTo: str):
-        self.config[fieldName] = setTo
-        self.addonManager.writeConfig(__name__, self.config)
 
-    def GetApiKey(self):
-        return self._GetConfig('apiKey')
+    def _set_config(self, field_name: str, set_to: str):
+        self.config[field_name] = set_to
+        self.addon_manager.writeConfig(__name__, self.config)
 
-    def SetApiKey(self, setTo: str):
-        self._SetConfig('apiKey', setTo)
+    def get_api_key(self):
+        return self._get_config("apiKey")
 
-    def GetLanguageCode(self):
-        return self._GetConfig('languageCode')
-    
-    def SetLanguageCode(self, setTo: str):
-        self._SetConfig('languageCode', setTo)
-    
-    def GetStatusToInterval(self):
+    def set_api_key(self, set_to: str):
+        self._set_config("apiKey", set_to)
+
+    def get_language_code(self):
+        return self._get_config("languageCode")
+
+    def set_language_code(self, set_to: str):
+        self._set_config("languageCode", set_to)
+
+    def get_status_to_interval(self) -> Dict[str,int]:
         # Using a default anki ease factor of 2.5, this should make it so
         # that you need to complete two reviews of a card before it updates in
         # lingq with a higher known status
@@ -42,5 +44,5 @@ class Config:
             Lingq.LEVEL_2: 5,
             Lingq.LEVEL_3: 13,
             Lingq.LEVEL_4: 34,
-            Lingq.LEVEL_KNOWN: 85
+            Lingq.LEVEL_KNOWN: 85,
         }

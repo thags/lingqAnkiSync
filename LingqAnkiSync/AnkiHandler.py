@@ -1,82 +1,92 @@
 from aqt import mw
 from anki.notes import Note
+from anki.cards import Card
 from typing import List
 from .Models.AnkiCard import AnkiCard
 
-def CreateNotesFromCards(cards: List[AnkiCard], deckName: str) -> int:
-    return sum(CreateNote(card, deckName) == True for card in cards)
 
-def CreateNote(card: AnkiCard, deckName: str) -> bool:
-    if (DoesDuplicateCardExistInDeck(card.primaryKey , deckName)):
+def create_notes_from_cards(cards: List[AnkiCard], deck_name: str) -> int:
+    return sum(create_note(card, deck_name) == True for card in cards)
+
+
+def create_note(card: AnkiCard, deck_name: str) -> bool:
+    if does_duplicate_card_exist_in_deck(card.primary_key, deck_name):
         return False
-    modelName = "LingqAnkiSyncModel"
-    noteFields = ["Front", "Back", "LingqPK", "LingqStatus", "Sentence", "LingqImportance"]
-    CreateNoteTypeIfNotExist(modelName, noteFields, deckName)
+    model_name = "LingqAnkiSyncModel"
+    note_fields = ["Front", "Back", "LingqPK", "LingqStatus", "Sentence", "LingqImportance"]
+    create_note_type_if_not_exist(model_name, note_fields)
 
-    model = mw.col.models.byName(modelName)
+    model = mw.col.models.byName(model_name)
     note = Note(mw.col, model)
 
     note["Front"] = card.word
     note["Back"] = "<br>".join(f"{i+1}. {item}" for i, item in enumerate(card.translations))
-    note["LingqPK"] = str(card.primaryKey)
+    note["LingqPK"] = str(card.primary_key)
     note["LingqStatus"] = str(card.status)
     note.tags = card.tags
     note["Sentence"] = card.sentence
     note["LingqImportance"] = str(card.importance)
 
-    deck_id = mw.col.decks.id(deckName)
-    note.model()['did'] = deck_id
+    deck_id = mw.col.decks.id(deck_name)
+    note.model()["did"] = deck_id
     mw.col.addNote(note)
     if card.interval > 0:
         mw.col.sched.set_due_date([note.id], str(card.interval))
     return True
 
-def DoesDuplicateCardExistInDeck(LingqPK, deckName):
-    return len(mw.col.find_cards(f'deck:"{deckName}" LingqPK:"{LingqPK}"')) > 0
 
-def CreateNoteType(name: str, fields: List):
+def does_duplicate_card_exist_in_deck(lingq_pk, deck_name):
+    return len(mw.col.find_cards(f'deck:"{deck_name}" LingqPK:"{lingq_pk}"')) > 0
+
+
+def create_note_type(name: str, fields: List):
     model = mw.col.models.new(name)
 
     for field in fields:
         mw.col.models.addField(model, mw.col.models.newField(field))
 
     template = mw.col.models.newTemplate("lingqAnkiSync")
-    template['qfmt'] = "{{Front}}<br>{{Sentence}}"
-    template['afmt'] = "{{FrontSide}}<hr id=answer>{{Back}}"
+    template["qfmt"] = "{{Front}}<br>{{Sentence}}"
+    template["afmt"] = "{{FrontSide}}<hr id=answer>{{Back}}"
     mw.col.models.addTemplate(model, template)
     mw.col.models.add(model)
     mw.col.models.setCurrent(model)
     mw.col.models.save(model)
     return model
 
-def CreateNoteTypeIfNotExist(noteTypeName: str, noteFields: List, deckName: str):
-    if not mw.col.models.byName(noteTypeName):
-        CreateNoteType(noteTypeName, noteFields)
 
-def GetAllCardsInDeck(deckName: str) -> List[AnkiCard]:
+def create_note_type_if_not_exist(note_type_name: str, note_fields: List):
+    if not mw.col.models.byName(note_type_name):
+        create_note_type(note_type_name, note_fields)
+
+
+def get_all_cards_in_deck(deck_name: str) -> List[AnkiCard]:
     cards = []
-    cardIds = mw.col.find_cards(f'deck:"{deckName}"')
-    for cardId in cardIds:
-        card = mw.col.get_card(cardId)
-        card = _CreateAnkiCardObject(card, cardId)
+    card_ids = mw.col.find_cards(f'deck:"{deck_name}"')
+    for card_id in card_ids:
+        card = mw.col.get_card(card_id)
+        card = _create_anki_card_object(card, card_id)
         cards.append(card)
     return cards
 
-def GetAllDeckNames() -> List[str]:
+
+def get_all_deck_names() -> List[str]:
     return mw.col.decks.all_names()
 
-def GetIntervalFromCard(cardId) -> int:
-    interval = mw.col.db.scalar("select ivl from cards where id = ?", cardId)
+
+def get_interval_from_card(card_id: int) -> int:
+    interval = mw.col.db.scalar("select ivl from cards where id = ?", card_id)
     return 0 if interval is None else interval
 
-def _CreateAnkiCardObject(card, cardId) -> AnkiCard:
+
+def _create_anki_card_object(card: Card, card_id: int) -> AnkiCard:
     return AnkiCard(
         card.note()["LingqPK"],
         card.note()["Front"],
         card.note()["Back"],
-        GetIntervalFromCard(cardId),
+        get_interval_from_card(card_id),
         card.note()["LingqStatus"],
         card.note().tags,
         card.note()["Sentence"],
-        card.note()["LingqImportance"]
+        card.note()["LingqImportance"],
     )

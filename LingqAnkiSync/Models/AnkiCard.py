@@ -1,6 +1,17 @@
 class AnkiCard:
-    def __init__(self, primarykey, word, translations, interval, status, tags, sentence, importance, popularity=0):
-        self.primaryKey = primarykey
+    def __init__(
+        self,
+        primary_key,
+        word,
+        translations,
+        interval,
+        status,
+        tags,
+        sentence,
+        importance,
+        popularity=0,
+    ):
+        self.primary_key = primary_key
         self.word = word
         self.translations = translations
         self.interval = interval
