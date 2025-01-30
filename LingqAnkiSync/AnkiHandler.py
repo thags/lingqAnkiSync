@@ -1,3 +1,4 @@
+import os
 from aqt import mw
 from anki.notes import Note
 from anki.cards import Card
@@ -12,11 +13,11 @@ def create_notes_from_cards(cards: List[AnkiCard], deck_name: str) -> int:
 def create_note(card: AnkiCard, deck_name: str) -> bool:
     if does_duplicate_card_exist_in_deck(card.primary_key, deck_name):
         return False
-    model_name = "LingqAnkiSyncModel"
-    note_fields = ["Front", "Back", "LingqPK", "LingqStatus", "Sentence", "LingqImportance"]
+    model_name = "LingQSync"
+    note_fields = ["Front", "Back", "LingqPK", "LingqStatus", "Sentence", "LingqImportance", "FrontAudio", "SentenceAudio"]
     create_note_type_if_not_exist(model_name, note_fields)
 
-    model = mw.col.models.byName(model_name)
+    model = mw.col.models.by_name(model_name)
     note = Note(mw.col, model)
 
     note["Front"] = card.word
@@ -45,12 +46,21 @@ def create_note_type(name: str, fields: List):
     for field in fields:
         mw.col.models.addField(model, mw.col.models.newField(field))
 
-    template = mw.col.models.newTemplate("lingqAnkiSync")
-    template["qfmt"] = "{{Front}}<br>{{Sentence}}"
-    template["afmt"] = "{{FrontSide}}<hr id=answer>{{Back}}"
-    mw.col.models.addTemplate(model, template)
+    template = mw.col.models.new_template("lingqAnkiSync")
+    resource_folder = os.path.dirname(__file__) + '/resources'
+
+    with open(resource_folder + '/style.css', 'r') as f:
+        model['css'] = f.read()
+
+    with open(resource_folder + '/front.html', 'r') as f:
+        template["qfmt"] = f.read()
+
+    with open(resource_folder + '/back.html', 'r') as f:
+        template["afmt"] = f.read()
+
+    mw.col.models.add_template(model, template)
     mw.col.models.add(model)
-    mw.col.models.setCurrent(model)
+    mw.col.models.set_current(model)
     mw.col.models.save(model)
     return model
 

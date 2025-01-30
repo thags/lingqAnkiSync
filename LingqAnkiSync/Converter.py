@@ -91,7 +91,7 @@ def _anki_interval_to_lingq_status(interval: int, status_to_interval: Dict[str, 
 
 
 def lingq_internal_status_to_status(internal_status: int, extended_status: int) -> str:
-    if internal_status not in (0, 1, 2, 3) or extended_status not in (None, 0, 3):
+    if internal_status not in (0, 1, 2, 3) or extended_status not in (None, 1, 0, 3):
         raise ValueError(
             f"""Lingq api status outside of accepted range
             Status: {internal_status}
