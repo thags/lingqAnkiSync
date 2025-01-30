@@ -1,4 +1,4 @@
-from Models.Lingq import Lingq
+from .Models.Lingq import Lingq
 from typing import Dict
 
 # fmt: off
@@ -46,7 +46,7 @@ class Config:
         # correctly a second time.
         #
         # but also if we hit "easy" just once in anki then that will be sufficient
-        # to increase the status to the next level
+        # to increase the status to the next level (except for new cards)
         return {
             Lingq.LEVEL_1: 0,
             Lingq.LEVEL_2: 5,

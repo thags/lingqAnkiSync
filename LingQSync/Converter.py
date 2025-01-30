@@ -1,12 +1,7 @@
 import random
 from typing import List, Dict, Tuple
-import sys
-
-import os
-
-sys.path.append(os.path.realpath(f"./{os.path.dirname(__file__)}"))
-from Models.Lingq import Lingq
-from Models.AnkiCard import AnkiCard
+from .Models.Lingq import Lingq
+from .Models.AnkiCard import AnkiCard
 
 
 def anki_cards_to_lingqs(
@@ -14,18 +9,20 @@ def anki_cards_to_lingqs(
 ) -> List[Lingq]:
     lingqs = []
     for card in anki_cards:
+        status, extended_status = lingq_status_to_internal_status(
+            _anki_interval_to_lingq_status(card.interval, status_to_interval)
+        )
         lingqs.append(
             Lingq(
-                card.primary_key,
-                card.word,
-                card.translations,
-                *lingq_status_to_internal_status(
-                    _anki_interval_to_lingq_status(card.interval, status_to_interval)
-                ),
-                card.tags,
-                card.sentence,
-                card.importance,
-                card.status,
+                primary_key=card.primary_key,
+                word=card.word,
+                translations=card.translations,
+                status=status,
+                extended_status=extended_status,
+                tags=card.tags,
+                fragment=card.sentence,
+                importance=card.importance,
+                popularity=card.popularity,
             )
         )
     return lingqs

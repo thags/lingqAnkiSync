@@ -23,7 +23,7 @@ class UI:
         action.triggered.connect(lambda: UI().run())
         self.api_key_field = QLineEdit()
         self.language_code_field = QLineEdit()
-        self.import_knowns_box = QCheckBox("Import known LingQs?")
+        self.import_knowns_box = QCheckBox("Also import known LingQs")
         self.deck_selector = QComboBox()
 
         self.import_button_box = QDialogButtonBox()
@@ -34,6 +34,7 @@ class UI:
             QPushButton("Cancel"), QDialogButtonBox.ButtonRole.RejectRole
         )
 
+        self.downgrade_lingqs_box = QCheckBox("Allow Sync to downgrade LingQs")
         self.sync_button_box = QDialogButtonBox()
         self.sync_button_box.addButton(
             QPushButton("Sync to Lingq"), QDialogButtonBox.ButtonRole.AcceptRole
@@ -60,6 +61,7 @@ class UI:
         layout.addWidget(QLabel("Select deck to import LingQs into:"))
         layout.addWidget(self.deck_selector)
         layout.addWidget(self.import_button_box)
+        layout.addWidget(self.downgrade_lingqs_box)
         layout.addWidget(self.sync_button_box)
         self.dialog.setLayout(layout)
 
@@ -93,9 +95,10 @@ class UI:
     def sync_lingqs_background(self):
         self.config_set()
         deck_name = self.deck_selector.currentText()
+        downgrade = self.downgrade_lingqs_box.isChecked()
         op = QueryOp(
             parent=mw,
-            op=lambda col: self.action_handler.sync_lingq_status_to_lingq(deck_name),
+            op=lambda col: self.action_handler.sync_lingq_status_to_lingq(deck_name, downgrade),
             success=self.succesful_sync,
         )
         op.with_progress("Sync to Lingq in progress, please wait.").run_in_background()
@@ -103,7 +106,7 @@ class UI:
 
     def succesful_sync(self, result):
         mw.reset()
-        showInfo(f"Sync complete! {result} lingqs updated!")
+        showInfo(f"Sync complete! {result[0]} lingqs increased and {result[1]} decreased!")
 
 
 action = QAction("Import LingQs from LingQ.com", mw)

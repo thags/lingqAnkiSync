@@ -14,7 +14,16 @@ def create_note(card: AnkiCard, deck_name: str) -> bool:
     if does_duplicate_card_exist_in_deck(card.primary_key, deck_name):
         return False
     model_name = "LingQSync"
-    note_fields = ["Front", "Back", "LingqPK", "LingqStatus", "Sentence", "LingqImportance", "FrontAudio", "SentenceAudio"]
+    note_fields = [
+        "Front",
+        "Back",
+        "LingqPK",
+        "LingqStatus",
+        "Sentence",
+        "LingqImportance",
+        "FrontAudio",
+        "SentenceAudio",
+    ]
     create_note_type_if_not_exist(model_name, note_fields)
 
     model = mw.col.models.by_name(model_name)
@@ -29,8 +38,8 @@ def create_note(card: AnkiCard, deck_name: str) -> bool:
     note["LingqImportance"] = str(card.importance)
 
     deck_id = mw.col.decks.id(deck_name)
-    note.model()["did"] = deck_id
-    mw.col.addNote(note)
+    note.note_type()["did"] = deck_id
+    mw.col.add_note(note, deck_id)
     if card.interval > 0:
         mw.col.sched.set_due_date([note.id], str(card.interval))
     return True
@@ -47,15 +56,15 @@ def create_note_type(name: str, fields: List):
         mw.col.models.addField(model, mw.col.models.newField(field))
 
     template = mw.col.models.new_template("lingqAnkiSync")
-    resource_folder = os.path.dirname(__file__) + '/resources'
+    resource_folder = os.path.dirname(__file__) + "/resources"
 
-    with open(resource_folder + '/style.css', 'r') as f:
-        model['css'] = f.read()
+    with open(resource_folder + "/style.css", "r") as f:
+        model["css"] = f.read()
 
-    with open(resource_folder + '/front.html', 'r') as f:
+    with open(resource_folder + "/front.html", "r") as f:
         template["qfmt"] = f.read()
 
-    with open(resource_folder + '/back.html', 'r') as f:
+    with open(resource_folder + "/back.html", "r") as f:
         template["afmt"] = f.read()
 
     mw.col.models.add_template(model, template)
@@ -66,8 +75,15 @@ def create_note_type(name: str, fields: List):
 
 
 def create_note_type_if_not_exist(note_type_name: str, note_fields: List):
-    if not mw.col.models.byName(note_type_name):
+    if not mw.col.models.by_name(note_type_name):
         create_note_type(note_type_name, note_fields)
+
+
+def update_card_status(deck_name: str, lingq_pk: int, status: str):
+    card_id = mw.col.find_cards(f'deck:"{deck_name}" LingqPK:"{lingq_pk}"')[0]
+    card = mw.col.get_card(card_id)
+    card.note()["LingqStatus"] = status
+    mw.col.update_note(card.note())
 
 
 def get_all_cards_in_deck(deck_name: str) -> List[AnkiCard]:
@@ -81,7 +97,7 @@ def get_all_cards_in_deck(deck_name: str) -> List[AnkiCard]:
 
 
 def get_all_deck_names() -> List[str]:
-    return mw.col.decks.all_names()
+    return [x.name for x in mw.col.decks.all_names_and_ids()]
 
 
 def get_interval_from_card(card_id: int) -> int:
@@ -91,7 +107,7 @@ def get_interval_from_card(card_id: int) -> int:
 
 def _create_anki_card_object(card: Card, card_id: int) -> AnkiCard:
     return AnkiCard(
-        card.note()["LingqPK"],
+        int(card.note()["LingqPK"]),
         card.note()["Front"],
         card.note()["Back"],
         get_interval_from_card(card_id),
