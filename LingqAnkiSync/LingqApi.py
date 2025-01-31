@@ -1,12 +1,13 @@
 import requests
 import time
 from typing import List
-from .Models.Lingq import Lingq
+from Models.Lingq import Lingq
+
 class LingqApi:
     def __init__(self, apiKey, languageCode):
         self.apiKey = apiKey
         self.languageCode = languageCode
-        self._baseUrl = f"https://www.lingq.com/api/v3/{languageCode}/cards/"
+        self._baseUrl = f"https://www.lingq.com/api/v3/{languageCode}/cards"
         self.unformatedLingqs = []
         self.lingqs = []
 
@@ -30,17 +31,20 @@ class LingqApi:
     def _ConvertApiToLingqs(self) -> List[Lingq]:
         for lingq in self.unformatedLingqs:
             translations = [hint['text'] for hint in lingq['hints']]
-            self.lingqs.append(
-                Lingq(
-                    lingq['pk'],
-                    lingq['term'],
-                    translations,
-                    lingq['status'],
-                    lingq['extended_status'],
-                    lingq['tags'],
-                    lingq['fragment'],
-                    lingq['importance']
-            ))
+            popularity = max((hint['popularity'] for hint in lingq['hints']), default=0)
+            if len(translations) > 0:
+                self.lingqs.append(
+                    Lingq(
+                        lingq['pk'],
+                        lingq['term'],
+                        translations,
+                        lingq['status'],
+                        lingq['extended_status'],
+                        lingq['tags'],
+                        lingq['fragment'],
+                        lingq['importance'],
+                        popularity
+                    ))
 
     def SyncStatusesToLingq(self, lingqs: List[Lingq]) -> int:
         lingqsUpdated = 0
