@@ -1,7 +1,9 @@
+import math
 import requests
 import time
 from typing import List
 from Models.Lingq import Lingq
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 class LingqApi:
     def __init__(self, apiKey: str, languageCode: str, import_knowns: bool):
@@ -13,18 +15,34 @@ class LingqApi:
         self.lingqs = []
 
     def GetLingqs(self) -> List[Lingq]:
-        nextUrl = self._baseUrl + "?page=1&page_size=200"
+        page = 1
 
-        while (nextUrl != None):
-            if not self.import_knowns:
-                nextUrl += '&status=0&status=1&status=2&status=3'
+        firstPageUrl = f"{self._baseUrl}?page=1&page_size=200"
+        pageResult = self._GetSinglePage(firstPageUrl)
+        self.unformatedLingqs.extend(pageResult.json()['results'])
+        totalPages = math.ceil(pageResult.json()['count'] / 200)
+        page += 1
 
-            words_response = self._GetSinglePage(nextUrl)
-            words = words_response.json()['results']
-            self.unformatedLingqs.extend(words)
-            nextUrl = words_response.json()['next']
-            time.sleep(2)
+        with ThreadPoolExecutor(max_workers=5) as executor:
+            futures = []
+            while totalPages >= page:
+                nextUrl = f"{self._baseUrl}?page={page}&page_size=200"
+                if not self.import_knowns:
+                    nextUrl += '&status=0&status=1&status=2&status=3'
+        
+                url_future = executor.submit(self._GetSinglePage, nextUrl)
+                futures.append(url_future)
+                page += 1
 
+            for future in as_completed(futures):
+                try:
+                    result = future.result()
+                    words = result.json()['results']
+                    self.unformatedLingqs.extend(words)
+                except requests.exceptions.RequestException as e:
+                    continue
+
+        # this could also be handled in parralel
         self._ConvertApiToLingqs()
         return self.lingqs
 
@@ -53,17 +71,26 @@ class LingqApi:
                     ))
 
     def SyncStatusesToLingq(self, lingqs: List[Lingq]) -> int:
-        lingqsUpdated = 0
+        with ThreadPoolExecutor(max_workers=5) as executor:
+            futures = []
         for lingq in lingqs:
             if (self._ShouldUpdateStatus(lingq.primaryKey, lingq.status) == False): continue
-            lingq = self._GetLingqStatusReadyForSync(lingq)
-            headers = {"Authorization": f"Token {self.apiKey}"}
-            url = f"{self._baseUrl}/{lingq.primaryKey}/"
-            response = requests.patch(url, headers=headers, data={
-                "status": lingq.status, "extended_status": lingq.extended_status})
-            response.raise_for_status()
-            lingqsUpdated += 1
-        return lingqsUpdated
+            lingq_future = executor.submit(self._GetLingqStatusReadyForSync, lingq)
+            url_future = executor.submit(
+                self._PatchLingqStatusToLingq,
+                lingq_future.result(),
+                f"{self._baseUrl}/{lingq.primaryKey}/",
+                {"status": lingq.status, "extended_status": lingq.extended_status})
+            futures.append(url_future)
+
+            results = []
+            for future in as_completed(futures):
+                try:
+                    result = future.result()
+                    results.append(result)
+                except requests.exceptions.RequestException as e:
+                    continue
+            return len(results)
 
     def _GetLingqStatus(self, lingqPrimaryKey):
         url = f"{self._baseUrl}/{lingqPrimaryKey}/"
