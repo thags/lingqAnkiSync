@@ -13,7 +13,7 @@ def create_notes_from_cards(cards: List[AnkiCard], deck_name: str) -> int:
 def create_note(card: AnkiCard, deck_name: str) -> bool:
     if does_duplicate_card_exist_in_deck(card.primary_key, deck_name):
         return False
-    model_name = "LingQSync"
+    model_name = "lingqAnkiSync"
     note_fields = [
         "Front",
         "Back",
