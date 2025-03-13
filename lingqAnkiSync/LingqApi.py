@@ -35,14 +35,15 @@ class LingqApi:
             response.raise_for_status()
         except Exception as e:
             if response.status_code == 429:
-                sleep_time = int(response.headers["Retry-After"]) + 3 # A little buffer
+                sleep_time = int(response.headers["Retry-After"]) + 3  # A little buffer
                 time.sleep(sleep_time)
                 try:
                     response = requests_func(**kwargs)
                     response.raise_for_status()
                 except:
                     raise TypeError(
-                        f'sleep time: {sleep_time} still not enough. {response.status_code} {response.headers["Retry-After"]}')
+                        f'sleep time: {sleep_time} still not enough. {response.status_code} {response.headers["Retry-After"]}'
+                    )
             else:
                 raise e
 
