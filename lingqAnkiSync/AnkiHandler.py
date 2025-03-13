@@ -1,4 +1,5 @@
 import os
+import time
 from aqt import mw
 from anki.notes import Note
 from anki.cards import Card
@@ -84,6 +85,8 @@ def update_card_status(deck_name: str, lingq_pk: int, status: str):
     card = mw.col.get_card(card_id)
     card.note()["LingqStatus"] = status
     mw.col.update_note(card.note())
+
+    time.sleep(0.1)  # Anki seems to miss a few of them if the updates aren't spaced out. This isn't a perfect solution
 
 
 def get_all_cards_in_deck(deck_name: str) -> List[AnkiCard]:

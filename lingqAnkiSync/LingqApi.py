@@ -29,10 +29,31 @@ class LingqApi:
         self._convert_api_to_lingqs()
         return self.lingqs
 
+    def with_retry(self, requests_func, **kwargs):
+        try:
+            response = requests_func(**kwargs)
+            response.raise_for_status()
+        except Exception as e:
+            if response.status_code == 429:
+                sleep_time = int(response.headers["Retry-After"]) + 3 # A little buffer
+                time.sleep(sleep_time)
+                try:
+                    response = requests_func(**kwargs)
+                    response.raise_for_status()
+                except:
+                    raise TypeError(
+                        f'sleep time: {sleep_time} still not enough. {response.status_code} {response.headers["Retry-After"]}')
+            else:
+                raise e
+
+        # TODO is there a bug where when an exception happens, this is returned as null instead of the exception being caught?
+        # TODO test this out with wifi turned off and see what happens
+        return response
+
     def _get_single_page(self, url):
         headers = {"Authorization": f"Token {self.api_key}"}
-        words_response = requests.get(url, headers=headers)
-        words_response.raise_for_status()
+        words_response = self.with_retry(requests.get, url=url, headers=headers)
+
         return words_response
 
     def _convert_api_to_lingqs(self) -> NoReturn:
@@ -59,12 +80,9 @@ class LingqApi:
             if self._should_update(lingq):
                 headers = {"Authorization": f"Token {self.api_key}"}
                 url = f"{self._baseUrl}/{lingq.primary_key}/"
-                response = requests.patch(
-                    url,
-                    headers=headers,
-                    data={"status": lingq.status, "extended_status": lingq.extended_status},
-                )
-                response.raise_for_status()
+                data = {"status": lingq.status, "extended_status": lingq.extended_status}
+
+                self.with_retry(requests.patch, url=url, headers=headers, data=data)
 
     def _get_lingq_status(self, lingq_pk):
         url = f"{self._baseUrl}/{lingq_pk}/"

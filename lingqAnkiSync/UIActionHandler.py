@@ -41,7 +41,6 @@ class ActionHandler:
         LingqApi(api_key, language_code).sync_statuses_to_lingq(lingqs)
         self._update_notes_in_anki(deck_name, cards_to_update)
 
-        # TODO make sure anki cards are updated with new status as well
         return len(cards_to_increase), len(cards_to_decrease)
 
     def _check_language_code(self, language_code: str):
