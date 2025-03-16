@@ -64,7 +64,9 @@ def GetAllCardsInDeck(deckName: str) -> List[AnkiCard]:
     return cards
 
 def GetAllDeckNames() -> List[str]:
-    return mw.col.decks.all_names()
+    deck_list = mw.col.decks.all_names_and_ids()
+    deck_names = [deck.name for deck in deck_list]
+    return deck_names
 
 def GetIntervalFromCard(cardId) -> int:
     interval = mw.col.db.scalar("select ivl from cards where id = ?", cardId)
