@@ -85,7 +85,6 @@ class LingqApi:
                 lingq_dict[str(lingq['pk'])] = lingq_obj
         return lingq_dict
 
-
     def SyncStatusesToLingq(self, lingqs: List[Lingq]) -> int:
         self._GetMostRecentLingqStatus()
         delay = 1.0  # initial delay in seconds
@@ -107,7 +106,7 @@ class LingqApi:
                             "extended_status": lingq.extended_status})
             response.raise_for_status()
             print("Uploaded.")
-            time.sleep(delay)        
+            time.sleep(delay)
             lingqsUpdated += 1
 
         print(f"Finished. Updated a total of {lingqsUpdated} lingqs. Ignored {lingqsIgnored} lingqs.")
@@ -123,10 +122,10 @@ class LingqApi:
         if (extendedStatus == 0 and status == 3):
             status = 2
         return status
-    
+
     def _GetMostRecentLingqStatus(self):
         self.updatedLingqs = LingqApi(self.apiKey, self.languageCode, self.import_knowns).GetLingqs(delay=10, return_dict=True)
-    
+
     def _GetLingqStatus(self, lingqPrimaryKey):
 
         if lingqPrimaryKey not in self.updatedLingqs:
@@ -150,7 +149,7 @@ class LingqApi:
         else:
             lingq.extended_status = 0
         return lingq
-    
+
     def _ShouldUpdateStatus(self, lingqPrimaryKey, newStatus) -> bool:
         lingqCurrentStatus = self._GetLingqStatus(lingqPrimaryKey)
         return int(lingqCurrentStatus) < int(newStatus)
