@@ -3,7 +3,7 @@ from typing import List, Dict
 import sys
 
 import os
-sys.path.append(os.path.realpath(f"{os.path.dirname(__file__)}"))
+sys.path.append(os.path.realpath(f"./{os.path.dirname(__file__)}"))
 from Models.Lingq import Lingq
 from Models.AnkiCard import AnkiCard
 

@@ -5,7 +5,7 @@ from Models.Lingq import Lingq
 
 
 class LingqApi:
-    def __init__(self, apiKey: str, languageCode: str, import_knowns: bool):
+    def __init__(self, apiKey: str, languageCode: str, import_knowns: bool = True):
 
         self.apiKey = apiKey
         self.languageCode = languageCode
@@ -46,7 +46,7 @@ class LingqApi:
         return words_response
 
     def _ConvertApiToLingqs(self) -> List[Lingq]:
-        # TODO: I should remove this function and use _ConvertApiToLingqsDict for everything instead.
+        # I should remove this function and use _ConvertApiToLingqsDict for everything instead.
         for lingq in self.unformatedLingqs:
             translations = [hint['text'] for hint in lingq['hints']]
             popularity = max((hint['popularity'] for hint in lingq['hints']), default=0)
