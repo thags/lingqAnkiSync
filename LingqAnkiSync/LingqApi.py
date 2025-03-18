@@ -6,7 +6,6 @@ from Models.Lingq import Lingq
 
 class LingqApi:
     def __init__(self, apiKey: str, languageCode: str, import_knowns: bool = True):
-
         self.apiKey = apiKey
         self.languageCode = languageCode
         self.import_knowns = import_knowns
