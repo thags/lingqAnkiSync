@@ -3,6 +3,8 @@ meta.json
 *.ankiaddon
 .sourcery.yaml
 venv/*
+.venv/*
+.vscode/
 .DS_Store
 .venv/
 .pytest_cache/
