@@ -111,12 +111,12 @@ def get_interval_from_card(card_id: int) -> int:
 
 def _create_anki_card_object(card: Card, card_id: int) -> AnkiCard:
     return AnkiCard(
-        int(card.note()["LingqPK"]),
-        card.note()["Front"],
-        card.note()["Back"],
-        get_interval_from_card(card_id),
-        card.note()["LingqStatus"],
-        card.note().tags,
-        card.note()["Sentence"],
-        card.note()["LingqImportance"],
+        primary_key=int(card.note()["LingqPK"]),
+        word=card.note()["Front"],
+        translations=card.note()["Back"], # TODO this needs to split or parse out the "1. [translation1] 2. [translation2]" etc
+        interval=get_interval_from_card(card_id),
+        status=card.note()["LingqStatus"],
+        tags=card.note().tags,
+        sentence=card.note()["Sentence"],
+        importance=card.note()["LingqImportance"],
     )

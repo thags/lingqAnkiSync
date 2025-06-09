@@ -44,4 +44,4 @@ class TestSets:
 
     def test_should_set_language_code(self, addon_manager):
         Config(addon_manager).set_language_code("testSetLanguageCode")
-        assert addon_manager.itemSet["language_code"] == "testSetLanguageCode"
+        assert addon_manager.itemSet["languageCode"] == "testSetLanguageCode"

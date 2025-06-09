@@ -4,3 +4,7 @@ meta.json
 .sourcery.yaml
 venv/*
 .DS_Store
+.venv/
+.pytest_cache/
+.idea/
+.vscode/
