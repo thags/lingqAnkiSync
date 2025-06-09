@@ -1,7 +1,7 @@
 import random
 from typing import List, Dict, Tuple
-from Models.Lingq import Lingq
-from Models.AnkiCard import AnkiCard
+from .Models.Lingq import Lingq
+from .Models.AnkiCard import AnkiCard
 
 
 def anki_cards_to_lingqs(

@@ -1,4 +1,4 @@
-from Models.Lingq import Lingq
+from .Models.Lingq import Lingq
 from typing import Dict
 
 # fmt: off

@@ -1,7 +1,6 @@
 import sys, os
 
-sys.path.append(os.path.realpath(f"{os.path.dirname(__file__)}/../LingqAnkiSync"))
-from Config import Config
+from lingqAnkiSync.Config import Config
 import pytest
 
 

@@ -1,8 +1,5 @@
-import sys, os
-
-sys.path.append(os.path.realpath(f"{os.path.dirname(__file__)}/../LingqAnkiSync"))
-import Converter
-from Models import Lingq, AnkiCard
+import lingqAnkiSync.Converter as Converter
+from lingqAnkiSync.Models import Lingq, AnkiCard
 import pytest
 
 
@@ -28,6 +25,13 @@ class TestIntervalToStatus:
         self, status_to_interval
     ):
         testInterval = 50
+        resultStatus = Converter._anki_interval_to_lingq_status(testInterval, status_to_interval)
+        assert resultStatus == "new"
+
+    def test_should_return_min_status_if_interval_is_equal_to_min_interval(
+        self, status_to_interval
+    ):
+        testInterval = 100
         resultStatus = Converter._anki_interval_to_lingq_status(testInterval, status_to_interval)
         assert resultStatus == "new"
 
@@ -125,7 +129,7 @@ def model_lingq():
 
 
 class TestConvertAnkiToLingq:
-    def test_should_convert_anki_card_to_lingq(self, status_to_interval, model_card):
+    def test_convert_anki_card_to_lingq(self, status_to_interval, model_card):
         result_lingq = Converter.anki_cards_to_lingqs([model_card], status_to_interval)[0]
         assert result_lingq.primary_key == model_card.primary_key
         assert result_lingq.word == model_card.word
@@ -138,7 +142,7 @@ class TestConvertAnkiToLingq:
 
 
 class TestConvertLingqToAnki:
-    def test_should_convert_lingq_to_anki_card(self, status_to_interval, model_card, model_lingq):
+    def test_convert_lingq_to_anki_card(self, status_to_interval, model_lingq):
         result_anki_card = Converter.lingqs_to_anki_cards([model_lingq], status_to_interval)[0]
         assert result_anki_card.primary_key == model_lingq.primary_key
         assert result_anki_card.word == model_lingq.word
@@ -149,3 +153,43 @@ class TestConvertLingqToAnki:
         assert result_anki_card.tags == model_lingq.tags
         assert result_anki_card.sentence == model_lingq.fragment
         assert result_anki_card.importance == model_lingq.importance
+
+
+class TestCardCanIncreaseStatus:
+    def test_should_return_true_if_interval_is_greater_than_threshold(
+        self, status_to_interval, model_card
+    ):
+        model_card.interval = 250
+        model_card.status = "recognized"
+        result = Converter.card_can_increase_status(model_card, status_to_interval)
+        assert result
+
+    def test_should_return_false_if_interval_is_equal_to_threshold(
+        self, status_to_interval, model_card
+    ):
+        model_card.interval = 200
+        model_card.status = "recognized"
+        result = Converter.card_can_increase_status(model_card, status_to_interval)
+        assert not result
+
+    def test_should_return_false_if_interval_is_less_than_threshold(
+        self, status_to_interval, model_card
+    ):
+        model_card.interval = 150
+        model_card.status = "recognized"
+        result = Converter.card_can_increase_status(model_card, status_to_interval)
+        assert not result
+
+    def test_should_return_false_for_new_card(self, model_card, status_to_interval):
+        model_card.interval = 0
+        model_card.status = "new"
+        result = Converter.card_can_increase_status(model_card, status_to_interval)
+        assert not result
+
+    def test_should_return_true_for_known_card_with_high_interval(
+        self, model_card, status_to_interval
+    ):
+        model_card.interval = 1000
+        model_card.status = "known"
+        result = Converter.card_can_increase_status(model_card, status_to_interval)
+        assert result
