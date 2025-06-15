@@ -136,7 +136,7 @@ class TestLingqApiRateLimiting:
         retry_delay_seconds = 2
         mock_lingq_server.enable_rate_limiting(retry_delay_seconds=retry_delay_seconds)
         api = LingqApi("test_api_key", "es")
-        
+
         current_time = time.time()
         lingqs = api.get_lingqs(include_knowns=False)
         end_time = time.time()
@@ -144,8 +144,8 @@ class TestLingqApiRateLimiting:
         # LingqApi.get_all_lings uses a page size of 200
         number_of_pages = math.ceil(len(lingqs) / 200)
         # number_of_pages-1 because the first page doesn't get rate limited
-        assert end_time - current_time > (number_of_pages-1) * retry_delay_seconds
-        assert end_time - current_time > 1 # Ensure that it took at least 1 second
+        assert end_time - current_time > (number_of_pages - 1) * retry_delay_seconds
+        assert end_time - current_time > 1  # Ensure that it took at least 1 second
 
         mock_lingq_server.disable_rate_limiting()
 
@@ -157,7 +157,7 @@ class TestLingqApiRateLimiting:
 
         retry_delay_seconds = 2
         mock_lingq_server.enable_rate_limiting(retry_delay_seconds=retry_delay_seconds)
-        
+
         test_lingq1 = Lingq(
             primary_key=test_card_data1.primary_key,
             word=test_card_data1.word,
@@ -166,9 +166,9 @@ class TestLingqApiRateLimiting:
             extended_status=0,
             tags=test_card_data1.tags,
             fragment=test_card_data1.fragment,
-            importance=test_card_data1.importance
+            importance=test_card_data1.importance,
         )
-        
+
         test_lingq2 = Lingq(
             primary_key=test_card_data2.primary_key,
             word=test_card_data2.word,
@@ -177,18 +177,17 @@ class TestLingqApiRateLimiting:
             extended_status=0,
             tags=test_card_data2.tags,
             fragment=test_card_data2.fragment,
-            importance=test_card_data2.importance
+            importance=test_card_data2.importance,
         )
-        
+
         current_time = time.time()
         # First PATCH succeeds (establishes checkpoint)
         api.sync_statuses_to_lingq([test_lingq1])
         # Second PATCH should be rate limited and take time due to retry
         api.sync_statuses_to_lingq([test_lingq2])
         end_time = time.time()
-        
+
         assert end_time - current_time > retry_delay_seconds
         assert end_time - current_time > 1  # Ensure that it took at least 1 second
-        
+
         mock_lingq_server.disable_rate_limiting()
-    
