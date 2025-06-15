@@ -42,3 +42,66 @@ class TestLingqLevelNavigation:
 
         with pytest.raises(ValueError):
             Lingq.get_prev_level("invalid_level")
+
+
+def test_lingq_init():
+    """Test Lingq model initialization."""
+    lingq = Lingq(
+        primary_key=123,
+        word="test",
+        translations=["translation1", "translation2"],
+        status=1,
+        extended_status=0,
+        tags=["tag1", "tag2"],
+        fragment="This is a test sentence.",
+        importance=1,
+    )
+
+    assert lingq.primary_key == 123
+    assert lingq.word == "test"
+    assert lingq.translations == ["translation1", "translation2"]
+    assert lingq.status == 1
+    assert lingq.extended_status == 0
+    assert lingq.tags == ["tag1", "tag2"]
+    assert lingq.fragment == "This is a test sentence."
+    assert lingq.importance == 1
+
+
+def test_lingq_equality():
+    """Test Lingq model equality comparison."""
+    lingq1 = Lingq(
+        primary_key=123,
+        word="test",
+        translations=["translation1"],
+        status=1,
+        extended_status=0,
+        tags=["tag1"],
+        fragment="test sentence",
+        importance=1,
+    )
+
+    lingq2 = Lingq(
+        primary_key=123,
+        word="test",
+        translations=["translation1"],
+        status=1,
+        extended_status=0,
+        tags=["tag1"],
+        fragment="test sentence",
+        importance=1,
+    )
+
+    lingq3 = Lingq(
+        primary_key=456,  # Different primary key
+        word="test",
+        translations=["translation1"],
+        status=1,
+        extended_status=0,
+        tags=["tag1"],
+        fragment="test sentence",
+        importance=1,
+    )
+
+    assert lingq1 == lingq2
+    assert lingq1 != lingq3
+    assert lingq2 != lingq3

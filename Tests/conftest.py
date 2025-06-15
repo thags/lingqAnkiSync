@@ -1,17 +1,14 @@
 import json
 import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
+from .mock_anki import MockMw, MockNote
+from .mock_lingq_server import LingqApiRestServerMock
 
-# You will need to install this library: pip install requests-mock
-# It provides the 'requests_mock' fixture automatically.
-
-
-# --- Test Data Loading Fixtures ---
 
 @pytest.fixture
 def lingq_data():
-    """Loads mock LingQ data from Tests/test_data/lingq_data.json."""
-    with open("Tests/test_data/lingq_data.json") as f:
+    """Loads mock LingQ data from Tests/data/lingq_data.json."""
+    with open("Tests/data/lingq_data.json") as f:
         content = f.read()
         if not content:
             return {}
@@ -20,32 +17,29 @@ def lingq_data():
 
 @pytest.fixture
 def anki_data():
-    """Loads mock Anki data from Tests/test_data/anki_data.json."""
-    with open("Tests/test_data/anki_data.json") as f:
-        content = f.read()
-        if not content:
-            return {}
-        return json.loads(content)
+    with open("Tests/data/anki_data.json") as f:
+        return json.loads(f.read())
 
-
-# --- Mocking Fixtures ---
 
 @pytest.fixture
-def mock_mw():
+def mock_mw(anki_data):
     """
-    Mocks the 'mw' (Anki's main window) object from aqt.
-    This fixture patches 'mw' where it is used in your AnkiHandler,
-    providing a clean mock for each test function.
+    Provides a fully functional, isolated mock of Anki's 'mw' object.
+    It is pre-loaded with data from the 'anki_data' fixture.
     """
-    # This patch targets 'mw' within the AnkiHandler module.
-    # If you use 'mw' in other modules, you may need to add more patches.
-    with patch("lingqAnkiSync.AnkiHandler.mw", new_callable=MagicMock) as mock:
-        yield mock
+    mw_instance = MockMw(anki_data)
+    with patch("lingqAnkiSync.AnkiHandler.mw", mw_instance), patch(
+        "lingqAnkiSync.AnkiHandler.Note", MockNote
+    ):
+        yield mw_instance
 
 
-# The 'requests_mock' fixture is automatically provided by the 'requests-mock' library.
-# To use it, simply add it as an argument to your test function, like so:
-#
-# def test_api_call(requests_mock):
-#     requests_mock.get("http://lingq.com/api/v2/...", json={"key": "value"})
-#     # ... your test code that calls the api ... 
+@pytest.fixture
+def mock_lingq_server(lingq_data, requests_mock):
+    """
+    Provides a fully functional mock of the LingQ REST API.
+    It is pre-loaded with data from the 'lingq_data' fixture and uses requests-mock
+    to intercept HTTP calls to the LingQ API endpoints.
+    """
+    lingq_mock = LingqApiRestServerMock(lingq_data, requests_mock)
+    yield lingq_mock

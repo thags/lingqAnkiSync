@@ -14,27 +14,26 @@ class LingqApi:
         self.lingqs = []
 
     def get_lingqs(self, include_knowns: bool) -> List[Lingq]:
-        next_url = self._baseUrl + "?page=1&page_size=200"
+        next_url = f"{self._baseUrl}?page=1&page_size=200"
+        if not include_knowns:
+            next_url += "&status=0&status=1&status=2&status=3"
 
         while next_url is not None:
-            if not include_knowns:
-                next_url += "&status=0&status=1&status=2&status=3"
-
             words_response = self._get_single_page(next_url)
             words = words_response.json()["results"]
             self.unformatted_lingqs.extend(words)
             next_url = words_response.json()["next"]
-            time.sleep(2)
 
         self._convert_api_to_lingqs()
         return self.lingqs
 
     def with_retry(self, requests_func, **kwargs):
         try:
+            response = None
             response = requests_func(**kwargs)
             response.raise_for_status()
         except Exception as e:
-            if response.status_code == 429:
+            if response is not None and response.status_code == 429:
                 sleep_time = int(response.headers["Retry-After"]) + 3  # A little buffer
                 time.sleep(sleep_time)
                 response = requests_func(**kwargs)
