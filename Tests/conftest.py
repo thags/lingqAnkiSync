@@ -7,7 +7,6 @@ from .mock_lingq_server import LingqApiRestServerMock
 
 @pytest.fixture
 def lingq_data():
-    """Loads mock LingQ data from Tests/data/lingq_data.json."""
     with open("Tests/data/lingq_data.json") as f:
         content = f.read()
         if not content:

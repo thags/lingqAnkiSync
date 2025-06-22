@@ -6,7 +6,6 @@ from lingqAnkiSync.Models.AnkiCard import AnkiCard
 from lingqAnkiSync.Models.Lingq import Lingq
 
 
-# A sample AnkiCard object to use for testing
 @pytest.fixture
 def sample_anki_card():
     return AnkiCard(
@@ -22,7 +21,6 @@ def sample_anki_card():
     )
 
 
-# A sample Lingq object to use for testing additions and updates
 @pytest.fixture
 def sample_lingq():
     return Lingq(
@@ -113,7 +111,7 @@ class TestCreateNotesFromCards:
                 popularity=0,
             ),
             AnkiCard(
-                primary_key=666666666,  # This is new
+                primary_key=666666666,  # This is new to the mock data
                 word="new_word",
                 translations=["translation"],
                 interval=0,
@@ -125,11 +123,9 @@ class TestCreateNotesFromCards:
             ),
         ]
 
-        # Double-check database contains the first test card but not the second
         assert AnkiHandler.does_duplicate_card_exist_in_deck(cards[0].primary_key, "mock_deck")
         assert not AnkiHandler.does_duplicate_card_exist_in_deck(cards[1].primary_key, "mock_deck")
 
-        # Create the second card
         assert AnkiHandler.create_notes_from_cards(cards, "mock_deck") == 1
 
         # Double-check database contains both cards now

@@ -70,7 +70,9 @@ class LingqApi:
                     )
                 )
 
-    def sync_statuses_to_lingq(self, lingqs: List[Lingq]):
+    def sync_statuses_to_lingq(self, lingqs: List[Lingq]) -> int:
+        successful_updates = 0
+
         for lingq in lingqs:
             if self._should_update(lingq):
                 headers = {"Authorization": f"Token {self.api_key}"}
@@ -78,6 +80,9 @@ class LingqApi:
                 data = {"status": lingq.status, "extended_status": lingq.extended_status}
 
                 self.with_retry(requests.patch, url=url, headers=headers, data=data)
+                successful_updates += 1
+
+        return successful_updates
 
     def _get_lingq_status(self, lingq_pk):
         url = f"{self._baseUrl}/{lingq_pk}/"

@@ -26,15 +26,12 @@ class MockNote(dict):
 
 
 class MockCard:
-    """A mock of the Anki Card class that has a note() method."""
-
     def __init__(self, card_data, mock_collection):
         self.card_data = card_data
         self.mock_collection = mock_collection
         self._note = None
 
     def note(self):
-        """Returns a mock note that can be updated."""
         if self._note is None:
             # Create a mock note with the card's data
             self._note = MockNote(self.mock_collection, None)
@@ -93,14 +90,20 @@ class MockMw(StrictMock):
 
             deck_cards = self._data[deck_name]["cards"]
             found_ids = []
-            for card in deck_cards:
-                if card["primary_key"] == int(lingq_pk):
+
+            if lingq_pk is not None:
+                # Searching for a specific card by LingqPK
+                for card in deck_cards:
+                    if card["primary_key"] == int(lingq_pk):
+                        found_ids.append(card["primary_key"])
+            else:
+                # Searching for all cards in the deck
+                for card in deck_cards:
                     found_ids.append(card["primary_key"])
 
             return found_ids
 
         def get_card(self, card_id: int):
-            """Simulates retrieving a single card object."""
             for deck_name, deck_data in self._data.items():
                 for card_info in deck_data["cards"]:
                     if str(card_info.get("primary_key")) == str(card_id):
@@ -110,7 +113,6 @@ class MockMw(StrictMock):
             return None  # Card not found
 
         def add_note(self, note, deck_id: int):
-            """Simulates adding a new note to the collection."""
             deck_name = self.decks.name(deck_id)
             if not deck_name:
                 return
@@ -134,7 +136,6 @@ class MockMw(StrictMock):
             self._data[deck_name]["cards"].append(card_data)
 
         def update_note(self, note):
-            """Simulates updating an existing note."""
             pk_to_find = int(note["LingqPK"])
             for deck in self._data.values():
                 for card in deck["cards"]:
@@ -152,7 +153,7 @@ class MockMw(StrictMock):
                 self._data = data
 
             def scalar(self, query: str, card_id: int):
-                """Simulates retrieving a single value from the db."""
+                """Simulates the only current use of the scalar method, which is to get the interval of a single card."""
                 if "select ivl from cards where id = ?" in query:
                     for deck_data in self._data.values():
                         for card in deck_data["cards"]:
@@ -184,7 +185,6 @@ class MockMw(StrictMock):
                 self._models = {"lingqAnkiSync": True}
 
             def by_name(self, model_name: str):
-                """Checks if a note type exists."""
                 return self._models.get(model_name)
 
             # The following methods just need to exist and not crash
@@ -217,7 +217,6 @@ class MockMw(StrictMock):
                 self._data = data
 
             def set_due_date(self, card_ids: list, interval: str):
-                """Sets the interval (ivl) for a card."""
                 updated_count = 0
                 for deck_data in self._data.values():
                     for card in deck_data["cards"]:

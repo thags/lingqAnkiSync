@@ -22,7 +22,7 @@ mypy-extensions==1.0.0
 orjson==3.10.14
 packaging==23.0
 pluggy==1.6.0
-protobuf==4.22.1
+protobuf==6.31.1
 psutil==5.9.4
 PyQt6==6.4.2
 PyQt6-Qt6==6.4.2
@@ -31,7 +31,7 @@ PyQt6-WebEngine==6.4.0
 PyQt6-WebEngine-Qt6==6.4.2
 pyrsistent==0.19.3
 PySocks==1.7.1
-pytest==8.4.0
+pytest==8.4.1
 requests==2.32.3
 requests-mock==1.12.1
 Send2Trash==1.8.0

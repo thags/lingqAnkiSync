@@ -184,7 +184,6 @@ class LingqApiRestServerMock:
         return self._database[language_code][card_index]
 
     def _parse_request_data(self, request) -> Dict:
-        """Parse form data from request body."""
         body_str = request.body.decode("utf-8") if isinstance(request.body, bytes) else request.body
         update_data = dict(urllib.parse.parse_qsl(body_str))
 
@@ -208,7 +207,6 @@ class LingqApiRestServerMock:
     def find_card_by_status(
         self, language_code: str, status: int, extended_status: int = 0
     ) -> Dict:
-        """Find the first card with the specified status."""
         for card in self._database.get(language_code, []):
             if card["status"] == status and card["extended_status"] == extended_status:
                 return card

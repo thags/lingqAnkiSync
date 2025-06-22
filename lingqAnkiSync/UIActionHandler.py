@@ -12,8 +12,8 @@ class ActionHandler:
         self.config = Config(addon_manager)
 
     def import_lingqs_to_anki(self, deck_name: str, import_knowns: bool) -> int:
-        api_key = self.get_api_key()
-        language_code = self.get_language_code()
+        api_key = self.config.get_api_key()
+        language_code = self.config.get_language_code()
         status_to_interval = self.config.get_status_to_interval()
 
         self._check_language_code(language_code)
@@ -24,7 +24,7 @@ class ActionHandler:
 
     def sync_lingq_status_to_lingq(
         self, deck_name: str, downgrade: bool = False
-    ) -> Tuple[int, int]:
+    ) -> Tuple[int, int, int]:
         api_key = self.config.get_api_key()
         language_code = self.config.get_language_code()
         status_to_interval = self.config.get_status_to_interval()
@@ -38,10 +38,10 @@ class ActionHandler:
         cards_to_update = cards_to_increase + cards_to_decrease
 
         lingqs = anki_cards_to_lingqs(cards_to_update, status_to_interval)
-        LingqApi(api_key, language_code).sync_statuses_to_lingq(lingqs)
+        successful_updates = LingqApi(api_key, language_code).sync_statuses_to_lingq(lingqs)
         self._update_notes_in_anki(deck_name, cards_to_update)
 
-        return len(cards_to_increase), len(cards_to_decrease)
+        return len(cards_to_increase), len(cards_to_decrease), successful_updates
 
     def _check_language_code(self, language_code: str):
         if language_code and language_code not in lingq_langcodes:
