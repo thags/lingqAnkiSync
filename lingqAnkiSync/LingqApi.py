@@ -41,8 +41,6 @@ class LingqApi:
             else:
                 raise e
 
-        # TODO is there a bug where when an exception happens, this is returned as null instead of the exception being caught?
-        # TODO test this out with wifi turned off and see what happens
         return response
 
     def _get_single_page(self, url):
