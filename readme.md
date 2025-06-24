@@ -1,4 +1,41 @@
-# Lingq Anki Sync
+ TODO
+1. hooks in github
+   1. CI/CD
+   2. ~~black~~
+2. add sync from lingq to anki?
+   1. fix count bug (the number of lingqs reported to have been upgraded/downgraded seems to be wrong sometimes) (actually it's possible that this is due to the fact that a card can only be upgraded a single level at a time, so if it's been a while and your card is going from 'new' to 'learned' then the sync will have to be run a couple of times)
+3. ~~retry logic in PATCH requests to lingq API~~
+   1. ~~exponential backoff of failed requests when getting "too many requests" error~~
+   2. ~~add UI element to show progress / retry waiting time when a timeout error is hit~~
+4. ~~allow downgrade on sync from anki to lingq (currrently it only goes up)~~
+5. add configurability for intervals into addon interface? (instead of hardcoding like now)
+6. add sorting by popularity
+   1. remove the whole ranged due date thing on the lingq import
+   2. what is the `popularity` of lingq's new AI translations feature? Does that ruin this idea?
+   3. how does `importance` play in?
+7. ~~comprehensive testing~~
+8. ~~input checking for the language field~~
+9. ~~redesign card to be prettier~~
+10. update readme
+    1. ~~updated info on the new intervals~~
+    2. ~~explain the different levels of known status in LingQ with screenshot~~
+    3. ~~info on how to add TTS~~
+    4. ~~should have information on how to re-pull a word from lingq (i.e. manually delete in deck and re-do import)~~
+    5. ~~add note that manually setting due date in card browser will not cause notes to sync~~
+    6. ~~mention that the sync to lingq can take a long time because lingq's API only lets you push so many updates at a time until you get a 429~~
+    7. explain anki intervals and how it's used, as well as status / extended status
+    8. talk about test data and where it came from
+       1. lingq test data is real test data and should be representative
+       2. anki test data TODO
+    9. Explain how sometimes you will need to rerun sync, esp if a card is upgraded more than one status
+11. ~~rename addon~~
+12. add logging, esp when updating things in linqs API
+13. keep checkboxes checked
+14. deal with translations being different between LingQ model and AnkiCard model
+    1. one is an array of strings and another is a formatted singular string
+15. add progress bar to initial import of lingqs
+
+# LingQSync
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/612055df0d874e09ac67d7d3d49ec944)](https://app.codacy.com/gh/thags/lingqAnkiSync?utm_source=github.com&utm_medium=referral&utm_content=thags/lingqAnkiSync&utm_campaign=Badge_Grade)
 
@@ -14,41 +51,55 @@ The language code for the lingq language you want to sync with. Example: "es"
 
 A menu item to open the ui can be found under Tools > Import LingQs from LingQ.com.
 
-![Main Ui](images/mainUi.jpg)
+<img src="images/mainUI.png" alt="drawing" width="300"/>
 
-Input your lingq api key and language code, then select the deck you want to sync lingqs to or that you want to sync lingq known status based on the card interval. (Currently you should create a new deck only used for lingq's and import into that new deck, and only sync from that deck).
+Input your lingq api key and language code (such as "es" for spanish), then select the deck you want to sync lingqs to or that you want to sync lingq known status based on the card interval. (Currently you should create a new deck only used for lingq's and import into that new deck, and only sync from that deck).
 
-Click the "import" button to import all of your lingqs for that language code into the selected anki deck.
+### Import
+Click the "Import" button to import all of your lingqs for that language code into the selected anki deck.
 
-Click the "sync to Lingq" button to update the "known status" on your lingqs based on the interval of the card in anki. (As a precaution this addon will not set a lower known status in lingq, it will only raise it).
-
-Be Patient, either of these operations will take some time. Once the operation completes you will see this screen and it will tell you how many Lingqs were imported.
+Be patient, either of these operations will take some time. Once the operation completes you will see this screen and it will tell you how many Lingqs were imported.
 
 ![Main Ui](images/importComplete.jpg)
 
-After importing your API key and language code should be preserved for the next time you want to import or sync!
+After import, your API key and language code should be preserved for the next time you want to import or sync!
+
+As you continue to use lingq.com and create new lingqs in your account, rerun the import in this addon to fetch the new lingqs into anki. This will not interfere with the status of your already-fetched anki cards.
+
+If you want to re-import a word from LingQ into Anki, simply delete the card/note from your anki deck and run the import again.
+
+## Sync
+Click the "Sync to Lingq" button to update the "known status" on your lingqs based on the interval of the card in anki. (As a precaution this addon will not set a lower known status in lingq unless "Allow Sync to downgrade LingQs" is checked).
+
+Note that you cannot manually set the due date on a card in anki and expect it to update the status in lingq. This is due to the way anki implements their "interval" value. The only way is to review the card.
+
+If your 
 
 ## What does it currently do?
 
-As the name implies the goal is to sync between lingq and anki. This addon is currently in early development, but it has the following features:
+As the name implies the goal is to sync between lingq and anki. This addon has the following features:
 
 - Import lingq's from a specified language to anki cards
   - This will also set the due date of the anki card based on the "known status" in Lingq.
-    - The current status to interval definition is: {0: 0, 1: 5, 2: 10, 3: 20, 4: 40}
+    - The current status to interval definition is in [Config.py](lingqAnkiSync/Config.py)
       - Lingq status : Interval (due date will be current day + interval)
       - 1 : 0
       - 2 : 5
-      - 3 : 10
-      - 4 : 20
-      - 'known' : 40
-- Cards are rudimentary currently, just the word on the front and the translation on the back.
+      - 3 : 13
+      - 4 : 34
+      - 'known' : 85
+    - These numbers were chosen so that, with a default ease factor of 2.5, hitting "easy" during your anki review will cause the card to increase two levels in status
+    - Currently these figures are not configurable via the UI
+- Cards come with some nice default styling and a link to ContextoReverso
+  - The default is spanish, you'll need to change the link in the back styling in your deck in Anki for other languages
 - You can modify the look of the card, but the fields that are generated are required and can not be altered at this time.
+  - A FrontAudio and SentenceAudio field is included in the template so you can populate with AwesomeTTS/HyperTTS on your own
 - Sync lingq status based on the interval of the anki card.
-  - This will update your known status on lingq.
+  - This will update your known status on LingQ.
   - This uses the reverse of the lingq status : interval shown above.
-  - For example, if your card interval is 21, then it will set your lingq status as 4
-  - There is a built in check, it will never lower your lingq status.
-    - This is done as a precaution to not remove lingq progress
+  - For example, if your card interval is 21, then it will set your lingq status as 3
+  - Syncs can be set to increase-only (as a precaution) or do a full sync
+  - Syncs can take a long time as the LingQ API is quite sensitive. Be patient.
 
 ## Why does it exist?
 
@@ -63,10 +114,10 @@ Lingq is a great tool for reading in your target language, but I prefer to use a
 
 - Import to custom note type.
 - Allow user to define what interval relates to what lingq known status.
-- Sync lingq status to previously imported lingqs
-- Better error catching and handling
+- Logging
 - Save settings for each language synced with lingq (what deck, note type, etc)
 - Allow to "sign in" with username and password instead of needing to copy / paste API key
+- Seemless integration with TTS
 
 ## Lingq API Documentation
 
