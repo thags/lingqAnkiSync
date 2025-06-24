@@ -23,7 +23,7 @@ class ActionHandler:
         return AnkiHandler.create_notes_from_cards(cards, deck_name)
 
     def sync_lingq_status_to_lingq(
-        self, deck_name: str, downgrade: bool = False
+        self, deck_name: str, downgrade: bool = False, progress_callback=None
     ) -> Tuple[int, int, int]:
         api_key = self.config.get_api_key()
         language_code = self.config.get_language_code()
@@ -38,7 +38,9 @@ class ActionHandler:
         cards_to_update = cards_to_increase + cards_to_decrease
 
         lingqs = anki_cards_to_lingqs(cards_to_update, status_to_interval)
-        successful_updates = LingqApi(api_key, language_code).sync_statuses_to_lingq(lingqs)
+        successful_updates = LingqApi(api_key, language_code).sync_statuses_to_lingq(
+            lingqs, progress_callback
+        )
         self._update_notes_in_anki(deck_name, cards_to_update)
 
         return len(cards_to_increase), len(cards_to_decrease), successful_updates

@@ -4,6 +4,7 @@ from lingqAnkiSync.UIActionHandler import ActionHandler
 from lingqAnkiSync.Models.AnkiCard import AnkiCard
 from lingqAnkiSync.Models.Lingq import Lingq
 
+
 class TestUIActionHandler:
     @pytest.fixture
     def mock_addon_manager(self):
@@ -124,8 +125,12 @@ class TestUIActionHandler:
         # Test a specific card: "acomodado" with pk 464263538
         test_card_pk = 464263538
         initial_lingq_card = mock_lingq_server.get_card_by_pk("es", test_card_pk)
-        initial_anki_card = next(card_data for card_data in mock_mw.col._data["mock_deck"]["cards"] if card_data["primary_key"] == test_card_pk)
-        
+        initial_anki_card = next(
+            card_data
+            for card_data in mock_mw.col._data["mock_deck"]["cards"]
+            if card_data["primary_key"] == test_card_pk
+        )
+
         assert initial_anki_card["status"] == "learned"
         assert initial_anki_card["interval"] == 100
         assert initial_lingq_card["status"] == 3
@@ -136,8 +141,12 @@ class TestUIActionHandler:
         )
 
         final_lingq_card = mock_lingq_server.get_card_by_pk("es", test_card_pk)
-        final_anki_card = next(card_data for card_data in mock_mw.col._data["mock_deck"]["cards"] if card_data["primary_key"] == test_card_pk)
-        
+        final_anki_card = next(
+            card_data
+            for card_data in mock_mw.col._data["mock_deck"]["cards"]
+            if card_data["primary_key"] == test_card_pk
+        )
+
         # Verify the card was updated in both databases
         assert final_lingq_card["status"] == 3
         assert final_lingq_card["extended_status"] == 3

@@ -96,9 +96,40 @@ class UI:
         self.config_set()
         deck_name = self.deck_selector.currentText()
         downgrade = self.downgrade_lingqs_box.isChecked()
+
+        def progress_callback(current, total, word, rate_limit_seconds=None):
+            """
+            Progress callback that handles both normal progress and rate limit notifications
+
+            Args:
+                current: Current progress count
+                total: Total items to process
+                seconds_remaining: Integer seconds remaining if we're in a rate limit wait, None otherwise
+            """
+            if rate_limit_seconds:
+                mw.taskman.run_on_main(
+                    lambda: mw.progress.update(
+                        label=f'Syncing {current}/{total} - "{word}" <br><span style="font-weight: bold;">⚠️ LingQ API rate limit - waiting {rate_limit_seconds} seconds</span>',
+                        value=current,
+                        max=total,
+                    )
+                )
+            else:
+                mw.taskman.run_on_main(
+                    lambda: mw.progress.update(
+                        label=f'Syncing {current}/{total} - "{word}"',
+                        value=current,
+                        max=total,
+                    )
+                )
+
         op = QueryOp(
             parent=mw,
-            op=lambda col: self.action_handler.sync_lingq_status_to_lingq(deck_name, downgrade),
+            op=lambda col: self.action_handler.sync_lingq_status_to_lingq(
+                deck_name,
+                downgrade,
+                progress_callback=progress_callback,
+            ),
             success=self.succesful_sync,
         )
         op.with_progress("Sync to Lingq in progress, please wait.").run_in_background()
@@ -109,6 +140,7 @@ class UI:
         showInfo(f"Sync complete! {result[0]} lingqs increased and {result[1]} decreased!")
 
 
-action = QAction("Import LingQs from LingQ.com", mw)
-action.triggered.connect(lambda: UI().run())
-mw.form.menuTools.addAction(action)
+def initialize_anki_menu():
+    action = QAction("Import LingQs from LingQ.com", mw)
+    action.triggered.connect(lambda: UI().run())
+    mw.form.menuTools.addAction(action)

@@ -1,6 +1,6 @@
 import requests
 import time
-from typing import List, NoReturn
+from typing import List, NoReturn, Callable, Optional
 from .Models.Lingq import Lingq
 from . import Converter
 
@@ -28,6 +28,13 @@ class LingqApi:
         return self.lingqs
 
     def with_retry(self, requests_func, **kwargs):
+        """
+        Execute a request with retry logic for 429 responses
+
+        Args:
+            requests_func: The requests function to call (requests.get, requests.patch, etc.)
+            **kwargs: Arguments to pass to the requests function
+        """
         try:
             response = None
             response = requests_func(**kwargs)
@@ -35,7 +42,15 @@ class LingqApi:
         except Exception as e:
             if response is not None and response.status_code == 429:
                 sleep_time = int(response.headers["Retry-After"]) + 3  # A little buffer
-                time.sleep(sleep_time)
+
+                if hasattr(self, "rate_limit_callback") and self.rate_limit_callback:
+                    for seconds_remaining in range(sleep_time, 0, -1):
+                        self.rate_limit_callback(seconds_remaining)
+                        time.sleep(1)
+                else:
+                    time.sleep(sleep_time)
+
+                # Retry the request
                 response = requests_func(**kwargs)
                 response.raise_for_status()
             else:
@@ -68,10 +83,18 @@ class LingqApi:
                     )
                 )
 
-    def sync_statuses_to_lingq(self, lingqs: List[Lingq]) -> int:
+    def sync_statuses_to_lingq(self, lingqs: List[Lingq], progress_callback=None) -> int:
         successful_updates = 0
+        total_lingqs = len(lingqs)
 
-        for lingq in lingqs:
+        for i, lingq in enumerate(lingqs):
+            # Create a wrapper callback for with_retry to pass to the rate limiting info
+            self.rate_limit_callback = lambda seconds_remaining: (
+                progress_callback(i, total_lingqs, lingq.word, seconds_remaining)
+                if progress_callback
+                else None
+            )
+
             if self._should_update(lingq):
                 headers = {"Authorization": f"Token {self.api_key}"}
                 url = f"{self._baseUrl}/{lingq.primary_key}/"
@@ -80,6 +103,10 @@ class LingqApi:
                 self.with_retry(requests.patch, url=url, headers=headers, data=data)
                 successful_updates += 1
 
+            if progress_callback:
+                progress_callback(i + 1, total_lingqs, lingq.word)
+
+        del self.rate_limit_callback
         return successful_updates
 
     def _get_lingq_status(self, lingq_pk):
