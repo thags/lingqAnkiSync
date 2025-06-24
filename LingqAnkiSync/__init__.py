@@ -3,7 +3,7 @@ try:
     from aqt import mw
 
     if mw and hasattr(mw, "form") and hasattr(mw.form, "menuTools"):
-        from .PopUpWindow import InitializeAnkiMenu
+        from .popUpWindow import InitializeAnkiMenu
 
         InitializeAnkiMenu()
 except (AttributeError, ImportError):
