@@ -1,0 +1,86 @@
+.card {
+    font-size: 16px;
+    text-align: left;
+    background-color: rgb(237, 237, 237);
+}
+
+.card.nightMode {
+    background-color: rgb(237, 237, 237);
+}
+
+.flashcard {
+    display: block;
+    padding: 0 24px 20px 24px;
+    min-height: 200px;
+    max-width: 500px;
+    margin: 0 auto;
+    border-radius: 10px;
+    background-color: rgb(255, 255, 255);
+    box-shadow: 0 7px 10px -5px rgba(25, 90, 160, 0.5);
+}
+
+.front {
+    display: flex;
+    align-items: center;
+    margin-bottom: -20px;
+    font-family: "Rubik",BlinkMacSystemFont,-apple-system,"Segoe UI","Roboto","Oxygen","Ubuntu","Cantarell","Fira Sans","Droid Sans","Helvetica Neue","Helvetica","Arial",sans-serif;
+}
+
+.back {
+    font-family: "Rubik",BlinkMacSystemFont,-apple-system,"Segoe UI","Roboto","Oxygen","Ubuntu","Cantarell","Fira Sans","Droid Sans","Helvetica Neue","Helvetica","Arial",sans-serif;;
+}
+
+.word {
+    color: #F8C01F;
+    font-size: 32px;
+    font-weight: 700;
+}
+
+.definition {
+    font-size: 24px;
+    margin-bottom: 0;
+    color: rgb(0,0,0);
+}
+
+.example-sentence {
+    margin-top: 34px;
+    color: rgb(128, 128, 128);
+}
+
+hr {
+    border: 0;
+    border-bottom: 2px solid #F4F5F6;
+    margin-bottom: 32px;
+}
+
+.replay-button {
+    margin-left: 6px;
+    margin-top: 5px;
+}
+
+.replay-button svg circle {
+    fill: rgb(255, 241, 146);
+    stroke: rgb(216, 208, 249);
+    stroke-width: 0;
+}
+
+.replay-button svg path {
+    fill: rgb(255, 191, 106);
+    transform: scale(0.6) translate(19px, 20px);
+}
+
+.hint {
+    color: rgb(101, 68, 233);
+}
+
+.svg-icon.is-warning--dark.is-solid .is-dynamic-background {
+    fill: rgb(251, 183, 24);
+}
+
+.status {
+    color: #F8C01F;
+    font-family: 'American Typewriter';
+    margin-left: auto;
+    margin-right: 5px;
+    -bottom:1px;
+}
