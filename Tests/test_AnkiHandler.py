@@ -1,15 +1,15 @@
 import pytest
 from unittest.mock import MagicMock
 
-from lingqAnkiSync import AnkiHandler
-from lingqAnkiSync.Models.AnkiCard import AnkiCard
-from lingqAnkiSync.Models.Lingq import Lingq
+from LingqAnkiSync import AnkiHandler
+from LingqAnkiSync.Models.AnkiCard import AnkiCard
+from LingqAnkiSync.Models.Lingq import Lingq
 
 
 @pytest.fixture
-def sample_anki_card():
+def sampleAnkiCard():
     return AnkiCard(
-        primary_key=12345,
+        primaryKey=12345,
         word="test_word",
         translations=["test_translation"],
         interval=5,
@@ -22,13 +22,13 @@ def sample_anki_card():
 
 
 @pytest.fixture
-def sample_lingq():
+def sampleLingq():
     return Lingq(
-        primary_key=12345,
+        primaryKey=12345,
         word="test_word",
         translations=["test_translation"],
         status=0,
-        extended_status=0,
+        extendedStatus=0,
         tags=["tag1"],
         fragment="This is a test sentence.",
         importance=3,
@@ -36,41 +36,41 @@ def sample_lingq():
 
 
 class TestDoesDuplicateCardExistInDeck:
-    def test_card_exists(self, mock_mw):
+    def test_card_exists(self, mockMw):
         # Use a primary key that exists in the mock data
-        assert AnkiHandler.does_duplicate_card_exist_in_deck(107856432, "mock_deck")
+        assert AnkiHandler.DoesDuplicateCardExistInDeck(107856432, "mock_deck")
 
-    def test_card_does_not_exist(self, mock_mw):
-        assert not AnkiHandler.does_duplicate_card_exist_in_deck(999999999, "mock_deck")
+    def test_card_does_not_exist(self, mockMw):
+        assert not AnkiHandler.DoesDuplicateCardExistInDeck(999999999, "mock_deck")
 
-    def test_deck_does_not_exist(self, mock_mw):
-        assert not AnkiHandler.does_duplicate_card_exist_in_deck(107856432, "NonExistentDeck")
+    def test_deck_does_not_exist(self, mockMw):
+        assert not AnkiHandler.DoesDuplicateCardExistInDeck(107856432, "NonExistentDeck")
 
 
 class TestCreateNote:
-    def test_create_note_success(self, mock_mw, sample_anki_card):
+    def test_create_note_success(self, mockMw, sampleAnkiCard):
         # Ensure the card doesn't exist before we add it
-        assert not AnkiHandler.does_duplicate_card_exist_in_deck(
-            sample_anki_card.primary_key, "mock_deck"
+        assert not AnkiHandler.DoesDuplicateCardExistInDeck(
+            sampleAnkiCard.primaryKey, "mock_deck"
         )
-        # Check succesfful execution of create_note
-        assert AnkiHandler.create_note(sample_anki_card, "mock_deck")
+        # Check succesfful execution of CreateNote
+        assert AnkiHandler.CreateNote(sampleAnkiCard, "mock_deck")
         # Check card exists now
-        assert AnkiHandler.does_duplicate_card_exist_in_deck(
-            sample_anki_card.primary_key, "mock_deck"
+        assert AnkiHandler.DoesDuplicateCardExistInDeck(
+            sampleAnkiCard.primaryKey, "mock_deck"
         )
 
-    def test_create_note_fails_when_duplicate_exists(self, mock_mw, sample_anki_card):
+    def test_create_note_fails_when_duplicate_exists(self, mockMw, sampleAnkiCard):
         # Use a primary key that already exists in the mock data
-        sample_anki_card.primary_key = 107856432
-        assert not AnkiHandler.create_note(sample_anki_card, "mock_deck")
+        sampleAnkiCard.primaryKey = 107856432
+        assert not AnkiHandler.CreateNote(sampleAnkiCard, "mock_deck")
 
 
 class TestCreateNotesFromCards:
-    def test_create_multiple_notes(self, mock_mw):
+    def test_create_multiple_notes(self, mockMw):
         cards = [
             AnkiCard(
-                primary_key=888888888,
+                primaryKey=888888888,
                 word="word1",
                 translations=["translation1"],
                 interval=0,
@@ -81,7 +81,7 @@ class TestCreateNotesFromCards:
                 popularity=0,
             ),
             AnkiCard(
-                primary_key=777777777,
+                primaryKey=777777777,
                 word="word2",
                 translations=["translation2"],
                 interval=5,
@@ -93,14 +93,14 @@ class TestCreateNotesFromCards:
             ),
         ]
 
-        assert AnkiHandler.create_notes_from_cards(cards, "mock_deck") == 2
-        assert AnkiHandler.does_duplicate_card_exist_in_deck(cards[0].primary_key, "mock_deck")
-        assert AnkiHandler.does_duplicate_card_exist_in_deck(cards[1].primary_key, "mock_deck")
+        assert AnkiHandler.CreateNotesFromCards(cards, "mock_deck") == 2
+        assert AnkiHandler.DoesDuplicateCardExistInDeck(cards[0].primaryKey, "mock_deck")
+        assert AnkiHandler.DoesDuplicateCardExistInDeck(cards[1].primaryKey, "mock_deck")
 
-    def test_create_notes_with_duplicates(self, mock_mw):
+    def test_create_notes_with_duplicates(self, mockMw):
         cards = [
             AnkiCard(
-                primary_key=107856432,  # This exists in mock data
+                primaryKey=107856432,  # This exists in mock data
                 word="existing_word",
                 translations=["translation"],
                 interval=0,
@@ -111,7 +111,7 @@ class TestCreateNotesFromCards:
                 popularity=0,
             ),
             AnkiCard(
-                primary_key=666666666,  # This is new to the mock data
+                primaryKey=666666666,  # This is new to the mock data
                 word="new_word",
                 translations=["translation"],
                 interval=0,
@@ -123,11 +123,11 @@ class TestCreateNotesFromCards:
             ),
         ]
 
-        assert AnkiHandler.does_duplicate_card_exist_in_deck(cards[0].primary_key, "mock_deck")
-        assert not AnkiHandler.does_duplicate_card_exist_in_deck(cards[1].primary_key, "mock_deck")
+        assert AnkiHandler.DoesDuplicateCardExistInDeck(cards[0].primaryKey, "mock_deck")
+        assert not AnkiHandler.DoesDuplicateCardExistInDeck(cards[1].primaryKey, "mock_deck")
 
-        assert AnkiHandler.create_notes_from_cards(cards, "mock_deck") == 1
+        assert AnkiHandler.CreateNotesFromCards(cards, "mock_deck") == 1
 
         # Double-check database contains both cards now
-        assert AnkiHandler.does_duplicate_card_exist_in_deck(cards[0].primary_key, "mock_deck")
-        assert AnkiHandler.does_duplicate_card_exist_in_deck(cards[1].primary_key, "mock_deck")
+        assert AnkiHandler.DoesDuplicateCardExistInDeck(cards[0].primaryKey, "mock_deck")
+        assert AnkiHandler.DoesDuplicateCardExistInDeck(cards[1].primaryKey, "mock_deck")

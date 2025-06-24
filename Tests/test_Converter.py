@@ -1,195 +1,195 @@
-import lingqAnkiSync.Converter as Converter
-from lingqAnkiSync.Models import Lingq, AnkiCard
+import LingqAnkiSync.Converter as Converter
+from LingqAnkiSync.Models import Lingq, AnkiCard
 import pytest
 
 
 @pytest.fixture
-def status_to_interval():
+def statusToInterval():
     return {"new": 100, "recognized": 200, "familiar": 300, "learned": 400, "known": 500}
 
 
 class TestIntervalToStatus:
-    def test_convert_anki_interval_to_lingq_status(self, status_to_interval):
+    def test_convert_anki_interval_to_lingq_status(self, statusToInterval):
         testInterval = 225
-        resultStatus = Converter._anki_interval_to_lingq_status(testInterval, status_to_interval)
+        resultStatus = Converter._AnkiIntervalToLingqStatus(testInterval, statusToInterval)
         assert resultStatus == "recognized"
 
     def test_should_return_max_status_if_interval_is_greater_than_max_interval(
-        self, status_to_interval
+        self, statusToInterval
     ):
         testInterval = 600
-        resultStatus = Converter._anki_interval_to_lingq_status(testInterval, status_to_interval)
+        resultStatus = Converter._AnkiIntervalToLingqStatus(testInterval, statusToInterval)
         assert resultStatus == "known"
 
     def test_should_return_min_status_if_interval_is_less_than_min_interval(
-        self, status_to_interval
+        self, statusToInterval
     ):
         testInterval = 50
-        resultStatus = Converter._anki_interval_to_lingq_status(testInterval, status_to_interval)
+        resultStatus = Converter._AnkiIntervalToLingqStatus(testInterval, statusToInterval)
         assert resultStatus == "new"
 
     def test_should_return_min_status_if_interval_is_equal_to_min_interval(
-        self, status_to_interval
+        self, statusToInterval
     ):
         testInterval = 100
-        resultStatus = Converter._anki_interval_to_lingq_status(testInterval, status_to_interval)
+        resultStatus = Converter._AnkiIntervalToLingqStatus(testInterval, statusToInterval)
         assert resultStatus == "new"
 
 
 class TestStatusToInterval:
-    def test_convert_lingq_status_to_anki_interval(self, status_to_interval):
-        test_status = 2
-        test_extended_status = 0
-        result_status = Converter._lingq_status_to_anki_interval(
-            test_status, test_extended_status, status_to_interval
+    def test_convert_lingq_status_to_anki_interval(self, statusToInterval):
+        testStatus = 2
+        testExtendedStatus = 0
+        resultStatus = Converter._LingqStatusToAnkiInterval(
+            testStatus, testExtendedStatus, statusToInterval
         )
-        assert result_status >= 300
-        assert result_status <= 400
+        assert resultStatus >= 300
+        assert resultStatus <= 400
 
     def test_should_return_max_interval_plus_other_intervals_if_status_is_max_status(
-        self, status_to_interval
+        self, statusToInterval
     ):
-        test_status = 3
-        test_extended_status = 3
-        result_status = Converter._lingq_status_to_anki_interval(
-            test_status, test_extended_status, status_to_interval
+        testStatus = 3
+        testExtendedStatus = 3
+        resultStatus = Converter._LingqStatusToAnkiInterval(
+            testStatus, testExtendedStatus, statusToInterval
         )
-        assert result_status >= 500
+        assert resultStatus >= 500
 
-    def test_should_return_min_interval_if_status_min_status(self, status_to_interval):
-        test_status = 0
-        test_extended_status = 0
-        result_status = Converter._lingq_status_to_anki_interval(
-            test_status, test_extended_status, status_to_interval
+    def test_should_return_min_interval_if_status_min_status(self, statusToInterval):
+        testStatus = 0
+        testExtendedStatus = 0
+        resultStatus = Converter._LingqStatusToAnkiInterval(
+            testStatus, testExtendedStatus, statusToInterval
         )
-        assert result_status >= 0
-        assert result_status <= 100
+        assert resultStatus >= 0
+        assert resultStatus <= 100
 
 
 class TestLingqInternalStatusConversion:
     def test_convert_lingq_internal_status_to_status(self):
-        result_status = Converter.lingq_internal_status_to_status(
-            internal_status=0, extended_status=None
+        resultStatus = Converter.LingqInternalStatusToStatus(
+            internalStatus=0, extendedStatus=None
         )
-        assert result_status == Lingq.Lingq.LEVEL_1
+        assert resultStatus == Lingq.Lingq.LEVEL_1
 
-        result_status2 = Converter.lingq_internal_status_to_status(
-            internal_status=2, extended_status=0
+        resultStatus2 = Converter.LingqInternalStatusToStatus(
+            internalStatus=2, extendedStatus=0
         )
-        assert result_status2 == Lingq.Lingq.LEVEL_3
+        assert resultStatus2 == Lingq.Lingq.LEVEL_3
 
-        result_status3 = Converter.lingq_internal_status_to_status(
-            internal_status=3, extended_status=3
+        resultStatus3 = Converter.LingqInternalStatusToStatus(
+            internalStatus=3, extendedStatus=3
         )
-        assert result_status3 == Lingq.Lingq.LEVEL_KNOWN
+        assert resultStatus3 == Lingq.Lingq.LEVEL_KNOWN
 
         with pytest.raises(ValueError, match="accepted range"):
-            Converter.lingq_internal_status_to_status(internal_status=1, extended_status=555)
+            Converter.LingqInternalStatusToStatus(internalStatus=1, extendedStatus=555)
 
-    def test_ConvertLingqStatusToInternalStatus(self, status_to_interval):
-        result_internal_status, result_external_status = Converter.lingq_status_to_internal_status(
+    def test_ConvertLingqStatusToInternalStatus(self, statusToInterval):
+        resultInternalStatus, resultExternalStatus = Converter.LingqStatusToInternalStatus(
             status=Lingq.Lingq.LEVEL_1
         )
-        assert result_internal_status == 0
-        assert result_external_status in (0, None)
+        assert resultInternalStatus == 0
+        assert resultExternalStatus in (0, None)
 
         (
-            result_internal_status2,
-            result_external_status2,
-        ) = Converter.lingq_status_to_internal_status(status=Lingq.Lingq.LEVEL_3)
-        assert result_internal_status2 == 2
-        assert result_external_status2 == 0
+            resultInternalStatus2,
+            resultExternalStatus2,
+        ) = Converter.LingqStatusToInternalStatus(status=Lingq.Lingq.LEVEL_3)
+        assert resultInternalStatus2 == 2
+        assert resultExternalStatus2 == 0
 
         (
-            result_internal_status3,
-            result_external_status3,
-        ) = Converter.lingq_status_to_internal_status(status=Lingq.Lingq.LEVEL_KNOWN)
-        assert result_internal_status3 == 3
-        assert result_external_status3 == 3
+            resultInternalStatus3,
+            resultExternalStatus3,
+        ) = Converter.LingqStatusToInternalStatus(status=Lingq.Lingq.LEVEL_KNOWN)
+        assert resultInternalStatus3 == 3
+        assert resultExternalStatus3 == 3
 
         with pytest.raises(ValueError, match="No such status"):
-            Converter.lingq_status_to_internal_status(status="understood")
+            Converter.LingqStatusToInternalStatus(status="understood")
 
         with pytest.raises(ValueError, match="No such status"):
-            Converter.lingq_status_to_internal_status(status=1)
+            Converter.LingqStatusToInternalStatus(status=1)
 
 
 @pytest.fixture
-def model_card():
+def modelCard():
     return AnkiCard.AnkiCard(
         1, "word", ["translation", "translation2"], 100, "new", ["tag1", "tag2"], "sentence", 0
     )
 
 
 @pytest.fixture
-def model_lingq():
+def modelLingq():
     return Lingq.Lingq(
         1, "word", ["translation", "translation2"], 0, None, ["tag1", "tag2"], "sentence", 0
     )
 
 
 class TestConvertAnkiToLingq:
-    def test_convert_anki_card_to_lingq(self, status_to_interval, model_card):
-        result_lingq = Converter.anki_cards_to_lingqs([model_card], status_to_interval)[0]
-        assert result_lingq.primary_key == model_card.primary_key
-        assert result_lingq.word == model_card.word
-        assert result_lingq.translations == model_card.translations
-        assert result_lingq.status == 0
-        assert result_lingq.extended_status == 0
-        assert result_lingq.tags == model_card.tags
-        assert result_lingq.fragment == model_card.sentence
-        assert result_lingq.importance == model_card.importance
+    def test_convert_anki_card_to_lingq(self, statusToInterval, modelCard):
+        resultLingq = Converter.AnkiCardsToLingqs([modelCard], statusToInterval)[0]
+        assert resultLingq.primaryKey == modelCard.primaryKey
+        assert resultLingq.word == modelCard.word
+        assert resultLingq.translations == modelCard.translations
+        assert resultLingq.status == 0
+        assert resultLingq.extendedStatus == 0
+        assert resultLingq.tags == modelCard.tags
+        assert resultLingq.fragment == modelCard.sentence
+        assert resultLingq.importance == modelCard.importance
 
 
 class TestConvertLingqToAnki:
-    def test_convert_lingq_to_anki_card(self, status_to_interval, model_lingq):
-        result_anki_card = Converter.lingqs_to_anki_cards([model_lingq], status_to_interval)[0]
-        assert result_anki_card.primary_key == model_lingq.primary_key
-        assert result_anki_card.word == model_lingq.word
-        assert result_anki_card.translations == model_lingq.translations
-        assert result_anki_card.interval >= 0
-        assert result_anki_card.interval <= 100
-        assert result_anki_card.status == "new"
-        assert result_anki_card.tags == model_lingq.tags
-        assert result_anki_card.sentence == model_lingq.fragment
-        assert result_anki_card.importance == model_lingq.importance
+    def test_convert_lingq_to_anki_card(self, statusToInterval, modelLingq):
+        resultAnkiCard = Converter.LingqsToAnkiCards([modelLingq], statusToInterval)[0]
+        assert resultAnkiCard.primaryKey == modelLingq.primaryKey
+        assert resultAnkiCard.word == modelLingq.word
+        assert resultAnkiCard.translations == modelLingq.translations
+        assert resultAnkiCard.interval >= 0
+        assert resultAnkiCard.interval <= 100
+        assert resultAnkiCard.status == "new"
+        assert resultAnkiCard.tags == modelLingq.tags
+        assert resultAnkiCard.sentence == modelLingq.fragment
+        assert resultAnkiCard.importance == modelLingq.importance
 
 
 class TestCardCanIncreaseStatus:
     def test_should_return_true_if_interval_is_greater_than_threshold(
-        self, status_to_interval, model_card
+        self, statusToInterval, modelCard
     ):
-        model_card.interval = 250
-        model_card.status = "recognized"
-        result = Converter.card_can_increase_status(model_card, status_to_interval)
+        modelCard.interval = 250
+        modelCard.status = "recognized"
+        result = Converter.CardCanIncreaseStatus(modelCard, statusToInterval)
         assert result
 
     def test_should_return_false_if_interval_is_equal_to_threshold(
-        self, status_to_interval, model_card
+        self, statusToInterval, modelCard
     ):
-        model_card.interval = 200
-        model_card.status = "recognized"
-        result = Converter.card_can_increase_status(model_card, status_to_interval)
+        modelCard.interval = 200
+        modelCard.status = "recognized"
+        result = Converter.CardCanIncreaseStatus(modelCard, statusToInterval)
         assert not result
 
     def test_should_return_false_if_interval_is_less_than_threshold(
-        self, status_to_interval, model_card
+        self, statusToInterval, modelCard
     ):
-        model_card.interval = 150
-        model_card.status = "recognized"
-        result = Converter.card_can_increase_status(model_card, status_to_interval)
+        modelCard.interval = 150
+        modelCard.status = "recognized"
+        result = Converter.CardCanIncreaseStatus(modelCard, statusToInterval)
         assert not result
 
-    def test_should_return_false_for_new_card(self, model_card, status_to_interval):
-        model_card.interval = 0
-        model_card.status = "new"
-        result = Converter.card_can_increase_status(model_card, status_to_interval)
+    def test_should_return_false_for_new_card(self, modelCard, statusToInterval):
+        modelCard.interval = 0
+        modelCard.status = "new"
+        result = Converter.CardCanIncreaseStatus(modelCard, statusToInterval)
         assert not result
 
     def test_should_return_true_for_known_card_with_high_interval(
-        self, model_card, status_to_interval
+        self, modelCard, statusToInterval
     ):
-        model_card.interval = 1000
-        model_card.status = "known"
-        result = Converter.card_can_increase_status(model_card, status_to_interval)
+        modelCard.interval = 1000
+        modelCard.status = "known"
+        result = Converter.CardCanIncreaseStatus(modelCard, statusToInterval)
         assert result

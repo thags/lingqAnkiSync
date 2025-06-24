@@ -4,7 +4,7 @@ from typing import List
 
 @dataclass
 class AnkiCard:
-    primary_key: int
+    primaryKey: int
     word: str
     translations: List[str]
     interval: int

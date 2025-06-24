@@ -1,6 +1,4 @@
-import sys, os
-
-from lingqAnkiSync.Config import Config
+from LingqAnkiSync.Config import Config
 import pytest
 
 
@@ -18,29 +16,29 @@ class ConfigRepo:
 
 
 @pytest.fixture
-def addon_manager():
+def addonManager():
     return ConfigRepo("testApiKey", "testLanguageCode")
 
 
 class TestGets:
-    def test_should_get_api_key(self, addon_manager):
-        result = Config(addon_manager).get_api_key()
+    def test_should_get_api_key(self, addonManager):
+        result = Config(addonManager).GetApiKey()
         assert result == "testApiKey"
 
-    def test_should_get_language_code(self, addon_manager):
-        result = Config(addon_manager).get_language_code()
+    def test_should_get_language_code(self, addonManager):
+        result = Config(addonManager).GetLanguageCode()
         assert result == "testLanguageCode"
 
-    def test_should_get_deafult_status_to_interval(self, addon_manager):
-        result = Config(addon_manager).get_status_to_interval()
+    def test_should_get_deafult_status_to_interval(self, addonManager):
+        result = Config(addonManager).GetStatusToInterval()
         assert result == {"new": 0, "recognized": 5, "familiar": 13, "learned": 34, "known": 85}
 
 
 class TestSets:
-    def test_should_set_api_key(self, addon_manager):
-        Config(addon_manager).set_api_key("testSetApiKey")
-        assert addon_manager.itemSet["apiKey"] == "testSetApiKey"
+    def test_should_set_api_key(self, addonManager):
+        Config(addonManager).SetApiKey("testSetApiKey")
+        assert addonManager.itemSet["apiKey"] == "testSetApiKey"
 
-    def test_should_set_language_code(self, addon_manager):
-        Config(addon_manager).set_language_code("testSetLanguageCode")
-        assert addon_manager.itemSet["languageCode"] == "testSetLanguageCode"
+    def test_should_set_language_code(self, addonManager):
+        Config(addonManager).SetLanguageCode("testSetLanguageCode")
+        assert addonManager.itemSet["languageCode"] == "testSetLanguageCode"

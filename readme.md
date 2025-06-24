@@ -1,40 +1,3 @@
- TODO
-1. hooks in github
-   1. CI/CD
-   2. ~~black~~
-2. add sync from lingq to anki?
-   1. fix count bug (the number of lingqs reported to have been upgraded/downgraded seems to be wrong sometimes) (actually it's possible that this is due to the fact that a card can only be upgraded a single level at a time, so if it's been a while and your card is going from 'new' to 'learned' then the sync will have to be run a couple of times)
-3. ~~retry logic in PATCH requests to lingq API~~
-   1. ~~exponential backoff of failed requests when getting "too many requests" error~~
-   2. ~~add UI element to show progress / retry waiting time when a timeout error is hit~~
-4. ~~allow downgrade on sync from anki to lingq (currrently it only goes up)~~
-5. add configurability for intervals into addon interface? (instead of hardcoding like now)
-6. add sorting by popularity
-   1. remove the whole ranged due date thing on the lingq import
-   2. what is the `popularity` of lingq's new AI translations feature? Does that ruin this idea?
-   3. how does `importance` play in?
-7. ~~comprehensive testing~~
-8. ~~input checking for the language field~~
-9. ~~redesign card to be prettier~~
-10. update readme
-    1. ~~updated info on the new intervals~~
-    2. ~~explain the different levels of known status in LingQ with screenshot~~
-    3. ~~info on how to add TTS~~
-    4. ~~should have information on how to re-pull a word from lingq (i.e. manually delete in deck and re-do import)~~
-    5. ~~add note that manually setting due date in card browser will not cause notes to sync~~
-    6. ~~mention that the sync to lingq can take a long time because lingq's API only lets you push so many updates at a time until you get a 429~~
-    7. explain anki intervals and how it's used, as well as status / extended status
-    8. talk about test data and where it came from
-       1. lingq test data is real test data and should be representative
-       2. anki test data TODO
-    9. Explain how sometimes you will need to rerun sync, esp if a card is upgraded more than one status
-11. ~~rename addon~~
-12. add logging, esp when updating things in linqs API
-13. keep checkboxes checked
-14. deal with translations being different between LingQ model and AnkiCard model
-    1. one is an array of strings and another is a formatted singular string
-15. add progress bar to initial import of lingqs
-
 # LingQSync
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/612055df0d874e09ac67d7d3d49ec944)](https://app.codacy.com/gh/thags/lingqAnkiSync?utm_source=github.com&utm_medium=referral&utm_content=thags/lingqAnkiSync&utm_campaign=Badge_Grade)
@@ -81,7 +44,7 @@ As the name implies the goal is to sync between lingq and anki. This addon has t
 
 - Import lingq's from a specified language to anki cards
   - This will also set the due date of the anki card based on the "known status" in Lingq.
-    - The current status to interval definition is in [Config.py](lingqAnkiSync/Config.py)
+    - The current status to interval definition is in [Config.py](LingqAnkiSync/Config.py)
       - Lingq status : Interval (due date will be current day + interval)
       - 1 : 0
       - 2 : 5

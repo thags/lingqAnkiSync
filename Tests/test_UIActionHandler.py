@@ -1,26 +1,26 @@
 import pytest
 from unittest.mock import Mock, patch, MagicMock
-from lingqAnkiSync.UIActionHandler import ActionHandler
-from lingqAnkiSync.Models.AnkiCard import AnkiCard
-from lingqAnkiSync.Models.Lingq import Lingq
+from LingqAnkiSync.UIActionHandler import ActionHandler
+from LingqAnkiSync.Models.AnkiCard import AnkiCard
+from LingqAnkiSync.Models.Lingq import Lingq
 
 
 class TestUIActionHandler:
     @pytest.fixture
-    def mock_addon_manager(self):
+    def mockAddonManager(self):
         """Mock addon manager for Config initialization."""
-        mock_manager = Mock()
+        mockManager = Mock()
         # Provide realistic config data instead of empty dict
-        mock_config = {"apiKey": "test_api_key", "languageCode": "es"}
-        mock_manager.getConfig.return_value = mock_config
-        mock_manager.writeConfig.return_value = None
-        return mock_manager
+        mockConfig = {"apiKey": "test_api_key", "languageCode": "es"}
+        mockManager.getConfig.return_value = mockConfig
+        mockManager.writeConfig.return_value = None
+        return mockManager
 
     @pytest.fixture
-    def sample_anki_cards(self):
+    def sampleAnkiCards(self):
         return [
             AnkiCard(
-                primary_key=12345,
+                primaryKey=12345,
                 word="hola",
                 translations=["hello"],
                 interval=10,  # Should trigger status increase
@@ -31,7 +31,7 @@ class TestUIActionHandler:
                 popularity=5,
             ),
             AnkiCard(
-                primary_key=67890,
+                primaryKey=67890,
                 word="mundo",
                 translations=["world"],
                 interval=2,  # Should trigger downgrade
@@ -42,7 +42,7 @@ class TestUIActionHandler:
                 popularity=3,
             ),
             AnkiCard(
-                primary_key=11111,
+                primaryKey=11111,
                 word="casa",
                 translations=["house"],
                 interval=300,  # Very high interval should still only trigger single status increase
@@ -53,7 +53,7 @@ class TestUIActionHandler:
                 popularity=7,
             ),
             AnkiCard(
-                primary_key=22222,
+                primaryKey=22222,
                 word="gracias",
                 translations=["thank you"],
                 interval=10,  # No status increase
@@ -66,121 +66,121 @@ class TestUIActionHandler:
         ]
 
     @pytest.fixture
-    def sample_status_to_interval(self):
+    def sampleStatusToInterval(self):
         return {"new": 0, "recognized": 5, "familiar": 10, "learned": 25, "known": 50}
 
     @pytest.fixture
-    def action_handler(self, mock_addon_manager, sample_status_to_interval):
-        handler = ActionHandler(mock_addon_manager)
+    def actionHandler(self, mockAddonManager, sampleStatusToInterval):
+        handler = ActionHandler(mockAddonManager)
         with patch.object(
-            handler.config, "get_status_to_interval", return_value=sample_status_to_interval
+            handler.config, "GetStatusToInterval", return_value=sampleStatusToInterval
         ):
             yield handler
 
     @pytest.fixture
-    def update_counts(self):
+    def updateCounts(self):
         return {"increased": 105, "decreased": 68, "api_updates": 166}
 
     def test_prep_cards_for_update_only_increase(
-        self, action_handler, sample_anki_cards, sample_status_to_interval
+        self, actionHandler, sampleAnkiCards, sampleStatusToInterval
     ):
-        cards_to_increase, cards_to_decrease = action_handler._prep_cards_for_update(
-            sample_anki_cards, sample_status_to_interval, downgrade=False
+        cardsToIncrease, cardsToDecrease = actionHandler._PrepCardsForUpdate(
+            sampleAnkiCards, sampleStatusToInterval, downgrade=False
         )
-        assert len(cards_to_increase) == 2
-        assert len(cards_to_decrease) == 0  # No downgrades when downgrade=False
+        assert len(cardsToIncrease) == 2
+        assert len(cardsToDecrease) == 0  # No downgrades when downgrade=False
 
-        words = [card.word for card in cards_to_increase]
+        words = [card.word for card in cardsToIncrease]
         assert "hola" in words
         assert "gracias" not in words
 
         # Check status increased one level on 'casa' card
-        assert "learned" in [card.status for card in cards_to_increase if card.word == "casa"]
+        assert "learned" in [card.status for card in cardsToIncrease if card.word == "casa"]
 
     def test_prep_cards_for_update_increase_and_decrease(
-        self, action_handler, sample_anki_cards, sample_status_to_interval
+        self, actionHandler, sampleAnkiCards, sampleStatusToInterval
     ):
-        cards_to_increase, cards_to_decrease = action_handler._prep_cards_for_update(
-            sample_anki_cards, sample_status_to_interval, downgrade=True
+        cardsToIncrease, cardsToDecrease = actionHandler._PrepCardsForUpdate(
+            sampleAnkiCards, sampleStatusToInterval, downgrade=True
         )
-        assert len(cards_to_increase) == 2
-        assert len(cards_to_decrease) == 1
+        assert len(cardsToIncrease) == 2
+        assert len(cardsToDecrease) == 1
 
-        increase_words = [card.word for card in cards_to_increase]
-        assert "hola" in increase_words
-        assert "gracias" not in increase_words
+        increaseWords = [card.word for card in cardsToIncrease]
+        assert "hola" in increaseWords
+        assert "gracias" not in increaseWords
 
-        decrease_words = [card.word for card in cards_to_decrease]
-        assert "mundo" in decrease_words
-        assert "gracias" not in decrease_words
+        decreaseWords = [card.word for card in cardsToDecrease]
+        assert "mundo" in decreaseWords
+        assert "gracias" not in decreaseWords
 
-        assert "learned" in [card.status for card in cards_to_increase if card.word == "casa"]
+        assert "learned" in [card.status for card in cardsToIncrease if card.word == "casa"]
 
     def test_integration_sync_with_real_mocks(
-        self, action_handler, mock_lingq_server, mock_mw, update_counts
+        self, actionHandler, mockLingqServer, mockMw, updateCounts
     ):
         """Integration test using real mock json data."""
-        deck_name = "mock_deck"
+        deckName = "mock_deck"
 
         # Test a specific card: "acomodado" with pk 464263538
-        test_card_pk = 464263538
-        initial_lingq_card = mock_lingq_server.get_card_by_pk("es", test_card_pk)
-        initial_anki_card = next(
-            card_data
-            for card_data in mock_mw.col._data["mock_deck"]["cards"]
-            if card_data["primary_key"] == test_card_pk
+        testCardPk = 464263538
+        initialLingqCard = mockLingqServer.get_card_by_pk("es", testCardPk)
+        initialAnkiCard = next(
+            cardData
+            for cardData in mockMw.col._data["mock_deck"]["cards"]
+            if cardData["primary_key"] == testCardPk
         )
 
-        assert initial_anki_card["status"] == "learned"
-        assert initial_anki_card["interval"] == 100
-        assert initial_lingq_card["status"] == 3
-        assert initial_lingq_card["extended_status"] == 0
+        assert initialAnkiCard["status"] == "learned"
+        assert initialAnkiCard["interval"] == 100
+        assert initialLingqCard["status"] == 3
+        assert initialLingqCard["extended_status"] == 0
 
-        increased, decreased, api_updates = action_handler.sync_lingq_status_to_lingq(
-            deck_name, downgrade=True
+        increased, decreased, apiUpdates = actionHandler.SyncLingqStatusToLingq(
+            deckName, downgrade=True
         )
 
-        final_lingq_card = mock_lingq_server.get_card_by_pk("es", test_card_pk)
-        final_anki_card = next(
-            card_data
-            for card_data in mock_mw.col._data["mock_deck"]["cards"]
-            if card_data["primary_key"] == test_card_pk
+        finalLingqCard = mockLingqServer.get_card_by_pk("es", testCardPk)
+        finalAnkiCard = next(
+            cardData
+            for cardData in mockMw.col._data["mock_deck"]["cards"]
+            if cardData["primary_key"] == testCardPk
         )
 
         # Verify the card was updated in both databases
-        assert final_lingq_card["status"] == 3
-        assert final_lingq_card["extended_status"] == 3
-        assert final_anki_card["status"] == "known"
+        assert finalLingqCard["status"] == 3
+        assert finalLingqCard["extended_status"] == 3
+        assert finalAnkiCard["status"] == "known"
 
         # Verify counts of cards calculated as needing to update
         # These counts are subject to change as the mock data is updated
-        assert increased == update_counts["increased"]
-        assert decreased == update_counts["decreased"]
+        assert increased == updateCounts["increased"]
+        assert decreased == updateCounts["decreased"]
         # This number does not match the number of `increased` and `decreased`
         # because some cards are not updated due to the status in anki already being
         # the same as the status in lingq
-        assert api_updates == update_counts["api_updates"]
+        assert apiUpdates == updateCounts["api_updates"]
 
     def test_integration_sync_with_real_mocks_different_status_to_interval(
-        self, action_handler, mock_lingq_server, mock_mw, sample_status_to_interval, update_counts
+        self, actionHandler, mockLingqServer, mockMw, sampleStatusToInterval, updateCounts
     ):
         """Integration test using real mock json data with different status to interval."""
-        deck_name = "mock_deck"
+        deckName = "mock_deck"
 
         # Copy the sample status_to_interval but make it slightly different
-        mock_get_status_to_interval = {k: v + 3 for k, v in sample_status_to_interval.items()}
-        mock_get_status_to_interval["new"] = 0
+        mockGetStatusToInterval = {k: v + 3 for k, v in sampleStatusToInterval.items()}
+        mockGetStatusToInterval["new"] = 0
 
         with patch.object(
-            action_handler.config,
-            "get_status_to_interval",
-            return_value=mock_get_status_to_interval,
+            actionHandler.config,
+            "GetStatusToInterval",
+            return_value=mockGetStatusToInterval,
         ):
-            increased, decreased, api_updates = action_handler.sync_lingq_status_to_lingq(
-                deck_name, downgrade=True
+            increased, decreased, apiUpdates = actionHandler.SyncLingqStatusToLingq(
+                deckName, downgrade=True
             )
 
             # We are checking that the values are different because the status to interval is different
-            assert increased != update_counts["increased"]
-            assert decreased != update_counts["decreased"]
-            assert api_updates != update_counts["api_updates"]
+            assert increased != updateCounts["increased"]
+            assert decreased != updateCounts["decreased"]
+            assert apiUpdates != updateCounts["api_updates"]

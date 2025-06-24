@@ -6,7 +6,7 @@ from .mock_lingq_server import LingqApiRestServerMock
 
 
 @pytest.fixture
-def lingq_data():
+def lingqData():
     with open("Tests/data/lingq_data.json") as f:
         content = f.read()
         if not content:
@@ -15,30 +15,30 @@ def lingq_data():
 
 
 @pytest.fixture
-def anki_data():
+def ankiData():
     with open("Tests/data/anki_data.json") as f:
         return json.loads(f.read())
 
 
 @pytest.fixture
-def mock_mw(anki_data):
+def mockMw(ankiData):
     """
     Provides a fully functional, isolated mock of Anki's 'mw' object.
     It is pre-loaded with data from the 'anki_data' fixture.
     """
-    mw_instance = MockMw(anki_data)
-    with patch("lingqAnkiSync.AnkiHandler.mw", mw_instance), patch(
-        "lingqAnkiSync.AnkiHandler.Note", MockNote
+    mw_instance = MockMw(ankiData)
+    with patch("LingqAnkiSync.AnkiHandler.mw", mw_instance), patch(
+        "LingqAnkiSync.AnkiHandler.Note", MockNote
     ):
         yield mw_instance
 
 
 @pytest.fixture
-def mock_lingq_server(lingq_data, requests_mock):
+def mockLingqServer(lingqData, requests_mock):
     """
     Provides a fully functional mock of the LingQ REST API.
-    It is pre-loaded with data from the 'lingq_data' fixture and uses requests-mock
+    It is pre-loaded with data from the 'lingqData' fixture and uses requests-mock
     to intercept HTTP calls to the LingQ API endpoints.
     """
-    lingq_mock = LingqApiRestServerMock(lingq_data, requests_mock)
+    lingq_mock = LingqApiRestServerMock(lingqData, requests_mock)
     yield lingq_mock

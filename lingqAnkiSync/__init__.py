@@ -3,9 +3,9 @@ try:
     from aqt import mw
 
     if mw and hasattr(mw, "form") and hasattr(mw.form, "menuTools"):
-        from .PopUpWindow import initialize_anki_menu
+        from .PopUpWindow import InitializeAnkiMenu
 
-        initialize_anki_menu()
+        InitializeAnkiMenu()
 except (AttributeError, ImportError):
     # Not in Anki environment, skip initialization
     pass

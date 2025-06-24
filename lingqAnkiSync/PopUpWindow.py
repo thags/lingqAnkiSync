@@ -20,96 +20,96 @@ from .UIActionHandler import ActionHandler
 class UI:
     def __init__(self):
         action = QAction("Import LingQs from LingQ.com", mw)
-        action.triggered.connect(lambda: UI().run())
-        self.api_key_field = QLineEdit()
-        self.language_code_field = QLineEdit()
-        self.import_knowns_box = QCheckBox("Also import known LingQs")
-        self.deck_selector = QComboBox()
+        action.triggered.connect(lambda: UI().Run())
+        self.apiKeyField = QLineEdit()
+        self.languageCodeField = QLineEdit()
+        self.importKnownsBox = QCheckBox("Also import known LingQs")
+        self.deckSelector = QComboBox()
 
-        self.import_button_box = QDialogButtonBox()
-        self.import_button_box.addButton(
+        self.importButtonBox = QDialogButtonBox()
+        self.importButtonBox.addButton(
             QPushButton("Import"), QDialogButtonBox.ButtonRole.AcceptRole
         )
-        self.import_button_box.addButton(
+        self.importButtonBox.addButton(
             QPushButton("Cancel"), QDialogButtonBox.ButtonRole.RejectRole
         )
 
-        self.downgrade_lingqs_box = QCheckBox("Allow Sync to downgrade LingQs")
-        self.sync_button_box = QDialogButtonBox()
-        self.sync_button_box.addButton(
+        self.downgradeLingqsBox = QCheckBox("Allow Sync to downgrade LingQs")
+        self.syncButtonBox = QDialogButtonBox()
+        self.syncButtonBox.addButton(
             QPushButton("Sync to Lingq"), QDialogButtonBox.ButtonRole.AcceptRole
         )
-        self.action_handler = ActionHandler(mw.addonManager)
+        self.actionHandler = ActionHandler(mw.addonManager)
 
-    def run(self):
+    def Run(self):
         self.dialog = QDialog(mw)
         self.dialog.setWindowTitle("Import LingQs from LingQ.com")
         self.dialog.setWindowModality(Qt.WindowModality.WindowModal)
 
-        self.language_code_field.setPlaceholderText("Language Code")
-        self.api_key_field.setPlaceholderText("API Key")
-        self.api_key_field.setText(self.action_handler.get_api_key())
-        self.language_code_field.setText(self.action_handler.get_language_code())
+        self.languageCodeField.setPlaceholderText("Language Code")
+        self.apiKeyField.setPlaceholderText("API Key")
+        self.apiKeyField.setText(self.actionHandler.GetApiKey())
+        self.languageCodeField.setText(self.actionHandler.GetLanguageCode())
 
-        self.deck_selector.addItems(self.action_handler.get_deck_names())
+        self.deckSelector.addItems(self.actionHandler.GetDeckNames())
 
         layout = QVBoxLayout()
         layout.addWidget(QLabel("Enter LingQ API Key:"))
-        layout.addWidget(self.api_key_field)
-        layout.addWidget(self.language_code_field)
-        layout.addWidget(self.import_knowns_box)
+        layout.addWidget(self.apiKeyField)
+        layout.addWidget(self.languageCodeField)
+        layout.addWidget(self.importKnownsBox)
         layout.addWidget(QLabel("Select deck to import LingQs into:"))
-        layout.addWidget(self.deck_selector)
-        layout.addWidget(self.import_button_box)
-        layout.addWidget(self.downgrade_lingqs_box)
-        layout.addWidget(self.sync_button_box)
+        layout.addWidget(self.deckSelector)
+        layout.addWidget(self.importButtonBox)
+        layout.addWidget(self.downgradeLingqsBox)
+        layout.addWidget(self.syncButtonBox)
         self.dialog.setLayout(layout)
 
-        self.import_button_box.accepted.connect(self.import_lingqs)
-        self.import_button_box.rejected.connect(self.dialog.reject)
-        self.sync_button_box.accepted.connect(self.sync_lingqs_background)
+        self.importButtonBox.accepted.connect(self.ImportLingqs)
+        self.importButtonBox.rejected.connect(self.dialog.reject)
+        self.syncButtonBox.accepted.connect(self.SyncLingqsBackground)
 
         self.dialog.exec()
 
-    def import_lingqs(self):
-        self.config_set()
-        deck_name = self.deck_selector.currentText()
-        import_knowns = self.import_knowns_box.isChecked()
+    def ImportLingqs(self):
+        self.ConfigSet()
+        deckName = self.deckSelector.currentText()
+        importKnowns = self.importKnownsBox.isChecked()
         op = QueryOp(
             parent=mw,
-            op=lambda col: self.action_handler.import_lingqs_to_anki(deck_name, import_knowns),
-            success=self.succesful_import,
+            op=lambda col: self.actionHandler.ImportLingqsToAnki(deckName, importKnowns),
+            success=self.SuccesfulImport,
         )
         op.with_progress("Lingq import in progress, please wait.").run_in_background()
         self.dialog.close()
 
-    def succesful_import(self, imported_lingqs_count):
+    def SuccesfulImport(self, importedLingqsCount):
         mw.reset()
-        showInfo(f"Import complete on {imported_lingqs_count} lingqs!")
+        showInfo(f"Import complete on {importedLingqsCount} lingqs!")
 
-    def config_set(self):
-        api_key = self.api_key_field.text()
-        language_code = self.language_code_field.text()
-        self.action_handler.set_configs(api_key, language_code)
+    def ConfigSet(self):
+        apiKey = self.apiKeyField.text()
+        languageCode = self.languageCodeField.text()
+        self.actionHandler.SetConfigs(apiKey, languageCode)
 
-    def sync_lingqs_background(self):
-        self.config_set()
-        deck_name = self.deck_selector.currentText()
-        downgrade = self.downgrade_lingqs_box.isChecked()
+    def SyncLingqsBackground(self):
+        self.ConfigSet()
+        deckName = self.deckSelector.currentText()
+        downgrade = self.downgradeLingqsBox.isChecked()
 
-        def progress_callback(current, total, word, rate_limit_seconds=None):
+        def ProgressCallback(current, total, word, rateLimitSeconds=None):
             """
             Progress callback that handles both normal progress and rate limit notifications
 
             Args:
                 current: Current progress count
                 total: Total items to process
-                seconds_remaining: Integer seconds remaining if we're in a rate limit wait, None otherwise
+                rateLimitSeconds: Integer seconds remaining if we're in a rate limit wait, None otherwise  
             """
-            if rate_limit_seconds:
+            if rateLimitSeconds:
                 mw.taskman.run_on_main(
                     lambda: mw.progress.update(
-                        label=f'Syncing {current}/{total} - "{word}" <br><span style="font-weight: bold;">⚠️ LingQ API rate limit - waiting {rate_limit_seconds} seconds</span>',
+                        label=f'Syncing {current}/{total} - "{word}" <br><span style="font-weight: bold;">⚠️ LingQ API rate limit - waiting {rateLimitSeconds} seconds</span>',
                         value=current,
                         max=total,
                     )
@@ -125,22 +125,22 @@ class UI:
 
         op = QueryOp(
             parent=mw,
-            op=lambda col: self.action_handler.sync_lingq_status_to_lingq(
-                deck_name,
+            op=lambda col: self.actionHandler.SyncLingqStatusToLingq(
+                deckName,
                 downgrade,
-                progress_callback=progress_callback,
+                progressCallback=ProgressCallback,
             ),
-            success=self.succesful_sync,
+            success=self.SuccesfulSync,
         )
         op.with_progress("Sync to Lingq in progress, please wait.").run_in_background()
         self.dialog.close()
 
-    def succesful_sync(self, result):
+    def SuccesfulSync(self, result):
         mw.reset()
         showInfo(f"Sync complete! {result[0]} lingqs increased and {result[1]} decreased!")
 
 
-def initialize_anki_menu():
+def InitializeAnkiMenu():
     action = QAction("Import LingQs from LingQ.com", mw)
-    action.triggered.connect(lambda: UI().run())
+    action.triggered.connect(lambda: UI().Run())
     mw.form.menuTools.addAction(action)
