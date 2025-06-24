@@ -1,6 +1,6 @@
 import requests
 import time
-from typing import List, NoReturn
+from typing import List
 from .Models.Lingq import Lingq
 from . import Converter
 
