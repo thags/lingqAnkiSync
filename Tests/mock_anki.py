@@ -112,7 +112,7 @@ class MockMw(StrictMock):
 
             return None  # Card not found
 
-        def add_note(self, note, deck_id: int):
+        def addNote(self, note, deck_id: int):
             deck_name = self.decks.name(deck_id)
             if not deck_name:
                 return
@@ -184,7 +184,7 @@ class MockMw(StrictMock):
                 # A simple dict to fake the existence of note types
                 self._models = {"lingqAnkiSync": True}
 
-            def by_name(self, model_name: str):
+            def byName(self, model_name: str):
                 return self._models.get(model_name)
 
             # The following methods just need to exist and not crash
@@ -197,16 +197,16 @@ class MockMw(StrictMock):
             def newField(self, name):
                 return MagicMock()
 
-            def new_template(self, name):
+            def newTemplate(self, name):
                 return MagicMock()
 
-            def add_template(self, model, template):
+            def addTemplate(self, model, template):
                 pass
 
             def add(self, model):
                 pass
 
-            def set_current(self, model):
+            def setCurrent(self, model):
                 pass
 
             def save(self, model):

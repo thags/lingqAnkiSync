@@ -27,7 +27,7 @@ def CreateNote(card: AnkiCard, deckName: str) -> bool:
     ]
     CreateNoteTypeIfNotExist(modelName, noteFields)
 
-    model = mw.col.models.by_name(modelName)
+    model = mw.col.models.byName(modelName)
     note = Note(mw.col, model)
 
     note["Front"] = card.word
@@ -40,7 +40,7 @@ def CreateNote(card: AnkiCard, deckName: str) -> bool:
 
     deckId = mw.col.decks.id(deckName)
     note.note_type()["did"] = deckId
-    mw.col.add_note(note, deckId)
+    mw.col.addNote(note, deckId)
     if card.interval > 0:
         mw.col.sched.set_due_date([note.id], str(card.interval))
     return True
@@ -56,7 +56,7 @@ def CreateNoteType(name: str, fields: List):
     for field in fields:
         mw.col.models.addField(model, mw.col.models.newField(field))
 
-    template = mw.col.models.new_template("lingqAnkiSync")
+    template = mw.col.models.newTemplate("lingqAnkiSync")
     resourceFolder = os.path.dirname(__file__) + "/resources"
 
     with open(resourceFolder + "/style.css", "r") as f:
@@ -68,15 +68,15 @@ def CreateNoteType(name: str, fields: List):
     with open(resourceFolder + "/back.html", "r") as f:
         template["afmt"] = f.read()
 
-    mw.col.models.add_template(model, template)
+    mw.col.models.addTemplate(model, template)
     mw.col.models.add(model)
-    mw.col.models.set_current(model)
+    mw.col.models.setCurrent(model)
     mw.col.models.save(model)
     return model
 
 
 def CreateNoteTypeIfNotExist(noteTypeName: str, noteFields: List):
-    if not mw.col.models.by_name(noteTypeName):
+    if not mw.col.models.byName(noteTypeName):
         CreateNoteType(noteTypeName, noteFields)
 
 
