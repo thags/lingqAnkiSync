@@ -6,3 +6,7 @@ venv/*
 .venv/*
 .vscode/
 .DS_Store
+.venv/
+.pytest_cache/
+.idea/
+.vscode/

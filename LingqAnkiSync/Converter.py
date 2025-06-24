@@ -1,67 +1,118 @@
 import random
-from typing import List, Dict
-import sys
+from typing import List, Dict, Tuple
+from .Models.Lingq import Lingq
+from .Models.AnkiCard import AnkiCard
 
-import os
-sys.path.append(os.path.dirname(os.path.realpath(__file__)))
-from Models.Lingq import Lingq
-from Models.AnkiCard import AnkiCard
 
-def ConvertAnkiCardsToLingqs(ankiCards: List[AnkiCard], statusToInterval: Dict[int,int]) -> List[Lingq]:
+def AnkiCardsToLingqs(
+    ankiCards: List[AnkiCard], statusToInterval: Dict[str, int]
+) -> List[Lingq]:
     lingqs = []
     for card in ankiCards:
+        status, extendedStatus = LingqStatusToInternalStatus(
+            _AnkiIntervalToLingqStatus(card.interval, statusToInterval)
+        )
         lingqs.append(
             Lingq(
-                card.primaryKey,
-                card.word,
-                card.translations,
-                _ConvertAnkiIntervalToLingqStatus(card.interval, statusToInterval),
-                card.extended_status,
-                card.tags,
-                card.sentence,
-                card.importance,
-                card.status
-        ))
+                primaryKey=card.primaryKey,
+                word=card.word,
+                translations=card.translations,
+                status=status,
+                extendedStatus=extendedStatus,
+                tags=card.tags,
+                fragment=card.sentence,
+                importance=card.importance,
+                popularity=card.popularity,
+            )
+        )
     return lingqs
 
-def ConvertLingqsToAnkiCards(lingqs: List[Lingq], statusToInterval: Dict[int,int]) -> List[AnkiCard]:
+
+def LingqsToAnkiCards(lingqs: List[Lingq], statusToInterval: Dict[str, int]) -> List[AnkiCard]:
     ankiCards = []
     for lingq in lingqs:
         ankiCards.append(
             AnkiCard(
-                lingq.primaryKey,
-                lingq.word,
-                lingq.translations,
-                _ConvertLingqStatusToAnkiInterval(lingq.status, lingq.extended_status, statusToInterval),
-                lingq.status,
-                lingq.extended_status,
-                lingq.tags,
-                lingq.fragment,
-                lingq.importance
-        ))
+                primaryKey=lingq.primaryKey,
+                word=lingq.word,
+                translations=lingq.translations,
+                interval=_LingqStatusToAnkiInterval(
+                    lingq.status, lingq.extendedStatus, statusToInterval
+                ),
+                status=LingqInternalStatusToStatus(lingq.status, lingq.extendedStatus),
+                tags=lingq.tags,
+                sentence=lingq.fragment,
+                importance=lingq.importance,
+                popularity=lingq.popularity,
+            )
+        )
     return ankiCards
 
-def _ConvertLingqStatusToAnkiInterval(status: int, extended_status: int, statusToInterval: Dict[int,int]) -> int:
-    startRange = 0
-    endRange = 0
-    if (extended_status == 3 and status == 3):
-        startRange = statusToInterval[status]
-        endRange = statusToInterval[status + 1]
-    elif (status > 0 and status <= 3):
-        startRange = statusToInterval[status -1]
-        endRange = statusToInterval[status]
-    elif (status == 0):
-        startRange = 0
-        endRange = statusToInterval[status]
+
+def CardCanIncreaseStatus(ankiCard: AnkiCard, statusToInterval: Dict[str, int]):
+    return ankiCard.interval > statusToInterval[ankiCard.status]
+
+
+def _LingqStatusToAnkiInterval(
+    status: int, extendedStatus: int, statusToInterval: Dict[str, int]
+) -> int:
+    knownStatus = LingqInternalStatusToStatus(status, extendedStatus)
+    intervalRange = (0, 0)
+
+    if knownStatus == Lingq.LEVEL_1:
+        intervalRange = (0, statusToInterval[knownStatus])
+    elif knownStatus == Lingq.LEVEL_2:
+        intervalRange = (statusToInterval[knownStatus], statusToInterval[Lingq.LEVEL_3])
+    elif knownStatus == Lingq.LEVEL_3:
+        intervalRange = (statusToInterval[knownStatus], statusToInterval[Lingq.LEVEL_4])
+    elif knownStatus == Lingq.LEVEL_4:
+        intervalRange = (statusToInterval[knownStatus], statusToInterval[Lingq.LEVEL_KNOWN])
+    elif knownStatus == Lingq.LEVEL_KNOWN:
+        # If a card is known, how long should the range be? Double?
+        intervalRange = (statusToInterval[knownStatus], statusToInterval[knownStatus] * 2)
+
+    r = random.randint(intervalRange[0], intervalRange[1])
+    return r
+
+
+def _AnkiIntervalToLingqStatus(interval: int, statusToInterval: Dict[str, int]) -> str:
+    if interval > statusToInterval[Lingq.LEVEL_KNOWN]:
+        knownStatus = Lingq.LEVEL_KNOWN
     else:
-        return 0
-    return random.randint(startRange, endRange)
+        knownStatus = Lingq.LEVEL_1
+        for level in Lingq.LEVELS:
+            if interval > statusToInterval[level]:
+                knownStatus = level
+
+    return knownStatus
 
 
-def _ConvertAnkiIntervalToLingqStatus(interval: int, statusToInterval: Dict[int,int]) -> int:
-    if (interval is None or interval <= 0):
-        return 0
-    for lingqStatus, ankiInterval in statusToInterval.items():
-        if interval <= ankiInterval:
-            return lingqStatus
-    return max(statusToInterval.keys())
+def LingqInternalStatusToStatus(internalStatus: int, extendedStatus: int) -> str:
+    if internalStatus not in (0, 1, 2, 3) or extendedStatus not in (None, 1, 0, 3):
+        raise ValueError(
+            f"""Lingq api status outside of accepted range
+            Status: {internalStatus}
+            Extended Status: {extendedStatus}
+        """
+        )
+
+    if extendedStatus == 3:
+        knownStatus = Lingq.LEVELS[4]
+    else:
+        knownStatus = Lingq.LEVELS[internalStatus]
+
+    return knownStatus
+
+
+def LingqStatusToInternalStatus(status: str) -> Tuple[int, int]:
+    if status not in Lingq.LEVELS:
+        raise ValueError(f'No such status "{status}". Should be one of {Lingq.LEVELS}')
+
+    extendedStatus = 0
+    if status == "known":
+        internalStatus = 3
+        extendedStatus = 3
+    else:
+        internalStatus = Lingq.LEVELS.index(status)
+
+    return internalStatus, extendedStatus
