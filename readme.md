@@ -14,7 +14,7 @@ The language code for the lingq language you want to sync with. Example: "es"
 
 A menu item to open the ui can be found under Tools > Import LingQs from LingQ.com.
 
-<img src="images/mainUI.png" alt="drawing" width="300"/>
+<img src="images/mainUI.png" alt="Screenshot of the LingQ sync UI" width="300"/>
 
 Input your lingq api key and language code (such as "es" for spanish), then select the deck you want to sync lingqs to or that you want to sync lingq known status based on the card interval. (Currently you should create a new deck only used for lingq's and import into that new deck, and only sync from that deck).
 

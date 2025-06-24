@@ -71,6 +71,7 @@ def _LingqStatusToAnkiInterval(
         # If a card is known, how long should the range be? Double?
         intervalRange = (statusToInterval[knownStatus], statusToInterval[knownStatus] * 2)
 
+    # nosec
     r = random.randint(intervalRange[0], intervalRange[1])
     return r
 

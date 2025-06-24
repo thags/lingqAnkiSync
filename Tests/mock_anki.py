@@ -104,7 +104,7 @@ class MockMw(StrictMock):
             return found_ids
 
         def get_card(self, card_id: int):
-            for deck_name, deck_data in self._data.items():
+            for deck_data in self._data.values():
                 for card_info in deck_data["cards"]:
                     if str(card_info.get("primary_key")) == str(card_id):
                         # Return a MockCard that has a note() method

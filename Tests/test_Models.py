@@ -1,5 +1,3 @@
-import sys, os
-
 from LingqAnkiSync.Models.Lingq import Lingq
 import pytest
 

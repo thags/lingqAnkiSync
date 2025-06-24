@@ -64,7 +64,7 @@ class LingqApi:
 
         return wordsResponse
 
-    def _ConvertApiToLingqs(self) -> NoReturn:
+    def _ConvertApiToLingqs(self) -> None:
         for lingq in self.unformattedLingqs:
             translations = [hint["text"] for hint in lingq["hints"]]
             popularity = max((hint["popularity"] for hint in lingq["hints"]), default=0)
