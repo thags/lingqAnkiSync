@@ -19,6 +19,7 @@ A menu item to open the ui can be found under Tools > Import LingQs from LingQ.c
 Input your lingq api key and language code (such as "es" for spanish), then select the deck you want to sync lingqs to or that you want to sync lingq known status based on the card interval. (Currently you should create a new deck only used for lingq's and import into that new deck, and only sync from that deck).
 
 ### Import
+
 Click the "Import" button to import all of your lingqs for that language code into the selected anki deck.
 
 Be patient, either of these operations will take some time. Once the operation completes you will see this screen and it will tell you how many Lingqs were imported.
@@ -32,11 +33,10 @@ As you continue to use lingq.com and create new lingqs in your account, rerun th
 If you want to re-import a word from LingQ into Anki, simply delete the card/note from your anki deck and run the import again.
 
 ## Sync
+
 Click the "Sync to Lingq" button to update the "known status" on your lingqs based on the interval of the card in anki. (As a precaution this addon will not set a lower known status in lingq unless "Allow Sync to downgrade LingQs" is checked).
 
 Note that you cannot manually set the due date on a card in anki and expect it to update the status in lingq. This is due to the way anki implements their "interval" value. The only way is to review the card.
-
-If your 
 
 ## What does it currently do?
 

@@ -79,8 +79,8 @@ hr {
 
 .status {
     color: #F8C01F;
-    font-family: 'American Typewriter';
+    font-family: 'American Typewriter', serif;
     margin-left: auto;
     margin-right: 5px;
-    -bottom:1px;
+    bottom:1px;
 }

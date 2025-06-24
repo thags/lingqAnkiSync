@@ -1,6 +1,4 @@
 import pytest
-from unittest.mock import MagicMock
-
 from LingqAnkiSync import AnkiHandler
 from LingqAnkiSync.Models.AnkiCard import AnkiCard
 from LingqAnkiSync.Models.Lingq import Lingq

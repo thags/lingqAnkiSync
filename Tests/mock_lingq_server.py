@@ -1,11 +1,9 @@
-import json
 import copy
 import re
 import urllib.parse
 import time
 import math
 from typing import Dict, List, Tuple
-from urllib.parse import urlparse, parse_qs, urlencode
 
 
 class LingqApiRestServerMock:

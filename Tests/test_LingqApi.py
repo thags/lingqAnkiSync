@@ -1,8 +1,6 @@
-import pytest
 import requests
 import time
 import math
-from unittest.mock import patch
 from LingqAnkiSync.LingqApi import LingqApi
 from LingqAnkiSync.Models.Lingq import Lingq
 

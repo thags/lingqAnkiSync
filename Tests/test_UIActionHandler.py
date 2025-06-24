@@ -1,8 +1,7 @@
 import pytest
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock, patch
 from LingqAnkiSync.UIActionHandler import ActionHandler
 from LingqAnkiSync.Models.AnkiCard import AnkiCard
-from LingqAnkiSync.Models.Lingq import Lingq
 
 
 class TestUIActionHandler:
