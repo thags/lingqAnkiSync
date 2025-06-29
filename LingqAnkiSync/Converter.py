@@ -96,7 +96,7 @@ def LingqInternalStatusToStatus(internalStatus: int, extendedStatus: int) -> str
         )
 
     if extendedStatus == 3:
-        knownStatus = Lingq.LEVELS[4]
+        knownStatus = Lingq.LEVELS_KNOWN
     else:
         knownStatus = Lingq.LEVELS[internalStatus]
 
@@ -108,7 +108,7 @@ def LingqStatusToInternalStatus(status: str) -> Tuple[int, int]:
         raise ValueError(f'No such status "{status}". Should be one of {Lingq.LEVELS}')
 
     extendedStatus = 0
-    if status == "known":
+    if status == Lingq.LEVEL_KNOWN:
         internalStatus = 3
         extendedStatus = 3
     else:
