@@ -14,7 +14,7 @@ def CreateNotesFromCards(cards: List[AnkiCard], deckName: str) -> int:
 def CreateNote(card: AnkiCard, deckName: str) -> bool:
     if DoesDuplicateCardExistInDeck(card.primaryKey, deckName):
         return False
-    modelName = "lingqAnkiSync2"
+    modelName = "lingqAnkiSync"
     noteFields = [
         "Front",
         "Back",
@@ -56,7 +56,7 @@ def CreateNoteType(name: str, fields: List):
     for field in fields:
         mw.col.models.addField(model, mw.col.models.newField(field))
 
-    template = mw.col.models.newTemplate("lingqAnkiSync2")
+    template = mw.col.models.newTemplate("lingqAnkiSync")
     resourceFolder = os.path.join(os.path.dirname(__file__), "resources")
 
     with open(os.path.join(resourceFolder, "style.css"), "r") as f:
