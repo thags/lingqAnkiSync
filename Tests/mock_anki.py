@@ -112,7 +112,7 @@ class MockMw(StrictMock):
 
             return None  # Card not found
 
-        def addNote(self, note, deck_id: int):
+        def add_note(self, note, deck_id: int):
             deck_name = self.decks.name(deck_id)
             if not deck_name:
                 return

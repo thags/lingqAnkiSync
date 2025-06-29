@@ -1,4 +1,5 @@
 import json
+import os
 import pytest
 from unittest.mock import patch
 from .mock_anki import MockMw, MockNote
@@ -7,7 +8,7 @@ from .mock_lingq_server import LingqApiRestServerMock
 
 @pytest.fixture
 def lingqData():
-    with open("Tests/data/lingq_data.json") as f:
+    with open(os.path.join(os.path.dirname(__file__), "data", "lingq_data.json"), "r") as f:
         content = f.read()
         if not content:
             return {}
@@ -16,7 +17,7 @@ def lingqData():
 
 @pytest.fixture
 def ankiData():
-    with open("Tests/data/anki_data.json") as f:
+    with open(os.path.join(os.path.dirname(__file__), "data", "anki_data.json"), "r") as f:
         return json.loads(f.read())
 
 

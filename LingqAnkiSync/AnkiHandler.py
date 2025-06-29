@@ -14,7 +14,7 @@ def CreateNotesFromCards(cards: List[AnkiCard], deckName: str) -> int:
 def CreateNote(card: AnkiCard, deckName: str) -> bool:
     if DoesDuplicateCardExistInDeck(card.primaryKey, deckName):
         return False
-    modelName = "lingqAnkiSync"
+    modelName = "lingqAnkiSync2"
     noteFields = [
         "Front",
         "Back",
@@ -38,9 +38,9 @@ def CreateNote(card: AnkiCard, deckName: str) -> bool:
     note["Sentence"] = card.sentence
     note["LingqImportance"] = str(card.importance)
 
-    deckId = mw.col.decks.id(deckName)
-    note.note_type()["did"] = deckId
-    mw.col.addNote(note, deckId)
+    deck_id = mw.col.decks.id(deckName)
+    note.note_type()["did"] = deck_id
+    mw.col.add_note(note, deck_id)
     if card.interval > 0:
         mw.col.sched.set_due_date([note.id], str(card.interval))
     return True
@@ -56,16 +56,16 @@ def CreateNoteType(name: str, fields: List):
     for field in fields:
         mw.col.models.addField(model, mw.col.models.newField(field))
 
-    template = mw.col.models.newTemplate("lingqAnkiSync")
-    resourceFolder = os.path.dirname(__file__) + "/resources"
+    template = mw.col.models.newTemplate("lingqAnkiSync2")
+    resourceFolder = os.path.join(os.path.dirname(__file__), "resources")
 
-    with open(resourceFolder + "/style.css", "r") as f:
+    with open(os.path.join(resourceFolder, "style.css"), "r") as f:
         model["css"] = f.read()
 
-    with open(resourceFolder + "/front.html", "r") as f:
+    with open(os.path.join(resourceFolder, "front.html"), "r") as f:
         template["qfmt"] = f.read()
 
-    with open(resourceFolder + "/back.html", "r") as f:
+    with open(os.path.join(resourceFolder, "back.html"), "r") as f:
         template["afmt"] = f.read()
 
     mw.col.models.addTemplate(model, template)
