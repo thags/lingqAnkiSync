@@ -12,6 +12,7 @@ class LingqApi:
         self._baseUrl = f"https://www.lingq.com/api/v3/{languageCode}/cards"
         self.unformattedLingqs = []
         self.lingqs = []
+        self.rateLimitCallback = None
 
     def GetLingqs(self, includeKnowns: bool) -> List[Lingq]:
         nextUrl = f"{self._baseUrl}?page=1&page_size=200"
@@ -43,7 +44,7 @@ class LingqApi:
             if response is not None and response.status_code == 429:
                 sleepTime = int(response.headers["Retry-After"]) + 3  # A little buffer
 
-                if hasattr(self, "rateLimitCallback") and self.rateLimitCallback:
+                if self.rateLimitCallback:
                     for secondsRemaining in range(sleepTime, 0, -1):
                         self.rateLimitCallback(secondsRemaining)
                         time.sleep(1)
@@ -106,7 +107,7 @@ class LingqApi:
             if progressCallback:
                 progressCallback(i + 1, totalLingqs, lingq.word)
 
-        del self.rateLimitCallback
+        self.rateLimitCallback = None
         return successfulUpdates
 
     def _GetLingqStatus(self, lingqPk):

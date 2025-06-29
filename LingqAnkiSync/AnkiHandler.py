@@ -7,31 +7,59 @@ from typing import List
 from .Models.AnkiCard import AnkiCard
 
 
-def CreateNotesFromCards(cards: List[AnkiCard], deckName: str) -> int:
-    return sum(CreateNote(card, deckName) == True for card in cards)
+_contextReverseLinks = {
+    "ar": "https://context.reverso.net/translation/arabic-english/{{Front}}",
+    "de": "https://context.reverso.net/translation/german-english/{{Front}}",
+    "es": "https://context.reverso.net/translation/spanish-english/{{Front}}",
+    "fr": "https://context.reverso.net/translation/french-english/{{Front}}",
+    "he": "https://context.reverso.net/translation/hebrew-english/{{Front}}",
+    "it": "https://context.reverso.net/translation/italian-english/{{Front}}",
+    "ja": "https://context.reverso.net/translation/japanese-english/{{Front}}",
+    "ko": "https://context.reverso.net/translation/korean-english/{{Front}}",
+    "nl": "https://context.reverso.net/translation/dutch-english/{{Front}}",
+    "pl": "https://context.reverso.net/translation/polish-english/{{Front}}",
+    "pt": "https://context.reverso.net/translation/portuguese-english/{{Front}}",
+    "ro": "https://context.reverso.net/translation/romanian-english/{{Front}}",
+    "ru": "https://context.reverso.net/translation/russian-english/{{Front}}",
+    "sv": "https://context.reverso.net/translation/swedish-english/{{Front}}",
+    "tr": "https://context.reverso.net/translation/turkish-english/{{Front}}",
+    "uk": "https://context.reverso.net/translation/ukrainian-english/{{Front}}",
+    "zh": "https://context.reverso.net/translation/chinese-english/{{Front}}",
+}
+
+_noteFields = [
+    "Front",
+    "Back",
+    "LingqPK",
+    "LingqStatus",
+    "Sentence",
+    "LingqImportance",
+    "FrontAudio",
+    "SentenceAudio",
+]
+
+def _GetModelName(languageCode: str) -> str:
+    return f"lingqAnkiSync_{languageCode}"
 
 
-def CreateNote(card: AnkiCard, deckName: str) -> bool:
+def CreateNotesFromCards(
+    cards: List[AnkiCard], deckName: str, languageCode: str
+) -> int:
+    return sum(CreateNote(card, deckName, languageCode) == True for card in cards)
+
+
+def CreateNote(card: AnkiCard, deckName: str, languageCode: str) -> bool:
     if DoesDuplicateCardExistInDeck(card.primaryKey, deckName):
         return False
-    modelName = "lingqAnkiSync"
-    noteFields = [
-        "Front",
-        "Back",
-        "LingqPK",
-        "LingqStatus",
-        "Sentence",
-        "LingqImportance",
-        "FrontAudio",
-        "SentenceAudio",
-    ]
-    CreateNoteTypeIfNotExist(modelName, noteFields)
+    CreateNoteTypeIfNotExist(languageCode)
 
-    model = mw.col.models.byName(modelName)
+    model = mw.col.models.byName(_GetModelName(languageCode))
     note = Note(mw.col, model)
 
     note["Front"] = card.word
-    note["Back"] = "<br>".join(f"{i+1}. {item}" for i, item in enumerate(card.translations))
+    note["Back"] = "<br>".join(
+        f"{i+1}. {item}" for i, item in enumerate(card.translations)
+    )
     note["LingqPK"] = str(card.primaryKey)
     note["LingqStatus"] = str(card.status)
     note.tags = card.tags
@@ -50,13 +78,13 @@ def DoesDuplicateCardExistInDeck(lingqPk, deckName):
     return len(mw.col.find_cards(f'deck:"{deckName}" LingqPK:"{lingqPk}"')) > 0
 
 
-def CreateNoteType(name: str, fields: List):
-    model = mw.col.models.new(name)
+def CreateNoteType(languageCode: str):
+    model = mw.col.models.new(_GetModelName(languageCode))
 
-    for field in fields:
+    for field in _noteFields:
         mw.col.models.addField(model, mw.col.models.newField(field))
 
-    template = mw.col.models.newTemplate("lingqAnkiSync")
+    template = mw.col.models.newTemplate(_GetModelName(languageCode))
     resourceFolder = os.path.join(os.path.dirname(__file__), "resources")
 
     with open(os.path.join(resourceFolder, "style.css"), "r") as f:
@@ -66,7 +94,18 @@ def CreateNoteType(name: str, fields: List):
         template["qfmt"] = f.read()
 
     with open(os.path.join(resourceFolder, "back.html"), "r") as f:
-        template["afmt"] = f.read()
+        html = f.read()
+        if languageCode and languageCode in _contextReverseLinks:
+            template["afmt"] = html.replace(
+                '<div class="ReverseContextPlaceholder"></div>',
+                f"""
+                <div class="back">
+                    <a href="{_contextReverseLinks[languageCode]}">Reverse Context</a>
+                </div>
+                """,
+            )
+        else:
+            template["afmt"] = html
 
     mw.col.models.addTemplate(model, template)
     mw.col.models.add(model)
@@ -75,9 +114,9 @@ def CreateNoteType(name: str, fields: List):
     return model
 
 
-def CreateNoteTypeIfNotExist(noteTypeName: str, noteFields: List):
-    if not mw.col.models.byName(noteTypeName):
-        CreateNoteType(noteTypeName, noteFields)
+def CreateNoteTypeIfNotExist(languageCode: str):
+    if not mw.col.models.byName(_GetModelName(languageCode)):
+        CreateNoteType(languageCode)
 
 
 def UpdateCardStatus(deckName: str, lingqPk: int, status: str):
@@ -88,7 +127,6 @@ def UpdateCardStatus(deckName: str, lingqPk: int, status: str):
 
     # Anki seems to miss a few of them if the updates aren't spaced out. This isn't a perfect solution
     time.sleep(0.1)
-
 
 def GetAllCardsInDeck(deckName: str) -> List[AnkiCard]:
     cards = []

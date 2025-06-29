@@ -20,7 +20,7 @@ class ActionHandler:
 
         lingqs = LingqApi(apiKey, languageCode).GetLingqs(importKnowns)
         cards = LingqsToAnkiCards(lingqs, statusToInterval)
-        return AnkiHandler.CreateNotesFromCards(cards, deckName)
+        return AnkiHandler.CreateNotesFromCards(cards, deckName, self.config.GetLanguageCode())
 
     def SyncLingqStatusToLingq(
         self, deckName: str, downgrade: bool = False, progressCallback=None

@@ -96,7 +96,7 @@ def LingqInternalStatusToStatus(internalStatus: int, extendedStatus: int) -> str
         )
 
     if extendedStatus == 3:
-        knownStatus = Lingq.LEVELS_KNOWN
+        knownStatus = Lingq.LEVEL_KNOWN
     else:
         knownStatus = Lingq.LEVELS[internalStatus]
 

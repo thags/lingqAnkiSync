@@ -51,8 +51,7 @@ class TestCreateNote:
         assert not AnkiHandler.DoesDuplicateCardExistInDeck(
             sampleAnkiCard.primaryKey, "mock_deck"
         )
-        # Check succesfful execution of CreateNote
-        assert AnkiHandler.CreateNote(sampleAnkiCard, "mock_deck")
+        assert AnkiHandler.CreateNote(sampleAnkiCard, "mock_deck", "es")
         # Check card exists now
         assert AnkiHandler.DoesDuplicateCardExistInDeck(
             sampleAnkiCard.primaryKey, "mock_deck"
@@ -61,7 +60,7 @@ class TestCreateNote:
     def test_create_note_fails_when_duplicate_exists(self, mockMw, sampleAnkiCard):
         # Use a primary key that already exists in the mock data
         sampleAnkiCard.primaryKey = 107856432
-        assert not AnkiHandler.CreateNote(sampleAnkiCard, "mock_deck")
+        assert not AnkiHandler.CreateNote(sampleAnkiCard, "mock_deck", "es")
 
 
 class TestCreateNotesFromCards:
@@ -91,7 +90,7 @@ class TestCreateNotesFromCards:
             ),
         ]
 
-        assert AnkiHandler.CreateNotesFromCards(cards, "mock_deck") == 2
+        assert AnkiHandler.CreateNotesFromCards(cards, "mock_deck", "es") == 2
         assert AnkiHandler.DoesDuplicateCardExistInDeck(cards[0].primaryKey, "mock_deck")
         assert AnkiHandler.DoesDuplicateCardExistInDeck(cards[1].primaryKey, "mock_deck")
 
@@ -124,7 +123,7 @@ class TestCreateNotesFromCards:
         assert AnkiHandler.DoesDuplicateCardExistInDeck(cards[0].primaryKey, "mock_deck")
         assert not AnkiHandler.DoesDuplicateCardExistInDeck(cards[1].primaryKey, "mock_deck")
 
-        assert AnkiHandler.CreateNotesFromCards(cards, "mock_deck") == 1
+        assert AnkiHandler.CreateNotesFromCards(cards, "mock_deck", "es") == 1
 
         # Double-check database contains both cards now
         assert AnkiHandler.DoesDuplicateCardExistInDeck(cards[0].primaryKey, "mock_deck")

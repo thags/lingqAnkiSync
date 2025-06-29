@@ -71,24 +71,24 @@ class TestLingqInternalStatusConversion:
         resultStatus = Converter.LingqInternalStatusToStatus(
             internalStatus=0, extendedStatus=None
         )
-        assert resultStatus == Lingq.Lingq.LEVEL_1
+        assert resultStatus == "new"
 
         resultStatus2 = Converter.LingqInternalStatusToStatus(
             internalStatus=2, extendedStatus=0
         )
-        assert resultStatus2 == Lingq.Lingq.LEVEL_3
+        assert resultStatus2 == "familiar"
 
         resultStatus3 = Converter.LingqInternalStatusToStatus(
             internalStatus=3, extendedStatus=3
         )
-        assert resultStatus3 == Lingq.Lingq.LEVEL_KNOWN
+        assert resultStatus3 == "known"
 
         with pytest.raises(ValueError, match="accepted range"):
             Converter.LingqInternalStatusToStatus(internalStatus=1, extendedStatus=555)
 
     def test_ConvertLingqStatusToInternalStatus(self, statusToInterval):
         resultInternalStatus, resultExternalStatus = Converter.LingqStatusToInternalStatus(
-            status=Lingq.Lingq.LEVEL_1
+            status="new"
         )
         assert resultInternalStatus == 0
         assert resultExternalStatus in (0, None)
@@ -96,14 +96,14 @@ class TestLingqInternalStatusConversion:
         (
             resultInternalStatus2,
             resultExternalStatus2,
-        ) = Converter.LingqStatusToInternalStatus(status=Lingq.Lingq.LEVEL_3)
+        ) = Converter.LingqStatusToInternalStatus(status="familiar")
         assert resultInternalStatus2 == 2
         assert resultExternalStatus2 == 0
 
         (
             resultInternalStatus3,
             resultExternalStatus3,
-        ) = Converter.LingqStatusToInternalStatus(status=Lingq.Lingq.LEVEL_KNOWN)
+        ) = Converter.LingqStatusToInternalStatus(status="known")
         assert resultInternalStatus3 == 3
         assert resultExternalStatus3 == 3
 
