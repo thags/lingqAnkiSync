@@ -1,154 +1,126 @@
 import requests
 import time
-from typing import List, Dict
-from Models.Lingq import Lingq
+from typing import List
+from .Models.Lingq import Lingq
+from . import Converter
 
 
 class LingqApi:
-    def __init__(self, apiKey: str, languageCode: str, import_knowns: bool = True):
+    def __init__(self, apiKey: str, languageCode: str):
         self.apiKey = apiKey
         self.languageCode = languageCode
-        self.import_knowns = import_knowns
         self._baseUrl = f"https://www.lingq.com/api/v3/{languageCode}/cards"
-        self.unformatedLingqs = []
+        self.unformattedLingqs = []
         self.lingqs = []
+        self.rateLimitCallback = None
 
-        self.updatedLingqs = {}
+    def GetLingqs(self, includeKnowns: bool) -> List[Lingq]:
+        nextUrl = f"{self._baseUrl}?page=1&page_size=200"
+        if not includeKnowns:
+            nextUrl += "&status=0&status=1&status=2&status=3"
 
-    def GetLingqs(self, delay=2, return_dict=False) -> List[Lingq]:
-        nextUrl = self._baseUrl + "?page=1&page_size=200"
-        count = 0
-        while (nextUrl != None):
-            if not self.import_knowns:
-                nextUrl += '&status=0&status=1&status=2&status=3'
+        while nextUrl is not None:
+            wordsResponse = self._GetSinglePage(nextUrl)
+            words = wordsResponse.json()["results"]
+            self.unformattedLingqs.extend(words)
+            nextUrl = wordsResponse.json()["next"]
 
-            words_response = self._GetSinglePage(nextUrl)
-            words = words_response.json()['results']
-            count += len(words)
-            self.unformatedLingqs.extend(words)
-            nextUrl = words_response.json()['next']
+        self._ConvertApiToLingqs()
+        return self.lingqs
 
-            print(f"Downloaded {count} total lingqs. Waiting {delay} seconds before next request...")
-            # Delay between requests to avoid rate limiting
-            time.sleep(delay)
-        print("Finished. Downloaded a total of {count} lingqs.")
+    def WithRetry(self, requestsFunc, **kwargs):
+        """
+        Execute a request with retry logic for 429 responses
 
-        if return_dict:
-            return self._ConvertApiToLingqsDict()
-        else:
-            return self._ConvertApiToLingqs()
+        Args:
+            requestsFunc: The requests function to call (requests.get, requests.patch, etc.)
+            **kwargs: Arguments to pass to the requests function
+        """
+        try:
+            response = None
+            response = requestsFunc(**kwargs)
+            response.raise_for_status()
+        except Exception as e:
+            if response is not None and response.status_code == 429:
+                sleepTime = int(response.headers["Retry-After"]) + 3  # A little buffer
+
+                if self.rateLimitCallback:
+                    for secondsRemaining in range(sleepTime, 0, -1):
+                        self.rateLimitCallback(secondsRemaining)
+                        time.sleep(1)
+                else:
+                    time.sleep(sleepTime)
+
+                # Retry the request
+                response = requestsFunc(**kwargs)
+                response.raise_for_status()
+            else:
+                raise e
+
+        return response
 
     def _GetSinglePage(self, url):
-        headers = {'Authorization': f'Token {self.apiKey}'}
-        words_response = requests.get(url, headers=headers)
-        words_response.raise_for_status()
-        return words_response
+        headers = {"Authorization": f"Token {self.apiKey}"}
+        wordsResponse = self.WithRetry(requests.get, url=url, headers=headers)
 
-    def _ConvertApiToLingqs(self) -> List[Lingq]:
-        # I should remove this function and use _ConvertApiToLingqsDict for everything instead.
-        for lingq in self.unformatedLingqs:
-            translations = [hint['text'] for hint in lingq['hints']]
-            popularity = max((hint['popularity'] for hint in lingq['hints']), default=0)
+        return wordsResponse
+
+    def _ConvertApiToLingqs(self) -> None:
+        for lingq in self.unformattedLingqs:
+            translations = [hint["text"] for hint in lingq["hints"]]
+            popularity = max((hint["popularity"] for hint in lingq["hints"]), default=0)
             if len(translations) > 0:
                 self.lingqs.append(
                     Lingq(
-                        lingq['pk'],
-                        lingq['term'],
+                        int(lingq["pk"]),
+                        lingq["term"],
                         translations,
-                        lingq['status'],
-                        lingq['extended_status'],
-                        lingq['tags'],
-                        lingq['fragment'],
-                        lingq['importance'],
-                        popularity
-                    ))
-        return self.lingqs
-
-    def _ConvertApiToLingqsDict(self) -> Dict[int, Lingq]:
-        lingq_dict = {}
-        for lingq in self.unformatedLingqs:
-            translations = [hint['text'] for hint in lingq['hints']]
-            popularity = max((hint['popularity'] for hint in lingq['hints']), default=0)
-            if translations:
-                lingq_obj = Lingq(
-                    lingq['pk'],
-                    lingq['term'],
-                    translations,
-                    lingq['status'],
-                    lingq['extended_status'],
-                    lingq['tags'],
-                    lingq['fragment'],
-                    lingq['importance'],
-                    popularity
+                        lingq["status"],
+                        lingq["extended_status"],
+                        lingq["tags"],
+                        lingq["fragment"],
+                        lingq["importance"],
+                        popularity,
+                    )
                 )
-                lingq_dict[str(lingq['pk'])] = lingq_obj
-        return lingq_dict
 
-    def SyncStatusesToLingq(self, lingqs: List[Lingq]) -> int:
-        self._GetMostRecentLingqStatus()
-        delay = 1.0  # initial delay in seconds
-        lingqsUpdated = 0
-        lingqsIgnored = 0
+    def SyncStatusesToLingq(self, lingqs: List[Lingq], progressCallback=None) -> int:
+        successfulUpdates = 0
+        totalLingqs = len(lingqs)
+
         for i, lingq in enumerate(lingqs):
-            print(f"{i+1}/{len(lingqs)} - Checking: {lingq.word} ...", end=" ")
+            # Create a wrapper callback for WithRetry to pass to the rate limiting info
+            self.rateLimitCallback = lambda secondsRemaining: (
+                progressCallback(i, totalLingqs, lingq.word, secondsRemaining)
+                if progressCallback
+                else None
+            )
 
-            if (self._ShouldUpdateStatus(lingq.primaryKey, lingq.status) == False):
-                print("Skipped. Already up to date.")
-                lingqsIgnored += 1
-                continue
+            if self._ShouldUpdate(lingq):
+                headers = {"Authorization": f"Token {self.apiKey}"}
+                url = f"{self._baseUrl}/{lingq.primaryKey}/"
+                data = {"status": lingq.status, "extended_status": lingq.extendedStatus}
 
-            lingq = self._GetLingqStatusReadyForSync(lingq)
-            headers = {"Authorization": f"Token {self.apiKey}"}
-            url = f"{self._baseUrl}/{lingq.primaryKey}/"
-            response = requests.patch(url, headers=headers, data={
-                            "status": lingq.status,
-                            "extended_status": lingq.extended_status})
-            response.raise_for_status()
-            print("Uploaded.")
-            time.sleep(delay)
-            lingqsUpdated += 1
+                self.WithRetry(requests.patch, url=url, headers=headers, data=data)
+                successfulUpdates += 1
 
-        print(f"Finished. Updated a total of {lingqsUpdated} lingqs. Ignored {lingqsIgnored} lingqs.")
-        return lingqsUpdated
+            if progressCallback:
+                progressCallback(i + 1, totalLingqs, lingq.word)
 
-    def _GetLingqStatusOLD(self, lingqPrimaryKey):
-        url = f"{self._baseUrl}/{lingqPrimaryKey}/"
+        self.rateLimitCallback = None
+        return successfulUpdates
+
+    def _GetLingqStatus(self, lingqPk):
+        url = f"{self._baseUrl}/{lingqPk}/"
         response = self._GetSinglePage(url)
-        status = response.json()['status']
-        extendedStatus = response.json()['extended_status']
-        if (extendedStatus == 3 and status == 3):
-            status = 4
-        if (extendedStatus == 0 and status == 3):
-            status = 2
-        return status
+        internalStatus = response.json()["status"]
+        extendedStatus = response.json()["extended_status"]
 
-    def _GetMostRecentLingqStatus(self):
-        self.updatedLingqs = LingqApi(self.apiKey, self.languageCode, self.import_knowns).GetLingqs(delay=10, return_dict=True)
+        return Converter.LingqInternalStatusToStatus(internalStatus, extendedStatus)
 
-    def _GetLingqStatus(self, lingqPrimaryKey):
-
-        if lingqPrimaryKey not in self.updatedLingqs:
-            print("Lingq not found in downloaded data. Did you remove it from the LingQ site?")
-            print("Ignored.")
-            return 0
-
-        status = self.updatedLingqs[lingqPrimaryKey].status
-        extendedStatus = self.updatedLingqs[lingqPrimaryKey].extended_status
-
-        if (extendedStatus == 3 and status == 3):
-            status = 4
-        if (extendedStatus == 0 and status == 3):
-            status = 2
-        return status
-
-    def _GetLingqStatusReadyForSync(self, lingq: Lingq):
-        if (lingq.status == 4):
-            lingq.extended_status = 3
-            lingq.status = 3
-        else:
-            lingq.extended_status = 0
-        return lingq
-
-    def _ShouldUpdateStatus(self, lingqPrimaryKey, newStatus) -> bool:
-        lingqCurrentStatus = self._GetLingqStatus(lingqPrimaryKey)
-        return int(lingqCurrentStatus) < int(newStatus)
+    def _ShouldUpdate(self, lingq) -> bool:
+        currentCardStatus = Converter.LingqInternalStatusToStatus(
+            lingq.status, lingq.extendedStatus
+        )
+        lingqApiStatus = self._GetLingqStatus(lingq.primaryKey)
+        return lingqApiStatus != currentCardStatus

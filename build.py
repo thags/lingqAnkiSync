@@ -5,7 +5,7 @@ from zipfile import ZipFile
 def project_files(path):
     result = []
     for root, dir, files in os.walk(f"{path}/LingqAnkiSync"):
-        if ("test" not in root):
+        if "test" not in root:
             result += [os.path.join(root, f) for f in files if ".pyc" not in f]
     return result
 
