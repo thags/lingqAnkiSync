@@ -35,20 +35,20 @@ class Config:
     def SetLanguageCode(self, set_to: str):
         self._SetConfig("languageCode", set_to)
 
-    def GetLastDeck(self):
+    def GetLastDeck(self) -> str:
         return self._GetConfig("lastDeck")
 
     def SetLastDeck(self, set_to: str):
         self._SetConfig("lastDeck", set_to)
 
-    def GetLastImportKnowns(self):
+    def GetLastImportKnowns(self) -> bool:
         value = self.config.get("lastImportKnowns", False)
         return bool(value)
 
     def SetLastImportKnowns(self, set_to: bool):
         self._SetConfig("lastImportKnowns", set_to)
 
-    def GetLastDowngradeLingqs(self):
+    def GetLastDowngradeLingqs(self) -> bool:
         value = self.config.get("lastDowngradeLingqs", False)
         return bool(value)
 
