@@ -100,3 +100,21 @@ class ActionHandler:
 
     def GetLanguageCode(self) -> str:
         return self.config.GetLanguageCode()
+
+    def GetLastDeck(self) -> str:
+        return self.config.GetLastDeck()
+
+    def SetLastDeck(self, set_to: str):
+        self.config.SetLastDeck(set_to)
+
+    def GetLastImportKnowns(self) -> bool:
+        return self.config.GetLastImportKnowns()
+
+    def SetLastImportKnowns(self, set_to: bool):
+        self.config.SetLastImportKnowns(set_to)
+
+    def GetLastDowngradeLingqs(self) -> bool:
+        return self.config.GetLastDowngradeLingqs()
+
+    def SetLastDowngradeLingqs(self, set_to: bool):
+        self.config.SetLastDowngradeLingqs(set_to)

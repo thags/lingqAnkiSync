@@ -52,6 +52,17 @@ class UI:
         self.languageCodeField.setText(self.actionHandler.GetLanguageCode())
 
         self.deckSelector.addItems(self.actionHandler.GetDeckNames())
+        
+        # Restore last selected deck
+        lastDeck = self.actionHandler.GetLastDeck()
+        if lastDeck:
+            index = self.deckSelector.findText(lastDeck)
+            if index >= 0:
+                self.deckSelector.setCurrentIndex(index)
+        
+        # Restore last checkbox states
+        self.importKnownsBox.setChecked(self.actionHandler.GetLastImportKnowns())
+        self.downgradeLingqsBox.setChecked(self.actionHandler.GetLastDowngradeLingqs())
 
         layout = QVBoxLayout()
         layout.addWidget(QLabel("Enter LingQ API Key:"))
@@ -91,6 +102,12 @@ class UI:
         apiKey = self.apiKeyField.text()
         languageCode = self.languageCodeField.text()
         self.actionHandler.SetConfigs(apiKey, languageCode)
+        
+        # Save last used settings
+        deckName = self.deckSelector.currentText()
+        self.actionHandler.SetLastDeck(deckName)
+        self.actionHandler.SetLastImportKnowns(self.importKnownsBox.isChecked())
+        self.actionHandler.SetLastDowngradeLingqs(self.downgradeLingqsBox.isChecked())
 
     def SyncLingqsBackground(self):
         self.ConfigSet()

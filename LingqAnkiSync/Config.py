@@ -35,6 +35,26 @@ class Config:
     def SetLanguageCode(self, set_to: str):
         self._SetConfig("languageCode", set_to)
 
+    def GetLastDeck(self) -> str:
+        return self._GetConfig("lastDeck")
+
+    def SetLastDeck(self, set_to: str):
+        self._SetConfig("lastDeck", set_to)
+
+    def GetLastImportKnowns(self) -> bool:
+        value = self.config.get("lastImportKnowns", False)
+        return bool(value)
+
+    def SetLastImportKnowns(self, set_to: bool):
+        self._SetConfig("lastImportKnowns", set_to)
+
+    def GetLastDowngradeLingqs(self) -> bool:
+        value = self.config.get("lastDowngradeLingqs", False)
+        return bool(value)
+
+    def SetLastDowngradeLingqs(self, set_to: bool):
+        self._SetConfig("lastDowngradeLingqs", set_to)
+
     def GetLevelToInterval(self) -> Dict[str, int]:
         # Using a default anki ease factor of 2.5, this should make it so
         # that you need to complete two reviews of a card before it updates in
